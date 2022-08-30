@@ -5,4 +5,4 @@
     An OS create by AcTh2#5360
     
     Create with Linux kernel
-    https://www.linuxfromscratch.org/
+    https://www.fr.linuxfromscratch.org/

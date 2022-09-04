@@ -7,9 +7,9 @@
     Create with Linux kernel
     https://www.fr.linuxfromscratch.org/
     
-All is on my youtube channel:
+All is on my youtube channel: \n
 
-First : https://www.youtube.com/watch?v=HhHtydsZM7U
+First : https://www.youtube.com/watch?v=HhHtydsZM7U \n
 Two : https://www.youtube.com/watch?v=fJcCfC7FqeI
 Three : https://www.youtube.com/watch?v=8nKcxn7xiQg
 Four : https://www.youtube.com/watch?v=D4L4wc9pF6o

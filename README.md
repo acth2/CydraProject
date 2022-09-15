@@ -12,4 +12,6 @@
     Create with Linux kernel
     https://www.fr.linuxfromscratch.org/
      |
-     \ _ LFS 11.2
+     \ _ Latest version of LFS ( 11.2 )
+      \_ Open source
+       \_ Free

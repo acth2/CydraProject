@@ -10,6 +10,7 @@
     ( it is not really out but it happens! )
     
     Create with Linux kernel
+    
     https://www.fr.linuxfromscratch.org/
      |
      \ _ Latest version of LFS ( 11.2 )

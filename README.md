@@ -9,7 +9,7 @@
     Thanks for downloading it !
     ( it is not really out but it happens! )
     
-    Create with Linux kernel
+    Create with Linux
     
     https://www.fr.linuxfromscratch.org/
      |

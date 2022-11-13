@@ -1,7 +1,7 @@
 
 # Cydra Project
 
-     |![test](https://user-images.githubusercontent.com/68511655/201521786-2de05622-6267-440a-83e5-d43acaeac6cc.png)
+   ![test](https://user-images.githubusercontent.com/68511655/201521786-2de05622-6267-440a-83e5-d43acaeac6cc.png)
 
     An OS create by 
     Soso78#1378 ( WEB )

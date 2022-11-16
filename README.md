@@ -17,3 +17,4 @@
      \ _ Latest version of LFS ( 11.2 )
       \_ Open source
        \_ Free
+        \_ No personal data used

@@ -88,7 +88,6 @@ installupdate(){
         ed=$(grep -r -l "ed-" /etc/cydramanager/updatedata)  edVersion=$(sed -n 11p $ed)
         efibootmgr=$(grep -r -l "efibootmgr-" /etc/cydramanager/updatedata)  efibootmgrVersion=$(sed -n 11p $efibootmgr)
         efivar=$(grep -r -l "efivar-" /etc/cydramanager/updatedata)  efivarVersion=$(sed -n 11p $efivar)
-        elftutils=$(grep -r -l "elfutils-" /etc/cydramanager/updatedata)  elfutilsVersion=$(sed -n 11p $elfutils)
 
 
 	ext1="pkg.tar.xz"
@@ -146,8 +145,10 @@ installupdate(){
         wget $mirror"ed-"$edVersion"-"$arch1"."$ext -q -P $cache
         wget $mirror"efibootmgr-"$efibootmgrVersion"-"$arch1"."$ext -q -P $cache
         wget $mirror"efivar-"$efivarVersion"-"$arch1"."$ext -q -P $cache
-        wget $mirror"elfutils-"$elfutilsersion"-"$arch1"."$ext -P $cache
-
+	
+	
+	#....
+	
 	#NETTOYAGE
 	sudo rm -rf /etc/cydramanager/cache/
 	sudo rm -rf /etc/cydramanager/updatedata/*

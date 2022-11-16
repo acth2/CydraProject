@@ -3,9 +3,8 @@
 clear
 echo "========================================="
 echo "1] Installé le gestionnaire de packets   "
-echo "2] Déinstallé le gestionnaire de packets [NOT NOW] "
-echo "3] Réparé le gestionnaire de packets     [NOT NOW]"
-echo "4] Reinstallé le fichier de configuration[NOT NOW]"
+echo "2] Déinstallé le gestionnaire de packets"
+echo "3] Reinstallé le fichier de configuration [NON AJOUTE]"
 echo "========================================="
 
 read use
@@ -21,6 +20,22 @@ then
 	exit 0
 fi
 
+if [ "$use" == "2" ]
+then
+
+        sudo rm -rf /etc/cydramanager
+
+        sudo rm -f /usr/bin/cydramanager
+        sudo rm -f /etc/cydramanager.conf
+        echo "CydraManagers a été déinstallé avec succés !"
+        exit 0
+fi
+
+if [ "$use" == "3" ]
+then
+        echo "Fonctionalité non ajouté pour le moment!"
+        exit 0
+fi
 
 ##############
 echo "Commande non trouvé.."

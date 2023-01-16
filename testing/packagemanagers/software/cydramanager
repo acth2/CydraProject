@@ -46,54 +46,12 @@ update(){
 installupdate(){
 	#VARIABLES
 
-	acl=$(grep -r -l acl"-" /etc/cydramanager/updatedata)            aclVersion=$(sed -n 11p $acl)
-        amducode=$(grep -r -l amd"-ucode-" /etc/cydramanager/updatedata) amducodeVersion=$(sed -n 11p $amducode)
-        argon2=$(grep -r -l argon2"-" /etc/cydramanager/updatedata)      argon2Version=$(sed -n 11p $argon2)
-        attr=$(grep -r -l attr"-" /etc/cydramanager/updatedata)          attrVersion=$(sed -n 11p $attr)
-        audit=$(grep -r -l audit"-" /etc/cydramanager/updatedata)        auditVersion=$(sed -n 11p $audit)
-        autoconf=$(grep -r -l autoconf"-2" /etc/cydramanager/updatedata) autoconfVersion=$(sed -n 11p $autoconf)
-        automake=$(grep -r -l automake"-" /etc/cydramanager/updatedata)  automakeVersion=$(sed -n 11p $automake)
-        b43fwcutter=$(grep -r -l b43"-fwcutter-" /etc/cydramanager/updatedata)  b43fwcutterVersion=$(sed -n 11p $b43fwcutter)
-        base=$(grep -r -l base"-3" /etc/cydramanager/updatedata)         baseVersion=$(sed -n 11p $base)
-        bashh=$(grep -r -l bash"-5" /etc/cydramanager/updatedata)        bashhVersion=$(sed -n 11p $bashh)
-        binutils=$(grep -r -l binutils"-" /etc/cydramanager/updatedata)  binutilsVersion=$(sed -n 11p $binutils)
-        bison=$(grep -r -l bison"-" /etc/cydramanager/updatedata)  	 bisonVersion=$(sed -n 11p $bison)
-        brotli=$(grep -r -l brotli"-" /etc/cydramanager/updatedata)      brotliVersion=$(sed -n 11p $brotli)
-        brotlitestdata=$(grep -r -l brotli"-testdata-" /etc/cydramanager/updatedata) brotlitestdataVersion=$(sed -n 11p $brotlitestdata)
-        btrfsprogs=$(grep -r -l btrfs"-progs-" /etc/cydramanager/updatedata) btrfsprogsVersion=$(sed -n 11p $btrfsprogs)
-        bzip2=$(grep -r -l bzip2"-" /etc/cydramanager/updatedata)        bzip2Version=$(sed -n 11p $bzip2)
-        cacertificat=$(grep -r -l ca"-certificates-20" /etc/cydramanager/updatedata)        cacertificatVersion=$(sed -n 11p $cacertificat)
-        cacertificatmozilla=$(grep -r -l ca"-certificates-mozilla-" /etc/cydramanager/updatedata)        cacertificatmozillaVersion=$(sed -n 11p $cacertificatmozilla)
-        cacertificatutils=$(grep -r -l ca"-certificates-utils-" /etc/cydramanager/updatedata)        cacertificatutilsVersion=$(sed -n 11p $cacertificatutils)
-	coreutils=$(grep -r -l coreutils"-" /etc/cydramanager/updatedata) coreutilsVersion=$(sed -n 11p $coreutils)
-        cracklib=$(grep -r -l cracklib"-" /etc/cydramanager/updatedata)  cracklibVersion=$(sed -n 11p $cracklib)
-	cronie=$(grep -r -l cronie"-" /etc/cydramanager/updatedata)  cronieVersion=$(sed -n 11p $cronie)
-        cryptsetup=$(grep -r -l cryptsetup"-" /etc/cydramanager/updatedata)  cryptsetupVersion=$(sed -n 11p $cryptsetup)
-        curl7=$(grep -r -l curl"-" /etc/cydramanager/updatedata)  curlVersion=$(sed -n 11p $curl7)
-        dash=$(grep -r -l dash"-" /etc/cydramanager/updatedata)  dashVersion=$(sed -n 11p $dash)
-        db=$(grep -r -l db"-5" /etc/cydramanager/updatedata)  dbVersion=$(sed -n 11p $db)
-        dbus=$(grep -r -l dbus"-" /etc/cydramanager/updatedata)  dbusVersion=$(sed -n 11p $dbus)
-        dbusdocs=$(grep -r -l dbus"-docs-" /etc/cydramanager/updatedata)  dbusdocsVersion=$(sed -n 11p $dbusdocs)
-        debugedit=$(grep -r -l debugedit"-" /etc/cydramanager/updatedata)  debugeditVersion=$(sed -n 11p $debugedit)
-        adebuginfod=$(grep -r -l debuginfod"-" /etc/cydramanager/updatedata)  adebuginfodVersion=$(sed -n 11p $adebuginfod)
-        thdm=$(grep -r -l "device-mapper-" /etc/cydramanager/updatedata)  thdmVersion=$(sed -n 11p $thdm)
-        dhcpcd=$(grep -r -l "dhcpcd-" /etc/cydramanager/updatedata)  dhcpcdVersion=$(sed -n 11p $dhcpcd)
-        dialog=$(grep -r -l "dialog-" /etc/cydramanager/updatedata)  dialogVersion=$(sed -n 11p $dialog)
-        diffutils=$(grep -r -l "diffutils-" /etc/cydramanager/updatedata)  diffutilsVersion=$(sed -n 11p $diffutils)
-        dinglibs=$(grep -r -l "ding-libs-" /etc/cydramanager/updatedata)  dinglibsVersion=$(sed -n 11p $dinglibs)
-        dmraid=$(grep -r -l "dmraid-" /etc/cydramanager/updatedata)  dmraidVersion=$(sed -n 11p $dmraid)
-        dnssecanchor=$(grep -r -l "dnssec-anchors-" /etc/cydramanager/updatedata)  dnssecanchorVersion=$(sed -n 11p $dnssecanchor)
-        dosfstools=$(grep -r -l "dosfstools-" /etc/cydramanager/updatedata)  dosfstoolsVersion=$(sed -n 11p $dosfstools)
-        e2fsprogs=$(grep -r -l "e2fsprogs-" /etc/cydramanager/updatedata)  e2fsprogsVersion=$(sed -n 11p $e2fsprogs)
-        ed=$(grep -r -l "ed-" /etc/cydramanager/updatedata)  edVersion=$(sed -n 11p $ed)
-        efibootmgr=$(grep -r -l "efibootmgr-" /etc/cydramanager/updatedata)  efibootmgrVersion=$(sed -n 11p $efibootmgr)
-        efivar=$(grep -r -l "efivar-" /etc/cydramanager/updatedata)  efivarVersion=$(sed -n 11p $efivar)
+	VarAcl=$(grep -r -l acl"-" /etc/cydramanager/updatedata)            VarAclVersion=$(sed -n 11p $acl)
 
-
-	ext1="pkg.tar.xz"
-	ext="pkg.tar.zst"
-	arch="any"
-	arch1="x86_64"
+	extA="pkg.tar.xz"
+	extB="pkg.tar.zst"
+	archA="any"
+	archB="x86_64"
 	cache="/etc/cydramanager/cache"
 	result="/etc/cydramanager/cache/result"
 	mirror="http://ftp.u-strasbg.fr/linux/distributions/archlinux/core/os/x86_64/"
@@ -103,49 +61,7 @@ installupdate(){
 	sudo mkdir /etc/cydramanager/cache/result
 
 	#TELECHARGEMENT
-	wget $mirror"acl-"$aclVersion"-"$arch1"."$ext -q -P $cache
-        wget $mirror"amd-ucode-"$amducodeVersion"-"$arch"."$ext -q -P $cache
-        wget $mirror"argon2-"$argon2Version"-"$arch1"."$ext -q -P $cache
-        wget $mirror"attr-"$attrVersion"-"$arch1"."$ext -q -P $cache
-        wget $mirror"audit-"$auditVersion"-"$arch1"."$ext -q -P $cache
-        wget $mirror"autoconf-"$autoconfVersion"-"$arch"."$ext -q  -P $cache
-        wget $mirror"automake-"$automakeVersion"-"$arch"."$ext -q  -P $cache
-        wget $mirror"b43-fwcutter-"$b43fwcutterVersion"-"$arch1"."$ext1 -q  -P $cache
-        wget $mirror"base-"$baseVersion"-"$arch"."$ext -q  -P $cache
-        wget $mirror"bash-"$bashhVersion"-"$arch1"."$ext -q -P $cache
-        wget $mirror"binutils-"$binutilsVersion"-"$arch1"."$ext -q -P $cache
-        wget $mirror"bison-"$bisonVersion"-"$arch1"."$ext -q -P $cache
-        wget $mirror"brotli-"$brotliVersion"-"$arch1"."$ex -q -P $cache
-        wget $mirror"brotli-testdata-"$brotlitestdataVersion"-"$arch1"."$ext -q -P $cache
-        wget $mirror"btrfs-progs-"$btrfsprogsVersion"-"$arch1"."$ext -q -P $cache
-        wget $mirror"bzip2-"$bzip2Version"-"$arch1"."$ext -q -P $cache
-        wget $mirror"ca-certificates-"$cacertificatVersion"-"$arch"."$ext -q -P $cache
-        wget $mirror"ca-certificates-mozilla-"$cacertificatmozillaVersion"-"$arch1"."$ext -q -P $cache
-        wget $mirror"ca-certificates-utils-"$cacertificatutilsVersion"-"$arch"."$ext -q -P $cache
-        wget $mirror"coreutils-"$coreutilsVersion"-"$arch1"."$ext -q -P $cache
-        wget $mirror"cracklib-"$cracklibVersion"-"$arch1"."$ext -q -P $cache
-        wget $mirror"cronie-"$cronieVersion"-"$arch1"."$ext -q -P $cache
-        wget $mirror"cryptsetup-"$cryptsetupVersion"-"$arch1"."$ext -q -P $cache
-        wget $mirror"curl-"$curlVersion"-"$arch1"."$ext -q -P $cache
-        wget $mirror"dash-"$dashVersion"-"$arch1"."$ext -q -P $cache
-        wget $mirror"db-"$dbVersion"-"$arch1"."$ext1 -q -P $cache
-        wget $mirror"dbus-"$dbusVersion"-"$arch1"."$ext -q -P $cache
-        wget $mirror"dbus-docs-"$dbusdocsVersion"-"$arch1"."$ext -q -P $cache
-        wget $mirror"debugedit-"$debugeditVersion"-"$arch1"."$ext -q -P $cache
-        wget $mirror"adebuginfod-"$adebuginfodVersion"-"$arch1"."$ext -q -P $cache
-        wget $mirror"device-mapper-"$thdmVersion"-"$arch1"."$ext -q -P $cache
-        wget $mirror"dhcpcd-"$dhcpcdVersion"-"$arch1"."$ext -q -P $cache
-        wget $mirror"dialog-"$dialogVersion"-"$arch1"."$ext -q -P $cache
-        wget $mirror"diffutils-"$diffutilsVersion"-"$arch1"."$ext -q -P $cache
-        wget $mirror"ding-libs-"$dinglibsVersion"-"$arch1"."$ext -q -P $cache
-        wget $mirror"dmraid-"$dmraidVersion"-"$arch1"."$ext -q -P $cache
-        wget $mirror"dnssec-anchors-"$dnssecanchorVersion"-"$arch"."$ext -q -P $cache
-        wget $mirror"dosfstools-"$dosfstoolsVersion"-"$arch1"."$ext -q -P $cache
-        wget $mirror"e2fsprogs-"$e2fsprogsVersion"-"$arch1"."$ext -q -P $cache
-        wget $mirror"ed-"$edVersion"-"$arch1"."$ext -q -P $cache
-        wget $mirror"efibootmgr-"$efibootmgrVersion"-"$arch1"."$ext -q -P $cache
-        wget $mirror"efivar-"$efivarVersion"-"$arch1"."$ext -q -P $cache
-	
+	wget $mirror"acl-"$VarAclVersion"-"$archB"."$extB -P $cache
 	
 	#....
 	
@@ -157,7 +73,8 @@ installupdate(){
 }
 
 start(){
-	echo -n "Voulez vous procédé a l'installation? ---------- [O|N] "
+
+	echo -n -e "\033[0;36mVoulez vous procédé a l'installation? ---------- [O|N] "
 	read process
 
 	if [ "$process" = "o" ]; then

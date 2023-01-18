@@ -6,7 +6,7 @@ ProgName=$(basename $0)
 if [ $(id -u) -ne 0 ]
 then
    echo "Erreur: CydraManagers doit etre lancé en tant qu'administrateur !"
-   echo	"       \ Correction: sudo cydramanager"
+   echo "       \ Correction: sudo cydramanager"
    exit 1
 fi
 
@@ -15,83 +15,146 @@ sub_help(){
     echo "Liste des commandes disponibles"
     echo "    -V  = --version  = Version du logiciel"
     echo "    -Vm = --moreinfo = Affiche plus d'information a propos du gestionnaire de packets"
-    echo "    -v  = --verbose  = Affiche d'autre information"
+    echo "    -v  = --version  = Affiche la version du gestionnaire de packet"
     echo "    -u  = --update   = Fais la mise a jour du systeme"
     echo "    -i  = --install  = Installe un logiciel de votre choix"
     echo "    -h  = --help     = Ouvre un menu d'aide"
     echo ""
+    echo "    --------------------------------------------------------------------- OPTIONS"
     echo ""
+    echo "    -v  = --verbose  = Permet d affiché d'autre informations "
+    echo "          \_ UTILISATION: Se combine avec d'autres sub EXEMPLE: cydramanager -uv "
+    echo
+    echo
 }
 
 update(){
 
-	shopt -s nullglob
+        cache="/etc/cydramanager/cache"
+        data="/etc/cydramanager"
+        mirror="http://ftp.u-strasbg.fr/linux/distributions/archlinux/core/os/x86_64/"
+
+        shopt -s nullglob
         shopt -s dotglob
+
+        mkdir $data
+        mkdir $cache
 
         echo ":: Récupération des données"
         echo "            |"
         echo "             - core"
-	echo ":: Extraction en cours.."
+        echo ":: Extraction en cours.."
         sudo wget archlinux.datagr.am/core/os/x86_64/core.db.tar.gz -q -P /etc/cydramanager/updatedata
         sudo tar xf /etc/cydramanager/updatedata/core.db.tar.gz --directory /etc/cydramanager/updatedata
         clear
         echo ":: Récupération des données  [FAIS]"
         echo "            |"
         echo "             - core"
-	echo ":: Extraction en cours... [FAIS]"
-	echo ":: Vérification en cours"
-	start
+        echo ":: Extraction en cours... [FAIS]"
+        echo ":: Vérification en cours"
+        start
 }
 
 installupdate(){
-	#VARIABLES
 
-	VarAcl=$(grep -r -l acl"-" /etc/cydramanager/updatedata)            VarAclVersion=$(sed -n 11p $acl)
+        #VARIABLES
+        cache="/etc/cydramanager/cache"
+        data="/etc/cydramanager"
+        mirror="http://ftp.u-strasbg.fr/linux/distributions/archlinux/core/os/x86_64/"
 
-	extA="pkg.tar.xz"
-	extB="pkg.tar.zst"
-	archA="any"
-	archB="x86_64"
-	cache="/etc/cydramanager/cache"
-	result="/etc/cydramanager/cache/result"
-	mirror="http://ftp.u-strasbg.fr/linux/distributions/archlinux/core/os/x86_64/"
+        usrUpdated="/etc/cydramanager/cache/usr"
+        mntUpdated="/etc/cydramanager/cache/mnt"
+        rootUpdated="/etc/cydramanager/cache/root"
+        runUpdated="/etc/cydramanager/cache/run"
+        sbinUpdated="/etc/cydramanager/cache/sbin"
+        srcUpdated="/etc/cydramanager/cache/srv"
+        procUpdated="/etc/cydramanager/cache/proc"
+        sysUpdated="/etc/cydramanager/cache/sys"
+        tmpUpdated="/etc/cydramanager/cache/tmp"
+        varUpdated="/etc/cydramanager/cache/var"
+        binUpdated="/etc/cydramanager/cache/bin"
+        bootUpdated="/etc/cydramanager/cache/boot"
+        devUpdated="/etc/cydramanager/cache/dev"
+        etcUpdated="/etc/cydramanager/cache/etc"
 
-	#PREPARATION
-	sudo mkdir /etc/cydramanager/cache
-	sudo mkdir /etc/cydramanager/cache/result
+        #TELECHARGEMENT
 
-	#TELECHARGEMENT
-	wget $mirror"acl-"$VarAclVersion"-"$archB"."$extB -P $cache
-	
-	#....
-	
-	#NETTOYAGE
-	sudo rm -rf /etc/cydramanager/cache/
-	sudo rm -rf /etc/cydramanager/updatedata/*
-	echo ":: Mise a jour terminé !"
-	echo
+       if [ "$debug" = "yes" ]; then
+                wget -r $mirror -P $cache
+        else
+                wget -r $mirror -q -P $cache
+        fi
+
+        #PREPARATION
+
+        mv    $cache/ftp.u-strasbg.fr/linux/distributions/archlinux/core/os/x86_64/* $cache
+        rm -f "$cache/index.html"
+        rm -f $cache/'index.html?C=D;O=A'
+        rm -f $cache/'index.html?C=D;O=D'
+        rm -f $cache/'index.html?C=M;O=A'
+        rm -f $cache/'index.html?C=M;O=D'
+        rm -f $cache/'index.html?C=N;O=A'
+        rm -f $cache/'index.html?C=N;O=D'
+        rm -f $cache/'index.html?C=S;O=A'
+        rm -f $cache/'index.html?C=S;O=D'
+        rm -f $cache/'core.db'
+        rm -f $cache/'core.db.tar.gz'
+        rm -f $cache/'core.db.tar.gz.old'
+        rm -f $cache/'core.files'
+        rm -f $cache/'core.files.tar.gz'
+        rm -f $cache/'core.files.tar.gz.old'
+        rm -f $cache/'core.links.tar.gz'
+        rm -f $cache/'archlinux-keyring-20221220-1-any.pkg.tar.zst'
+        rm -f $cache/*.pkg.tar.zst.sig
+
+        #INSTALLATION
+        echo "        \_ Installation des mises a jour  "
+        for f in /etc/cydramanager/cache/*.pkg.tar.zst; do tar xf "$f"; done > /dev/null
+        rm -f $cache/*.pkg.tar.zst
+
+
+        cp -r $mntUpdated  /mnt 
+        cp -r $usrUpdated  /usr
+        cp -r $rootUpdated /root
+        cp -r $runUpdated  /run
+        cp -r $sbinUpdated /sbin
+        cp -r $srcUpdated  /src
+        cp -r $procUpdated /proc
+        cp -r $sysUpdated  /sys
+        cp -r $tmpUpdated  /tmp
+        cp -r $varUpdated  /var
+        cp -r $binUpdated  /bin
+        cp -r $bootUpdated /boot
+        cp -r $devUpdated  /dev
+        cp -r $etcUpdated  /etc
+
+        #NETTOYAGE
+#       sudo rm -rf /etc/cydramanager/cache/
+#       sudo rm -rf /etc/cydramanager/updatedata/*
+        echo ":: Mise a jour terminé !"
+        echo
 }
 
 start(){
 
-	echo -n -e "\033[0;36mVoulez vous procédé a l'installation? ---------- [O|N] "
-	read process
+        echo -n -e "\033[0;36mVoulez vous procédé a l'installation? ---------- [O|N] \e[0m"
+        read process
 
-	if [ "$process" = "o" ]; then
-    		echo ":: Installation en cours.."
-		echo "       \_ Telechargement des donnés"
-		installupdate
-	else
-    		echo ":: Annulation.."
-		exit 0
-    	fi
+        if [ "$process" = "o" ]; then
+                echo ":: Installation en cours.. "
+                echo "       \_ Telechargement des informations"
+                installupdate
+        else
+                echo -e "\e[31m:: Annulation \e[0m"
+                exit 0
+        fi
 
 }
 
 send_to_help(){
-	echo "Vous n'utilisez pas la commande correctement"
-	echo "             Usage: 'cydramanager --help'"
-	echo
+        echo "Vous n'utilisez pas la commande correctement"
+        echo "             Usage: 'cydramanager --help'"
+        echo
 }
 
 more_info(){
@@ -114,7 +177,7 @@ echo "     '\'   Create by AcTh2        '\'"
 subcommand=$1
 case $subcommand in
 
-    			  "")
+                          "")
         send_to_help
         ;;
 
@@ -131,8 +194,14 @@ case $subcommand in
         ;;
 
     "-u" | "-update" | "--update")
-	update
-	;;
+        update
+        ;;
+
+    "-uv" | "-update-verbose" | "--updateverbose")
+        debug="yes"
+        update
+        ;;
+
     *)
         shift
         sub_${subcommand} $@

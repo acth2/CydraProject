@@ -3,7 +3,8 @@ Tools:
 CydraProject
 
 Installer : The installation for CydraLite and another...
- \_ Thanks to AinTEA for collaboration [https://github.com/AinTEAsports]
+Thanks to AinTEA for collaboration [https://github.com/AinTEAsports]
 cydramanager : A package managers for Cydra !
-  \_ For more information do 'cydramanager -h' or 'cydramanager --help'
-        You can : Install software, do update, and more !
+
+For more information do 'cydramanager -h' or 'cydramanager --help'
+You can : Install software, do update, and more !

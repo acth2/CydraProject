@@ -109,7 +109,7 @@ installupdate(){
 
         #INSTALLATION
         echo "        \_ Installation des mises a jour  "
-        for f in /etc/cydramanager/cache/*.pkg.tar.zst; do tar xf "$f"; done > /dev/null
+        for f in /etc/cydramanager/cache/*.pkg.tar.zst; do tar xf "$f" -C $cache; done > /dev/null
         rm -f $cache/*.pkg.tar.zst
 
 

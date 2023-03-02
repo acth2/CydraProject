@@ -3,8 +3,7 @@
 ProgName=$(basename $0)
 
 
-if [ $(id -u) -ne 0 ]
-then
+if [ $(id -u) -ne 0 ]; then
    echo "Erreur: CydraManagers doit etre lancé en tant qu'administrateur !"
    echo "       \ Correction: sudo cydramanager"
    exit 1
@@ -29,7 +28,6 @@ sub_help(){
 }
 
 update(){
-
         cache="/etc/cydramanager/cache"
         data="/etc/cydramanager"
         mirror="http://ftp.u-strasbg.fr/linux/distributions/archlinux/core/os/x86_64/"
@@ -40,24 +38,27 @@ update(){
         mkdir $data
         mkdir $cache
 
-        echo ":: Récupération des données"
-        echo "            |"
+        echo -n ":: Récupération des données"
+	sudo wget archlinux.datagr.am/core/os/x86_64/core.db.tar.gz -q -P /etc/cydramanager/updatedata        
+        echo " [FAIS]"
+	echo "            |"
         echo "             - core"
-        echo ":: Extraction en cours.."
-        sudo wget archlinux.datagr.am/core/os/x86_64/core.db.tar.gz -q -P /etc/cydramanager/updatedata
-        sudo tar xf /etc/cydramanager/updatedata/core.db.tar.gz --directory /etc/cydramanager/updatedata
-        clear
-        echo ":: Récupération des données  [FAIS]"
-        echo "            |"
-        echo "             - core"
-        echo ":: Extraction en cours... [FAIS]"
-        echo ":: Vérification en cours"
+        echo -n ":: Extraction en cours.."
+        sudo tar xf /etc/cydramanager/updatedata/core.db.tar.gz --directory /etc/cydramanager/updatedata > /dev/null 2>&1
+        echo " [FAIS]"
+	#clear
+        #echo ":: Récupération des données  [FAIS]"
+        #echo "            |"
+        #echo "             - core"
+        #echo ":: Extraction en cours... [FAIS]"
+        #echo ":: Vérification en cours"
         start
 }
 
 installupdate(){
 
         #VARIABLES
+
         cache="/etc/cydramanager/cache"
         data="/etc/cydramanager"
         mirror="http://ftp.u-strasbg.fr/linux/distributions/archlinux/core/os/x86_64/"
@@ -108,29 +109,38 @@ installupdate(){
         rm -f $cache/*.pkg.tar.zst.sig
 
         #INSTALLATION
-        echo "        \_ Installation des mises a jour  "
-        for f in /etc/cydramanager/cache/*.pkg.tar.zst; do tar xf "$f" -C $cache; done > /dev/null
+        echo -n "        \_ Installation des mises a jour  "
+        for f in /etc/cydramanager/cache/*.pkg.tar.zst; do tar xf "$f" -C $cache; done > /dev/null 2>&1
         rm -f $cache/*.pkg.tar.zst
+	echo -n " [======="
 
+        cp -r $mntUpdated  /mnt   > /dev/null 2>&1
+        cp -r $usrUpdated  /usr   > /dev/null 2>&1
+        echo -n "==="
+        cp -r $rootUpdated /root  > /dev/null 2>&1
+        cp -r $runUpdated  /run   > /dev/null 2>&1
+        echo -n "==="
+	cp -r $sbinUpdated /sbin  > /dev/null 2>&1
+        cp -r $srcUpdated  /src   > /dev/null 2>&1
+        echo -n "==="
+	cp -r $procUpdated /proc  > /dev/null 2>&1
+        cp -r $sysUpdated  /sys   > /dev/null 2>&1
+        echo -n "==="
+	cp -r $tmpUpdated  /tmp   > /dev/null 2>&1
+        cp -r $varUpdated  /var   > /dev/null 2>&1
+        echo -n "==="
+	cp -r $binUpdated  /bin   > /dev/null 2>&1
+        cp -r $bootUpdated /boot  > /dev/null 2>&1
+        echo -n "==="
+	cp -r $devUpdated  /dev   > /dev/null 2>&1
+        cp -r $etcUpdated  /etc   > /dev/null 2>&1
+	echo "===]"
 
-        cp -r $mntUpdated  /mnt 
-        cp -r $usrUpdated  /usr
-        cp -r $rootUpdated /root
-        cp -r $runUpdated  /run
-        cp -r $sbinUpdated /sbin
-        cp -r $srcUpdated  /src
-        cp -r $procUpdated /proc
-        cp -r $sysUpdated  /sys
-        cp -r $tmpUpdated  /tmp
-        cp -r $varUpdated  /var
-        cp -r $binUpdated  /bin
-        cp -r $bootUpdated /boot
-        cp -r $devUpdated  /dev
-        cp -r $etcUpdated  /etc
 
         #NETTOYAGE
-#       sudo rm -rf /etc/cydramanager/cache/
-#       sudo rm -rf /etc/cydramanager/updatedata/*
+        echo -n ":: Nettoyage.."
+	rm -rf $data
+	echo " [FAIS]"
         echo ":: Mise a jour terminé !"
         echo
 }
@@ -142,13 +152,13 @@ start(){
 
         if [ "$process" = "o" ]; then
                 echo ":: Installation en cours.. "
-                echo "       \_ Telechargement des informations"
+                 echo -n "       \_ Telechargement des informations"
+		echo " [FAIS] -- <Finalisation>"
                 installupdate
         else
                 echo -e "\e[31m:: Annulation \e[0m"
                 exit 0
         fi
-
 }
 
 send_to_help(){
@@ -168,12 +178,135 @@ echo ""
 
 sub_version(){
 echo "'\'        CydraManagers     '\'"
-echo " '\'      V01 - BETA TEST     '\'"
+echo " '\'         V01 - BETA       '\'"
 echo "  '\'                          '\'"
 echo "   '\'                          '\'"
 echo "    '\'                          '\'"
 echo "     '\'   Create by AcTh2        '\'"
 }
+
+install(){
+   echo "============"
+   echo "1] Install"
+   echo "2] Remove"
+   echo "3] Exit"
+   echo "============"
+   echo -n "Type here: "
+
+	 read installpg
+
+	if [ "$installpg" == "1" ];
+	then
+		echo ":: Recuperation des informations"
+		echo "Veuillez entre le nom de votre logiciel:"
+			read software	
+		installProg
+	fi
+
+	if [ "$installpg" == "2" ];
+	then
+		echo "::Initialisation du programme d'deinstallation"
+	fi
+
+	if [ "$installpg" == "3" ];
+	then
+		echo "Arret.."
+		exit 0
+	fi
+}
+
+installProg(){
+
+
+        usrUpdated="/etc/cydramanager/cache/usr"
+        mntUpdated="/etc/cydramanager/cache/mnt"
+        rootUpdated="/etc/cydramanager/cache/root"
+        runUpdated="/etc/cydramanager/cache/run"
+        sbinUpdated="/etc/cydramanager/cache/sbin"
+        srcUpdated="/etc/cydramanager/cache/srv"
+        procUpdated="/etc/cydramanager/cache/proc"
+        sysUpdated="/etc/cydramanager/cache/sys"
+        tmpUpdated="/etc/cydramanager/cache/tmp"
+        varUpdated="/etc/cydramanager/cache/var"
+        binUpdated="/etc/cydramanager/cache/bin"
+        bootUpdated="/etc/cydramanager/cache/boot"
+        devUpdated="/etc/cydramanager/cache/dev"
+        etcUpdated="/etc/cydramanager/cache/etc"
+
+
+	#PREPARATION
+	sudo mkdir /etc/cydramanager/
+	sudo mkdir /etc/cydramanager/updatedata
+	sudo mkdir /etc/cydramanager/cache
+
+	echo "Installation des donnes"
+	echo -n "   |_ core "
+	sudo wget archlinux.datagr.am/core/os/x86_64/core.db.tar.gz -q -P /etc/cydramanager/updatedata
+	tar  xf   /etc/cydramanager/updatedata/core.db.tar.gz --directory /etc/cydramanager/updatedata > /dev/null 2>&1
+	echo "[FAIS]"
+	echo -n "   |_ community "
+	sudo wget archlinux.datagr.am/community/os/x86_64/community.db.tar.gz -q -P /etc/cydramanager/updatedata
+	tar  xf   /etc/cydramanager/updatedata/community.db.tar.gz --directory /etc/cydramanager/updatedata > /dev/null 2>&1
+	echo "[FAIS]"
+	prog=$(grep -r -l $software"-" /etc/cydramanager/updatedata) progVersion=$(sed -n 11p $prog)
+	echo -n "Nom Programme: "
+	echo -n "$software"
+	echo -n " Version Programme: "
+	echo -n "$progVersion"
+	echo
+
+	echo ":: Installation en cours.."
+
+	#CORE VERIFICATION
+
+	wget http://ftp.u-strasbg.fr/linux/distributions/archlinux/core/os/x86_64/$software"-"$progVersion"-"x86_64".pkg.tar.zst" -q -P /etc/cydramanager/cache
+	wget http://ftp.u-strasbg.fr/linux/distributions/archlinux/core/os/x86_64/$software"-"$progVersion"-"any".pkg.tar.zst" -q -P /etc/cydramanager/cache
+	wget http://ftp.u-strasbg.fr/linux/distributions/archlinux/core/os/x86_64/$software"-"$progVersion"-"any".pkg.tar.xz" -q -P /etc/cydramanager/cache
+	wget http://ftp.u-strasbg.fr/linux/distributions/archlinux/core/os/x86_64/$software"-"$progVersion"-"x86_64".pkg.tar.xz" -q -P /etc/cydramanager/cache
+
+	#COMMUNITY VERIFICATION
+
+	wget http://ftp.u-strasbg.fr/linux/distributions/archlinux/community/os/x86_64/$software"-"$progVersion"-"x86_64".pkg.tar.zst" -q -P /etc/cydramanager/cache
+	wget http://ftp.u-strasbg.fr/linux/distributions/archlinux/community/os/x86_64/$software"-"$progVersion"-"any".pkg.tar.zst" -q -P /etc/cydramanager/cache
+	wget http://ftp.u-strasbg.fr/linux/distributions/archlinux/community/os/x86_64/$software"-"$progVersion"-"any".pkg.tar.xz" -q  -P /etc/cydramanager/cache
+	wget http://ftp.u-strasbg.fr/linux/distributions/archlinux/community/os/x86_64/$software"-"$progVersion"-"x86_64".pkg.tar.xz" -q -P /etc/cydramanager/cache
+
+	#INSTALLATION
+
+	
+        cache="/etc/cydramanager/cache"
+        data="/etc/cydramanager"
+        mirror="http://ftp.u-strasbg.fr/linux/distributions/archlinux/core/os/x86_64/"
+
+        for f in /etc/cydramanager/cache/*.pkg.tar.zst; do tar xf "$f" -C $cache; done > /dev/null 2>&1
+
+
+
+	mv -i /etc/cydramanager/cache/usr/share/* /usr/share/*
+	mv -i /etc/cydramanager/cache/usr/bin/* /usr/bin/*
+	 
+
+    #  	cp -r $mntUpdated  /mnt   > /dev/null 2>&1
+   #     cp -r $usrUpdated  /usr   > /dev/null 2>&1
+  #      cp -r $rootUpdated /root  > /dev/null 2>&1
+ #       cp -r $runUpdated  /run   > /dev/null 2>&1
+#	cp -r $sbinUpdated /sbin  > /dev/null 2>&1
+ #       cp -r $srcUpdated  /src   > /dev/null 2>&1
+#	cp -r $procUpdated /proc  > /dev/null 2>&1
+ #       cp -r $sysUpdated  /sys   > /dev/null 2>&1
+#	cp -r $tmpUpdated  /tmp   > /dev/null 2>&1
+ #       cp -r $varUpdated  /var   > /dev/null 2>&1
+#	cp -r $binUpdated  /bin   > /dev/null 2>&1
+ #       cp -r $bootUpdated /boot  > /dev/null 2>&1
+#	cp -r $devUpdated  /dev   > /dev/null 2>&1
+#        cp -r $etcUpdated  /etc   > /dev/null 2>&1
+
+	#Nettoyage
+	echo ":: Nettoyage en cours"
+#	rm -rf /etc/cydramanager
+}
+
+
 subcommand=$1
 case $subcommand in
 
@@ -202,6 +335,9 @@ case $subcommand in
         update
         ;;
 
+    "-i" | "-install" | "--install")
+        install
+        ;;
     *)
         shift
         sub_${subcommand} $@

@@ -1,0 +1,82 @@
+#!/bin/bash
+
+mirror_url="https://mirror.thekinrar.fr/archlinux/core/os/x86_64/"
+
+function show_help {
+    echo "Cydramanager - A package manager for Linux From Scratch"
+    echo ""
+    echo "Usage: cydramanager [OPTIONS]"
+    echo ""
+    echo "Options:"
+    echo "  -install [PACKAGE_NAME]    Install a package"
+    echo "  -update                    Update the package list"
+    echo "  -help                      Show help information"
+}
+
+function update_package_list {
+    echo "Updating package list..."
+    curl -s -o core.db.tar.gz "${mirror_url}/core.db.tar.gz"
+    echo "Package list updated successfully."
+}
+
+function install_package {
+    if [[ -z $1 ]]; then
+        echo "Error: package name is required for installation."
+        exit 1
+    fi
+    
+    package_name="$1"
+    echo "Installing package ${package_name}..."
+
+    # Check if package is already installed
+    if [[ -d /usr/lib/${package_name} ]]; then
+        echo "${package_name} is already installed."
+        exit 1
+    fi
+
+    # Get package information from the package list
+    package_info=$(tar -Oxf core.db.tar.gz core/x86_64/${package_name}/*.pkg.tar.xz)
+    package_version=$(echo "${package_info}" | grep -m 1 "Version" | cut -d ":" -f 2 | tr -d "[:space:]")
+    package_description=$(echo "${package_info}" | grep -m 1 "Description" | cut -d ":" -f 2 | tr -d "[:space:]")
+    package_dependencies=$(echo "${package_info}" | grep -m 1 "Depends On" | cut -d ":" -f 2 | tr -d "[:space:]")
+
+    # Install dependencies recursively
+    if [[ ! -z $package_dependencies ]]; then
+        for dependency in $(echo "${package_dependencies}" | tr ',' '\n'); do
+            install_package "${dependency}"
+        done
+    fi
+
+    # Install package
+    curl -s -o "${package_name}.pkg.tar.xz" "${mirror_url}/${package_name}-${package_version}-x86_64.pkg.tar.xz"
+    tar -xf "${package_name}.pkg.tar.xz" -C /
+    rm -f "${package_name}.pkg.tar.xz"
+    echo "Package ${package_name} installed successfully."
+}
+
+# Parse command line arguments
+if [[ $# -eq 0 ]]; then
+    show_help
+    exit 1
+fi
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -install)
+            shift
+            install_package "$1"
+            ;;
+        -update)
+            update_package_list
+            ;;
+        -help)
+            show_help
+            ;;
+        *)
+            echo "Error: invalid option $1"
+            show_help
+            exit 1
+            ;;
+    esac
+    shift
+done

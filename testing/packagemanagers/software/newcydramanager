@@ -1,77 +1,112 @@
 #!/bin/bash
 
-# Couleurs
-rouge='\033[1;31m'
-bleu_clair='\033[1;36m'
-vert_clair='\033[1;32m'
-normal='\033[0m'
-
 # Constantes
-MIRROR="https://mirror.thekinrar.fr/archlinux"
-BRANCHES=("core" "community")
-INSTALL_DIR="/tmp/cydramanager"
-BIN_DIR="/usr/local/bin"
-PACKAGES_FILE="$INSTALL_DIR/packages.txt"
+MIRROR_URL="https://mirror.thekinrar.fr"
+REPO_URL="$MIRROR_URL/archlinux/\$repo/os/\$arch"
+CORE_REPO_URL=$(echo $REPO_URL | sed "s|\$repo|core|")
+COMMUNITY_REPO_URL=$(echo $REPO_URL | sed "s|\$repo|community|")
+PKG_DEST_DIR="/var/cache/pacman/pkg"
 
-# Fonctions
-install_packages() { 
-  echo -e "${bleu_clair}Installation des paquets : $*${normal}"
-  for package in "$@"
-  do
-    echo -e "${bleu_clair}Téléchargement de $package${normal}"
-    wget -q "$MIRROR/$BRANCH/$package" -P "$INSTALL_DIR"
-    echo -e "${bleu_clair}Décompression de $package${normal}"
-    tar -xf "$INSTALL_DIR/$package" -C "$INSTALL_DIR"
-    echo -e "${bleu_clair}Installation de $package${normal}"
-    cd "$INSTALL_DIR/${package%.tar.xz}/" && makepkg -sri --noconfirm
-    cd "$INSTALL_DIR"
-  done
+# Fonctions d'affichage
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+RED='\033[0;31m'
+NC='\033[0m'
+
+print_info() {
+    echo -e "${BLUE}[INFO] $1${NC}"
 }
 
-remove_packages() {
-  echo -e "${rouge}Suppression des paquets : $*${normal}"
-  for package in "$@"
-  do
-    echo -e "${rouge}Désinstallation de $package${normal}"
-    pacman -Rs --noconfirm "$package"
-  done
+print_success() {
+    echo -e "${GREEN}[SUCCESS] $1${NC}"
 }
 
-update_system() {
-  echo -e "${vert_clair}Mise à jour du système${normal}"
-  pacman -Syu --noconfirm
+print_error() {
+    echo -e "${RED}[ERROR] $1${NC}"
 }
 
-# Vérification de l'utilisateur root
-if [[ $EUID -ne 0 ]]; then
-  echo -e "${rouge}Ce script doit être exécuté en tant que root${normal}" >&2
-  exit 1
+# Fonction pour télécharger un package
+download_package() {
+    package=$1
+    repo=$2
+    url=$(echo $repo | sed "s|\$arch|$(uname -m)|; s|\$repo|$package|")
+    filename=$(echo $url | awk -F '/' '{print $NF}')
+    if [ -e $PKG_DEST_DIR/$filename ]; then
+        print_info "Package $package already downloaded"
+    else
+        print_info "Downloading $package from $repo ..."
+        wget "$MIRROR_URL$url"
+        if [ $? -ne 0 ]; then
+            print_error "Failed to download $package from $repo"
+        else
+            mv $filename $PKG_DEST_DIR
+            print_success "$package downloaded successfully"
+        fi
+    fi
+}
+
+# Fonction pour installer un package
+install_package() {
+    package=$1
+    repo=$2
+    download_package $package $repo
+    if [ $? -ne 0 ]; then
+        print_error "Failed to download $package from $repo"
+        exit 1
+    fi
+    print_info "Installing $package ..."
+    sudo pacman -U --noconfirm $PKG_DEST_DIR/$package*.pkg.tar.zst
+    if [ $? -ne 0 ]; then
+        print_error "Failed to install $package"
+    else
+        print_success "$package installed successfully"
+    fi
+}
+
+# Fonction pour supprimer un package
+remove_package() {
+    package=$1
+    print_info "Removing $package ..."
+    sudo pacman -Rs --noconfirm $package
+    if [ $? -ne 0 ]; then
+        print_error "Failed to remove $package"
+    else
+        print_success "$package removed successfully"
+    fi
+}
+
+# Fonction pour mettre à jour les packages
+update_packages() {
+    print_info "Updating packages ..."
+    sudo pacman -Syu --noconfirm
+    if [ $? -ne 0 ]; then
+        print_error "Failed to update packages"
+    else
+        print_success "Packages updated successfully"
+    fi
+}
+
+# Analyse des arguments de la ligne de commande
+if [ $# -lt 2 ]; then
+    print_error "Usage: $0 <command> <package>"
+    exit 1
 fi
 
-# Création du répertoire d'installation
-mkdir -p "$INSTALL_DIR"
+command=$1
+package=$2
 
-# Téléchargement de la liste des paquets
-for branch in "${BRANCHES[@]}"
-do
-  wget -q "$MIRROR/$branch/os/x86_64/" -O - | awk -F '"' '/href/{print $2}' | grep "^$branch/" | grep "\.tar\.xz$" >> "$PACKAGES_FILE"
-done
-
-# Traitement des arguments
-case "$1" in
-  install)
-    shift
-    install_packages "$@"
-    ;;
-  remove)
-    shift
-    remove_packages "$@"
-    ;;
-  update)
-    update_system
-    ;;
-  *)
-    echo -e "${rouge}Commande inconnue. Les commandes disponibles sont : install, remove, update.${normal}" >&2
-    exit 1
-    ;;
+case $command in
+    "install")
+        install_package $package $CORE_REPO_URL
+        ;;
+    "remove")
+        remove_package $package
+        ;;
+    "update")
+        update_packages
+        ;;
+    *)
+        print_error "Unknown command: $command"
+        exit 1
+        ;;
 esac

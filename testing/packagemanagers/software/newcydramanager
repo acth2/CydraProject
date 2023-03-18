@@ -1,102 +1,85 @@
 #!/bin/bash
 
+# Définition des constantes
 MIRROR_LIST="https://mirror.thekinrar.fr/archlinux/"
+PACKAGE_DIR="packages"
+COMMAND=$1
+PACKAGE_NAME=$2
 
+# Fonction d'aide
 function help {
-    echo "Usage: cydramanager [options]"
-    echo ""
-    echo "Options:"
-    echo " -h, --help: display help message"
-    echo " -u, --update: update package list from mirror"
-    echo " -i, --install <package(s)>: install package(s)"
-    echo " -r, --remove <package(s)>: remove package(s)"
+    echo "Usage: cydramanager <command> <package_name>"
+    echo "Commands:"
+    echo " - help: afficher ce message d'aide"
+    echo " - update: mettre à jour la liste des paquets disponibles"
+    echo " - install <package_name>: installer un paquet"
+    echo " - remove <package_name>: supprimer un paquet"
 }
 
+# Fonction de mise à jour des paquets
 function update_packages {
-    echo "Updating package list..."
-    wget -q -O /tmp/packages.db ${MIRROR_LIST}/core/os/x86_64/core.db
-    if [ "$?" -ne 0 ]; then
-        echo "Error: failed to download package list."
-        exit 1
-    fi
-    echo "Package list updated successfully."
+    echo "Mise à jour de la liste des paquets..."
+    wget -q -P $PACKAGE_DIR $MIRROR_LIST/lastupdate
 }
 
+# Fonction d'installation de paquets
 function install_packages {
-    shift
-    if [ "$#" -eq 0 ]; then
-        echo "Error: missing package name."
-        help
-        exit 1
-    fi
-    echo "Installing package(s) $@"
-    for package_name in $@; do
-        echo "Downloading $package_name..."
-        wget -q -O /tmp/${package_name}.tar.xz ${MIRROR_LIST}/core/os/x86_64/${package_name}-*.pkg.tar.xz
-        if [ "$?" -ne 0 ]; then
-            echo "Error: failed to download package ${package_name}."
-            exit 1
-        fi
-        echo "Extracting $package_name..."
-        tar -xf /tmp/${package_name}.tar.xz -C /
-        if [ "$?" -ne 0 ]; then
-            echo "Error: failed to extract package ${package_name}."
-            exit 1
-        fi
-        echo "Package ${package_name} installed successfully."
+    echo "Installation du paquet ${PACKAGE_NAME}..."
+    DEPENDENCIES=$(awk '/^Depends/{gsub(/[\[\]\(\)]/,"",$2);print $2}' $PACKAGE_DIR/$PACKAGE_NAME.pkg.tar.xz)
+    for dep in $DEPENDENCIES; do
+        echo "Installation de la dépendance ${dep}..."
+        wget -q -P $PACKAGE_DIR $MIRROR_LIST/$dep.pkg.tar.xz
+        tar -xf $PACKAGE_DIR/$dep.pkg.tar.xz -C /
     done
+    wget -q -P $PACKAGE_DIR $MIRROR_LIST/$PACKAGE_NAME.pkg.tar.xz
+    tar -xf $PACKAGE_DIR/$PACKAGE_NAME.pkg.tar.xz -C /
+    echo "Le paquet ${PACKAGE_NAME} a été installé avec succès !"
 }
 
+# Fonction de suppression de paquets
 function remove_packages {
-    shift
-    if [ "$#" -eq 0 ]; then
-        echo "Error: missing package name."
-        help
-        exit 1
-    fi
-    echo "Removing package(s) $@"
-    for package_name in $@; do
-        echo "Removing $package_name..."
-        rm -rf /usr/lib/${package_name}
-        if [ "$?" -ne 0 ]; then
-            echo "Error: failed to remove package ${package_name}."
-            exit 1
-        fi
-        echo "Package ${package_name} removed successfully."
-    done
+    echo "Suppression du paquet ${PACKAGE_NAME}..."
+    pacman -R --noconfirm $PACKAGE_NAME
+    echo "Le paquet ${PACKAGE_NAME} a été supprimé avec succès !"
 }
 
-if [ "$#" -eq 0 ]; then
+# Vérification de la commande en entrée
+if [ "$COMMAND" == "" ]; then
+    echo "Error: no command specified."
     help
     exit 1
 fi
 
-while [ "$#" -gt 0 ]; do
-    case "$1" in
-        -h|--help)
-            help
-            exit 0
-            ;;
-        -u|--update)
-            update_packages
-            shift
-            ;;
-        -i|--install)
-            COMMAND_INSTALL=$1
-            shift
-            install_packages $@
-            shift $#
-            ;;
-        -r|--remove)
-            COMMAND_REMOVE=$1
-            shift
-            remove_packages $@
-            shift $#
-            ;;
-        *)
-            echo "Error: unknown option $1"
+# Traitement de la commande
+case "$COMMAND" in
+    "help")
+        help
+        ;;
+    "update")
+        update_packages
+        ;;
+    "install")
+        shift
+        if [ "$#" -eq 0 ]; then
+            echo "Error: missing package name."
             help
             exit 1
-            ;;
-    esac
-done
+        fi
+        PACKAGE_NAME=$1
+        install_packages
+        ;;
+    "remove")
+        shift
+        if [ "$#" -eq 0 ]; then
+            echo "Error: missing package name."
+            help
+            exit 1
+        fi
+        PACKAGE_NAME=$1
+        remove_packages
+        ;;
+    *)
+        echo "Error: unknown command."
+        help
+        exit 1
+esac

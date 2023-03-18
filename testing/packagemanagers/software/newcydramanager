@@ -1,85 +1,25 @@
-#!/bin/bash
+#!/bin/sh
 
-# Définition des constantes
-MIRROR_LIST="https://mirror.thekinrar.fr/archlinux/"
-PACKAGE_DIR="packages"
-COMMAND=$1
-PACKAGE_NAME=$2
+# Couleurs
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+LIGHT_BLUE='\033[1;34m'
+RED='\033[0;31m'
+NC='\033[0m'
 
-# Fonction d'aide
-function help {
-    echo "Usage: cydramanager <command> <package_name>"
-    echo "Commands:"
-    echo " - help: afficher ce message d'aide"
-    echo " - update: mettre à jour la liste des paquets disponibles"
-    echo " - install <package_name>: installer un paquet"
-    echo " - remove <package_name>: supprimer un paquet"
-}
+# Constantes
+MIRROR_URL="https://mirror.thekinrar.fr/archlinux"
+BRANCHES="core community"
 
-# Fonction de mise à jour des paquets
-function update_packages {
-    echo "Mise à jour de la liste des paquets..."
-    wget -q -P $PACKAGE_DIR $MIRROR_LIST/lastupdate
-}
+# Fonctions
+install_packages() { echo "${GREEN}Installation en cours...${NC}"; for package in "$@"; do wget "$MIRROR_URL/$BRANCHES/os/x86_64/$package"; done; echo "${GREEN}Installation terminée.${NC}"; }
+remove_packages() { echo "${RED}Suppression en cours...${NC}"; for package in "$@"; do rm "$package"; done; echo "${RED}Suppression terminée.${NC}"; }
+update_packages() { echo "${LIGHT_BLUE}Mise à jour en cours...${NC}"; for branch in $BRANCHES; do wget -r -np -nH --cut-dirs=2 -R "index.html*" -e robots=off -P $branch "$MIRROR_URL/$branch/os/x86_64/"; done; echo "${LIGHT_BLUE}Mise à jour terminée.${NC}"; }
 
-# Fonction d'installation de paquets
-function install_packages {
-    echo "Installation du paquet ${PACKAGE_NAME}..."
-    DEPENDENCIES=$(awk '/^Depends/{gsub(/[\[\]\(\)]/,"",$2);print $2}' $PACKAGE_DIR/$PACKAGE_NAME.pkg.tar.xz)
-    for dep in $DEPENDENCIES; do
-        echo "Installation de la dépendance ${dep}..."
-        wget -q -P $PACKAGE_DIR $MIRROR_LIST/$dep.pkg.tar.xz
-        tar -xf $PACKAGE_DIR/$dep.pkg.tar.xz -C /
-    done
-    wget -q -P $PACKAGE_DIR $MIRROR_LIST/$PACKAGE_NAME.pkg.tar.xz
-    tar -xf $PACKAGE_DIR/$PACKAGE_NAME.pkg.tar.xz -C /
-    echo "Le paquet ${PACKAGE_NAME} a été installé avec succès !"
-}
-
-# Fonction de suppression de paquets
-function remove_packages {
-    echo "Suppression du paquet ${PACKAGE_NAME}..."
-    pacman -R --noconfirm $PACKAGE_NAME
-    echo "Le paquet ${PACKAGE_NAME} a été supprimé avec succès !"
-}
-
-# Vérification de la commande en entrée
-if [ "$COMMAND" == "" ]; then
-    echo "Error: no command specified."
-    help
-    exit 1
-fi
-
-# Traitement de la commande
-case "$COMMAND" in
-    "help")
-        help
-        ;;
-    "update")
-        update_packages
-        ;;
-    "install")
-        shift
-        if [ "$#" -eq 0 ]; then
-            echo "Error: missing package name."
-            help
-            exit 1
-        fi
-        PACKAGE_NAME=$1
-        install_packages
-        ;;
-    "remove")
-        shift
-        if [ "$#" -eq 0 ]; then
-            echo "Error: missing package name."
-            help
-            exit 1
-        fi
-        PACKAGE_NAME=$1
-        remove_packages
-        ;;
-    *)
-        echo "Error: unknown command."
-        help
-        exit 1
+# Gestionnaire de paquets
+case $1 in
+  install) shift; install_packages "$@" ;;
+  remove) shift; remove_packages "$@" ;;
+  update) update_packages ;;
+  *) echo "${RED}Commande invalide.${NC}" ;;
 esac

@@ -1,25 +1,77 @@
-#!/bin/sh
+#!/bin/bash
 
 # Couleurs
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-LIGHT_BLUE='\033[1;34m'
-RED='\033[0;31m'
-NC='\033[0m'
+rouge='\033[1;31m'
+bleu_clair='\033[1;36m'
+vert_clair='\033[1;32m'
+normal='\033[0m'
 
 # Constantes
-MIRROR_URL="https://mirror.thekinrar.fr/archlinux"
-BRANCHES="core community"
+MIRROR="https://mirror.thekinrar.fr/archlinux"
+BRANCHES=("core" "community")
+INSTALL_DIR="/tmp/cydramanager"
+BIN_DIR="/usr/local/bin"
+PACKAGES_FILE="$INSTALL_DIR/packages.txt"
 
 # Fonctions
-install_packages() { echo "${GREEN}Installation en cours...${NC}"; for package in "$@"; do wget "$MIRROR_URL/$BRANCHES/os/x86_64/$package"; done; echo "${GREEN}Installation terminée.${NC}"; }
-remove_packages() { echo "${RED}Suppression en cours...${NC}"; for package in "$@"; do rm "$package"; done; echo "${RED}Suppression terminée.${NC}"; }
-update_packages() { echo "${LIGHT_BLUE}Mise à jour en cours...${NC}"; for branch in $BRANCHES; do wget -r -np -nH --cut-dirs=2 -R "index.html*" -e robots=off -P $branch "$MIRROR_URL/$branch/os/x86_64/"; done; echo "${LIGHT_BLUE}Mise à jour terminée.${NC}"; }
+install_packages() { 
+  echo -e "${bleu_clair}Installation des paquets : $*${normal}"
+  for package in "$@"
+  do
+    echo -e "${bleu_clair}Téléchargement de $package${normal}"
+    wget -q "$MIRROR/$BRANCH/$package" -P "$INSTALL_DIR"
+    echo -e "${bleu_clair}Décompression de $package${normal}"
+    tar -xf "$INSTALL_DIR/$package" -C "$INSTALL_DIR"
+    echo -e "${bleu_clair}Installation de $package${normal}"
+    cd "$INSTALL_DIR/${package%.tar.xz}/" && makepkg -sri --noconfirm
+    cd "$INSTALL_DIR"
+  done
+}
 
-# Gestionnaire de paquets
-case $1 in
-  install) shift; install_packages "$@" ;;
-  remove) shift; remove_packages "$@" ;;
-  update) update_packages ;;
-  *) echo "${RED}Commande invalide.${NC}" ;;
+remove_packages() {
+  echo -e "${rouge}Suppression des paquets : $*${normal}"
+  for package in "$@"
+  do
+    echo -e "${rouge}Désinstallation de $package${normal}"
+    pacman -Rs --noconfirm "$package"
+  done
+}
+
+update_system() {
+  echo -e "${vert_clair}Mise à jour du système${normal}"
+  pacman -Syu --noconfirm
+}
+
+# Vérification de l'utilisateur root
+if [[ $EUID -ne 0 ]]; then
+  echo -e "${rouge}Ce script doit être exécuté en tant que root${normal}" >&2
+  exit 1
+fi
+
+# Création du répertoire d'installation
+mkdir -p "$INSTALL_DIR"
+
+# Téléchargement de la liste des paquets
+for branch in "${BRANCHES[@]}"
+do
+  wget -q "$MIRROR/$branch/os/x86_64/" -O - | awk -F '"' '/href/{print $2}' | grep "^$branch/" | grep "\.tar\.xz$" >> "$PACKAGES_FILE"
+done
+
+# Traitement des arguments
+case "$1" in
+  install)
+    shift
+    install_packages "$@"
+    ;;
+  remove)
+    shift
+    remove_packages "$@"
+    ;;
+  update)
+    update_system
+    ;;
+  *)
+    echo -e "${rouge}Commande inconnue. Les commandes disponibles sont : install, remove, update.${normal}" >&2
+    exit 1
+    ;;
 esac

@@ -1,82 +1,102 @@
 #!/bin/bash
 
-mirror_url="https://mirror.thekinrar.fr/archlinux/core/os/x86_64/"
+MIRROR_LIST="https://mirror.thekinrar.fr/archlinux/"
 
-function show_help {
-    echo "Cydramanager - A package manager for Linux From Scratch"
-    echo ""
-    echo "Usage: cydramanager [OPTIONS]"
+function help {
+    echo "Usage: cydramanager [options]"
     echo ""
     echo "Options:"
-    echo "  -install [PACKAGE_NAME]    Install a package"
-    echo "  -update                    Update the package list"
-    echo "  -help                      Show help information"
+    echo " -h, --help: display help message"
+    echo " -u, --update: update package list from mirror"
+    echo " -i, --install <package(s)>: install package(s)"
+    echo " -r, --remove <package(s)>: remove package(s)"
 }
 
-function update_package_list {
+function update_packages {
     echo "Updating package list..."
-    curl -s -o core.db.tar.gz "${mirror_url}/core.db.tar.gz"
+    wget -q -O /tmp/packages.db ${MIRROR_LIST}/core/os/x86_64/core.db
+    if [ "$?" -ne 0 ]; then
+        echo "Error: failed to download package list."
+        exit 1
+    fi
     echo "Package list updated successfully."
 }
 
-function install_package {
-    if [[ -z $1 ]]; then
-        echo "Error: package name is required for installation."
+function install_packages {
+    shift
+    if [ "$#" -eq 0 ]; then
+        echo "Error: missing package name."
+        help
         exit 1
     fi
-    
-    package_name="$1"
-    echo "Installing package ${package_name}..."
-
-    # Check if package is already installed
-    if [[ -d /usr/lib/${package_name} ]]; then
-        echo "${package_name} is already installed."
-        exit 1
-    fi
-
-    # Get package information from the package list
-    package_info=$(tar -Oxf core.db.tar.gz core/x86_64/${package_name}/*.pkg.tar.xz)
-    package_version=$(echo "${package_info}" | grep -m 1 "Version" | cut -d ":" -f 2 | tr -d "[:space:]")
-    package_description=$(echo "${package_info}" | grep -m 1 "Description" | cut -d ":" -f 2 | tr -d "[:space:]")
-    package_dependencies=$(echo "${package_info}" | grep -m 1 "Depends On" | cut -d ":" -f 2 | tr -d "[:space:]")
-
-    # Install dependencies recursively
-    if [[ ! -z $package_dependencies ]]; then
-        for dependency in $(echo "${package_dependencies}" | tr ',' '\n'); do
-            install_package "${dependency}"
-        done
-    fi
-
-    # Install package
-    curl -s -o "${package_name}.pkg.tar.xz" "${mirror_url}/${package_name}-${package_version}-x86_64.pkg.tar.xz"
-    tar -xf "${package_name}.pkg.tar.xz" -C /
-    rm -f "${package_name}.pkg.tar.xz"
-    echo "Package ${package_name} installed successfully."
+    echo "Installing package(s) $@"
+    for package_name in $@; do
+        echo "Downloading $package_name..."
+        wget -q -O /tmp/${package_name}.tar.xz ${MIRROR_LIST}/core/os/x86_64/${package_name}-*.pkg.tar.xz
+        if [ "$?" -ne 0 ]; then
+            echo "Error: failed to download package ${package_name}."
+            exit 1
+        fi
+        echo "Extracting $package_name..."
+        tar -xf /tmp/${package_name}.tar.xz -C /
+        if [ "$?" -ne 0 ]; then
+            echo "Error: failed to extract package ${package_name}."
+            exit 1
+        fi
+        echo "Package ${package_name} installed successfully."
+    done
 }
 
-# Parse command line arguments
-if [[ $# -eq 0 ]]; then
-    show_help
+function remove_packages {
+    shift
+    if [ "$#" -eq 0 ]; then
+        echo "Error: missing package name."
+        help
+        exit 1
+    fi
+    echo "Removing package(s) $@"
+    for package_name in $@; do
+        echo "Removing $package_name..."
+        rm -rf /usr/lib/${package_name}
+        if [ "$?" -ne 0 ]; then
+            echo "Error: failed to remove package ${package_name}."
+            exit 1
+        fi
+        echo "Package ${package_name} removed successfully."
+    done
+}
+
+if [ "$#" -eq 0 ]; then
+    help
     exit 1
 fi
 
-while [[ $# -gt 0 ]]; do
+while [ "$#" -gt 0 ]; do
     case "$1" in
-        -install)
+        -h|--help)
+            help
+            exit 0
+            ;;
+        -u|--update)
+            update_packages
             shift
-            install_package "$1"
             ;;
-        -update)
-            update_package_list
+        -i|--install)
+            COMMAND_INSTALL=$1
+            shift
+            install_packages $@
+            shift $#
             ;;
-        -help)
-            show_help
+        -r|--remove)
+            COMMAND_REMOVE=$1
+            shift
+            remove_packages $@
+            shift $#
             ;;
         *)
-            echo "Error: invalid option $1"
-            show_help
+            echo "Error: unknown option $1"
+            help
             exit 1
             ;;
     esac
-    shift
 done

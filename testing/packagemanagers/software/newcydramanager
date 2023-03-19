@@ -1,112 +1,84 @@
 #!/bin/bash
 
-# Constantes
-MIRROR_URL="https://mirror.thekinrar.fr"
-REPO_URL="$MIRROR_URL/archlinux/\$repo/os/\$arch"
-CORE_REPO_URL=$(echo $REPO_URL | sed "s|\$repo|core|")
-COMMUNITY_REPO_URL=$(echo $REPO_URL | sed "s|\$repo|community|")
-PKG_DEST_DIR="/var/cache/pacman/pkg"
-
-# Fonctions d'affichage
+# Définir les variables
+MIRROR_URL="https://mirror.thekinrar.fr/archlinux/"
+CORE_BRANCH="core"
+COMMUNITY_BRANCH="community"
 GREEN='\033[0;32m'
-BLUE='\033[0;34m'
 RED='\033[0;31m'
-NC='\033[0m'
+NC='\033[0m' # No Color
 
-print_info() {
-    echo -e "${BLUE}[INFO] $1${NC}"
+# Fonction d'aide
+function show_help {
+    echo "Cydramanager - Gestionnaire de paquets simple pour Arch Linux"
+    echo ""
+    echo "Utilisation: cydramanager [install/remove] [nom_du_paquet]"
+    echo ""
+    echo "Options:"
+    echo "  install              Installe le paquet spécifié"
+    echo "  remove               Supprime le paquet spécifié"
+    echo "  help                 Affiche ce message d'aide"
 }
 
-print_success() {
-    echo -e "${GREEN}[SUCCESS] $1${NC}"
-}
+# Vérifier si l'utilisateur est root
+if [[ $EUID -ne 0 ]]; then
+   echo -e "${RED}Ce script doit être exécuté avec les privilèges root${NC}" 
+   exit 1
+fi
 
-print_error() {
-    echo -e "${RED}[ERROR] $1${NC}"
-}
-
-# Fonction pour télécharger un package
-download_package() {
-    package=$1
-    repo=$2
-    url=$(echo $repo | sed "s|\$arch|$(uname -m)|; s|\$repo|$package|")
-    filename=$(echo $url | awk -F '/' '{print $NF}')
-    if [ -e $PKG_DEST_DIR/$filename ]; then
-        print_info "Package $package already downloaded"
-    else
-        print_info "Downloading $package from $repo ..."
-        wget "$MIRROR_URL$url"
-        if [ $? -ne 0 ]; then
-            print_error "Failed to download $package from $repo"
-        else
-            mv $filename $PKG_DEST_DIR
-            print_success "$package downloaded successfully"
-        fi
-    fi
-}
-
-# Fonction pour installer un package
-install_package() {
-    package=$1
-    repo=$2
-    download_package $package $repo
-    if [ $? -ne 0 ]; then
-        print_error "Failed to download $package from $repo"
-        exit 1
-    fi
-    print_info "Installing $package ..."
-    sudo pacman -U --noconfirm $PKG_DEST_DIR/$package*.pkg.tar.zst
-    if [ $? -ne 0 ]; then
-        print_error "Failed to install $package"
-    else
-        print_success "$package installed successfully"
-    fi
-}
-
-# Fonction pour supprimer un package
-remove_package() {
-    package=$1
-    print_info "Removing $package ..."
-    sudo pacman -Rs --noconfirm $package
-    if [ $? -ne 0 ]; then
-        print_error "Failed to remove $package"
-    else
-        print_success "$package removed successfully"
-    fi
-}
-
-# Fonction pour mettre à jour les packages
-update_packages() {
-    print_info "Updating packages ..."
-    sudo pacman -Syu --noconfirm
-    if [ $? -ne 0 ]; then
-        print_error "Failed to update packages"
-    else
-        print_success "Packages updated successfully"
-    fi
-}
-
-# Analyse des arguments de la ligne de commande
-if [ $# -lt 2 ]; then
-    print_error "Usage: $0 <command> <package>"
+# Vérifier que les arguments sont fournis
+if [[ $# -eq 0 ]]; then
+    show_help
+    exit 0
+elif [[ $# -ne 2 ]]; then
+    echo -e "${RED}Deux arguments sont nécessaires (install/remove) et le nom du paquet${NC}"
     exit 1
 fi
 
-command=$1
-package=$2
+# Vérifier que l'argument d'action est valide
+if [[ "$1" != "install" && "$1" != "remove" ]]; then
+    echo -e "${RED}L'action doit être install ou remove${NC}"
+    exit 1
+fi
 
-case $command in
-    "install")
-        install_package $package $CORE_REPO_URL
-        ;;
-    "remove")
-        remove_package $package
-        ;;
-    "update")
-        update_packages
-        ;;
-    *)
-        print_error "Unknown command: $command"
+# Vérifier que le paquet existe
+PACKAGE="$2"
+PACKAGE_URL="${MIRROR_URL}/${CORE_BRANCH}/${PACKAGE}"
+if ! wget --spider "$PACKAGE_URL" >/dev/null 2>&1; then
+    PACKAGE_URL="${MIRROR_URL}/${COMMUNITY_BRANCH}/${PACKAGE}"
+    if ! wget --spider "$PACKAGE_URL" >/dev/null 2>&1; then
+        echo -e "${RED}Le paquet $PACKAGE n'a pas été trouvé${NC}"
         exit 1
-        ;;
-esac
+    fi
+fi
+
+# Installer le paquet
+if [[ "$1" == "install" ]]; then
+    echo -e "${GREEN}Installation du paquet $PACKAGE${NC}"
+    wget "$PACKAGE_URL"
+    tar xf "${PACKAGE}-*.tar.xz"
+    cd "${PACKAGE}"
+    makepkg -si
+    cd ..
+    rm -rf "${PACKAGE}" "${PACKAGE}-*.tar.xz"
+    echo -e "${GREEN}Le paquet $PACKAGE a été installé avec succès${NC}"
+
+# Supprimer le paquet
+elif [[ "$1" == "remove" ]]; then
+    echo -e "${GREEN}Suppression du paquet $PACKAGE${NC}"
+    if ! command -v "$PACKAGE" >/dev/null 2>&1; then
+        echo -e "${RED}Le paquet $PACKAGE n'est pas installé${NC}"
+        exit 1
+    fi
+    PKG_FILES=$(find / -name "*${PACKAGE}*")
+    for FILE in $PKG_FILES; do
+        if [ -f "$FILE" ]; then
+            rm "$FILE"
+        elif [ -d "$FILE" ]; then
+            rm -r "$FILE"
+        fi
+    done
+    echo -e "${GREEN}Le paquet $PACKAGE a été supprimé avec succès${NC}"
+fi
+
+exit 0

@@ -43,9 +43,9 @@ fi
 
 # Vérifier que le paquet existe
 PACKAGE="$2"
-PACKAGE_URL="${MIRROR_URL}/${CORE_BRANCH}/${PACKAGE}"
+PACKAGE_URL="${MIRROR_URL}/${CORE_BRANCH}/${PACKAGE}/${PACKAGE}-$(curl -s ${MIRROR_URL}/${CORE_BRANCH}/lastsync | awk -F' ' '{print $2}')-x86_64.pkg.tar.zst"
 if ! wget --spider "$PACKAGE_URL" >/dev/null 2>&1; then
-    PACKAGE_URL="${MIRROR_URL}/${COMMUNITY_BRANCH}/${PACKAGE}"
+    PACKAGE_URL="${MIRROR_URL}/${COMMUNITY_BRANCH}/${PACKAGE}/${PACKAGE}-$(curl -s ${MIRROR_URL}/${COMMUNITY_BRANCH}/lastsync | awk -F' ' '{print $2}')-x86_64.pkg.tar.zst"
     if ! wget --spider "$PACKAGE_URL" >/dev/null 2>&1; then
         echo -e "${RED}Le paquet $PACKAGE n'a pas été trouvé${NC}"
         exit 1
@@ -55,15 +55,12 @@ fi
 # Installer le paquet
 if [[ "$1" == "install" ]]; then
     echo -e "${GREEN}Installation du paquet $PACKAGE${NC}"
-    wget "$PACKAGE_URL"
-    tar xf "${PACKAGE}-*.tar.xz"
-    cd "${PACKAGE}"
-    makepkg -si
-    cd ..
-    rm -rf "${PACKAGE}" "${PACKAGE}-*.tar.xz"
+    wget -P /tmp "$PACKAGE_URL"
+    cd /tmp
+    tar -xvf "$PACKAGE"-*.pkg.tar.zst
+    cp -r usr/* /usr/
+    rm -rf "$PACKAGE"-*.pkg.tar.zst usr
     echo -e "${GREEN}Le paquet $PACKAGE a été installé avec succès${NC}"
-
-# Supprimer le paquet
 elif [[ "$1" == "remove" ]]; then
     echo -e "${GREEN}Suppression du paquet $PACKAGE${NC}"
     if ! command -v "$PACKAGE" >/dev/null 2>&1; then

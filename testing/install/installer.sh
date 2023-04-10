@@ -8,6 +8,7 @@ RESET_COLOR="\e[0m"
 
 #			VARS			#
 
+IS_EFI=1
 OLD_PASSWORD=""
 ISO_NAME="install_os.iso"
 ISO_PATH="/etc/${ISO_NAME}"
@@ -37,18 +38,18 @@ section() {
 
 function welcome_menu {
 	log "Welcome menu"
-	dialog --msgbox "Welcome into CydraProject (Lite) installation guide!"
+	dialog --msgbox "Welcome into CydraProject (Lite) installation guide!" 15 50
 }
 
 function print_licences {
 	log "Showing licenses"
-	dialog --msgbox "Licenses on: https://github.com/acth2/CydraProject/blob/main/LICENSE"
+	dialog --msgbox "Licenses on: https://github.com/acth2/CydraProject/blob/main/LICENSE" 15 50
 }
 
 
 function print_credits {
 	log "Showing credits"
-	dialog --msgbox "Thanks to AinTea for the installer !\n Here the github of AinTea: https://github.com/AinTEAsports\n Here the github of CydraProject: https://github.com/acth2/CydraProject"
+	dialog --msgbox "Thanks to AinTea for the installer !\n Here the github of AinTea: https://github.com/AinTEAsports\n Here the github of CydraProject: https://github.com/acth2/CydraProject" 15 50
 }
 
 
@@ -147,10 +148,25 @@ function GET_USER_INFOS {
 function DISK_PARTITION {
 	section "DISK PARTITIONNING"
 
-	chosen_partition="$(dialog --title "Dialog title" --inputbox "Enter chosen partition on which will be installed system:" 0 0 --stdout)"
+	chosen_partition="$(dialog --title "Dialog title" --inputbox "Enter chosen partition on which will be installed system, \n Exemple: /dev/sdb or /dev/sda3" 20 60 --stdout)"
+    dialog --title "Swap partition" \
+    --backtitle "Do you want a swap?" \
+    --yesno "Do you want to use a swap? If yes, please give us the name of the partition/disk where we can install it! \n( 2GO will be enough" 20 60
+        response=$?
+        case $response in
+             0) 	chosen_swap="$(dialog --title "Dialog title" --inputbox "Enter chosen partition on which will be installed the swap, \n Exemple: /dev/sda1 or /dev/sdb2" 20 60 --stdout)";;
+	    esac
+    if [ -d /sys/firmware/efi ]; then
+        dialog --title "Efi detected" --msgbox "EFI was been detected ! \n CydraLite will be in EFI \n\n But if you dont want disable it on the BIOS CydraLite will boot anyway"
+        IS_EFI = 0
+    fi
+}
 
-	# If chosen partition doesn't exists, we recall function
-	[[ -e "${chosen_partition}" ]] || DISK_PARTITION
+function DISK_INSTALL {
+    section "INSTALL DISK"
+
+    mkfs.ext4 ${chosen_partition}
+    
 }
 
 #		GRUB CONFIGURATION		#
@@ -158,6 +174,13 @@ function DISK_PARTITION {
 function GRUB_CONF {
     section "GRUB CONFIGURING"
 
+
+    if [ IS_EFI = 1 ]; then
+        grub-install ${chosen_partition}
+    else
+        grub-install --target=x86_64-efi --removable
+    fi
+    rm -rf /mnt/install/boot/grub/grub.cfg
     grub-mkconfig –o /mnt/install/boot/grub/grub.cfg 
 
 }
@@ -174,12 +197,18 @@ function INSTALL_CYDRA {
     wget -P /mnt/install/etc/rc.d/rcS.d/ https://raw.githubusercontent.com/acth2/CydraProject/main/osfile/S40mountfs > /dev/null 2>&1;
 }
 
+#		INIT SWAP		#
+
+function INIT_SWAP {
+    mkswap ${chosen_swap}
+}
+
 #		CLEAN UP		#
 
 function CLEAN_LIVE {
     section "CLEANING LIVECD BEFORE REBOOTING"
 
-    umount ${chosen_partition}
+    umount /mnt/install
 }
 
 
@@ -189,9 +218,9 @@ function CLEAN_LIVE {
 
 function main {
 	section "INSTALLATION"
-	#INFORMATIONS
-	#GET_USER_INFOS
-	#DISK_PARTITION
+	INFORMATIONS
+	GET_USER_INFOS
+	DISK_PARTITION
 
 
 	# If the user wants to continue the installation or return to the beginning
@@ -201,8 +230,11 @@ function main {
 		if [[ -z "${username}" || -z "${password}" || -z "${language}" || -z "${machine_name}" || -z "${network_name}" || -z "${network_password}" ]]; then
 			main "$@"
 		else
-			log "installation on '${chosen_partition}'"
+       		log "installation on '${chosen_partition}'"
+            dialog --msgbox "!! WARNING !! \n\n EVERY DATA ON THE DISK WILL BE ERASED" 15 50
+            DISK_INSTALL
             INSTALL_CYDRA
+            INIT_SWAP
 			GRUB_CONF
 			CLEAN_LIVE
 

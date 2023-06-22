@@ -227,7 +227,7 @@ function main {
 	if dialog --yesno "Installation is finished, do you want to continue ?" 0 0 --stdout; then
 
 		# If any field was left blank
-		if [[ -z "${username}" || -z "${password}" || -z "${language}" || -z "${machine_name}" || -z "${network_name}" || -z "${network_password}" ]]; then
+		if [[ -z "${password}" || -z "${language}" || -z "${machine_name}" || -z "${chosen_partition}" ]]; then
 			main "$@"
 		else
        		log "installation on '${chosen_partition}'"

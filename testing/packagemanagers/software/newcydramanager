@@ -52,10 +52,14 @@ if [[ "$1" == "install" ]]; then
     tar xf ${CACHE_FILE}/community.db.tar.gz -C ${CACHE_FILE} > /dev/null 2>&1;
     PKG_INFO=$(grep -r -l $PACKAGE"-" /etc/cydramanager/cache)
     PKG_VERSION=$(sed -n 11p ${PKG_INFO})
+    PKG_ARCHIVE=$(awk '/%FILENAME%/ {flag=1; next} flag {print; flag=0}' exemple.txt)
+    DEPENDS_LIST=${awk '/%DEPENDS%/ {flag=1; next} flag && !/^$/ {print} !flag && /^$/ {exit}' $PKG_INFO}
+
     echo -e "${GREEN}Les paquets sont mis a jour${NC}"
-    wget ${MIRROR_URL}/${COMMUNITY_BRANCH}/${PACKAGE}"-"${PKG_VERSION}
-    wget ${MIRROR_URL}/${CORE_BRANCH}/${PACKAGE}"-"${PKG_VERSION}"-x86_64.pkg.tar.zst"
+    wget ${MIRROR_URL}/${COMMUNITY_BRANCH}/${PKG_ARCHIVE}
+    wget ${MIRROR_URL}/${CORE_BRANCH}/${PKG_ARCHIVE}
     tar xf ${PACKAGE}"-"${PKG_VERSION}"-x86_64.pkg.tar.zst" -C /
+    echo -e "${GREEN}Installation des dépendances..${NC}"
     echo -e "${GREEN}Le paquet $PACKAGE a été installé avec succès${NC}"
     rm -f ${CACHE_FILE}
 elif [[ "$1" == "remove" ]]; then

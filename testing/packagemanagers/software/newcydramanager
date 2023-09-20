@@ -1,10 +1,12 @@
 #!/bin/bash
 
 # Définir les variables
-MIRROR_URL="https://mirror.thekinrar.fr/archlinux/"
+MIRROR_URL="http://mirror.archlinux.ikoula.com/"
 CORE_BRANCH="core"
 COMMUNITY_BRANCH="community"
 CACHE_FILE="/etc/cydramanager/cache"
+INSTALL_DIR="/etc/cydramanager/installdir/"
+DIRECTORY_ARG="core/os/x86_64/"
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
@@ -50,13 +52,13 @@ if [[ "$1" == "install" ]]; then
     wget ${MIRROR_URL}/${CORE_BRANCH}/core.db.tar.gz -P ${CACHE_FILE}/
     tar xf ${CACHE_FILE}/core.db.tar.gz -C ${CACHE_FILE} > /dev/null 2>&1;
     tar xf ${CACHE_FILE}/community.db.tar.gz -C ${CACHE_FILE} > /dev/null 2>&1;
-    PKG_INFO=$(grep -r -l $PACKAGE"-" /etc/cydramanager/cache)
-    PKG_VERSION=$(sed -n 11p ${PKG_INFO})
-    PKG_ARCHIVE=$(awk '/%FILENAME%/ {flag=1; next} flag {print; flag=0}' $PKG_INFO)
-    DEPENDS_LIST=$(awk '/%DEPENDS%/ {flag=1; next} flag && !/^$/ {print} !flag && /^$/ {exit}' $PKG_INFO)
+    PKG_INFO=$(grep -r -l $PACKAGE"-" /etc/cydramanager/cache &)
+    PKG_VERSION=$(sed -n 11p ${PKG_INFO} &)
+    PKG_ARCHIVE=$(awk '/%FILENAME%/ {flag=1; next} flag {print; flag=0}' $PKG_INFO &)
+    DEPENDS_LIST=$(awk '/%DEPENDS%/ {flag=1; next} flag && !/^$/ {print} !flag && /^$/ {exit}' $PKG_INFO &)
     echo -e "${GREEN}Les paquets sont mis a jour${NC}"
-    wget ${MIRROR_URL}/${COMMUNITY_BRANCH}/${PKG_ARCHIVE}
-    wget ${MIRROR_URL}/${CORE_BRANCH}/${PKG_ARCHIVE}
+    wget ${MIRROR_URL}/${COMMUNITY_BRANCH}/${DIRECTORY_ARG}${PKG_ARCHIVE}
+    wget ${MIRROR_URL}/${CORE_BRANCH}/${DIRECTORY_ARG}${PKG_ARCHIVE}
     tar xf ${PKG_ARCHIVE} -C /
     echo -e "${GREEN}Installation des dépendances..${NC}"
     declare -a depends_array
@@ -71,11 +73,13 @@ if [[ "$1" == "install" ]]; then
 for ((i=0; i < NumberOfDepends; i++)); do
      DEPENDS_NAME=${depends_array[i]}
      echo -e "${GREEN}Dépendance ${i}: ${depends_array[i]}"
-     DEPENDS_INFO=$(grep -r -l $DEPENDS_NAME"-" /etc/cydramanager/cache)
-     DEPENDS_VERSION=$(sed -n 11p ${DEPENDS_INFO})
-     DEPENDS_ARCHIVE=$(awk '/%FILENAME%/ {flag=1; next} flag {print; flag=0}' $DEPENDS_INFO)
-     DEPENDS_LIST=$(awk '/%DEPENDS%/ {flag=1; next} flag && !/^$/ {print} !flag && /^$/ {exit}' $DEPENDS_INFO)
-     tar xf ${DEPENDS_ARCHIVE} -C /
+     DEPENDS_INFO=$(grep -r -l $DEPENDS_NAME"-" /etc/cydramanager/cache &)
+     DEPENDS_VERSION=$(sed -n 11p ${DEPENDS_INFO} &)
+     DEPENDS_ARCHIVE=$(awk '/%FILENAME%/ {flag=1; next} flag {print; flag=0}' $DEPENDS_INFO &)
+     DEPENDS_LIST=$(awk '/%DEPENDS%/ {flag=1; next} flag && !/^$/ {print} !flag && /^$/ {exit}' $DEPENDS_INFO &)
+     wget ${MIRROR_URL}/${COMMUNITY_BRANCH}/${DIRECTORY_ARG}${PKG_ARCHIVE} -P ${INSTALL_DIR}
+     wget ${MIRROR_URL}/${CORE_BRANCH}/${DIRECTORY_ARG}${PKG_ARCHIVE} -P ${INSTALL_DIR}
+     tar xf  ${INSTALL_DIR}${DEPENDS_ARCHIVE} -C /
 done
     echo -e "${GREEN}Le paquet $PACKAGE a été installé avec succès${NC}"
     rm -f ${CACHE_FILE}

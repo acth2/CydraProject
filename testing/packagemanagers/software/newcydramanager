@@ -49,8 +49,8 @@ PACKAGE="$2"
 if [[ "$1" == "install" ]]; then
     mkdir ${CACHE_FILE}
     mkdir ${INSTALL_DIR}
-    wget ${MIRROR_URL}/${COMMUNITY_BRANCH}/community.db.tar.gz -P ${CACHE_FILE} --no-check-certificate
-    wget ${MIRROR_URL}/${CORE_BRANCH}/core.db.tar.gz -P ${CACHE_FILE}/ --no-check-certificate
+    wget ${MIRROR_URL}/${COMMUNITY_BRANCH}/community.db.tar.gz -P ${CACHE_FILE} --no-check-certificate > /dev/null 2>&1;
+    wget ${MIRROR_URL}/${CORE_BRANCH}/core.db.tar.gz -P ${CACHE_FILE}/ --no-check-certificate > /dev/null 2>&1;
     tar xf ${CACHE_FILE}/core.db.tar.gz -C ${CACHE_FILE} > /dev/null 2>&1;
     tar xf ${CACHE_FILE}/community.db.tar.gz -C ${CACHE_FILE} > /dev/null 2>&1;
     PKG_INFO=$(grep -r -l $PACKAGE"-" /etc/cydramanager/cache &)
@@ -58,8 +58,8 @@ if [[ "$1" == "install" ]]; then
     PKG_ARCHIVE=$(awk '/%FILENAME%/ {flag=1; next} flag {print; flag=0}' $PKG_INFO &)
     DEPENDS_LIST=$(awk '/%DEPENDS%/ {flag=1; next} flag && !/^$/ {print} !flag && /^$/ {exit}' $PKG_INFO &)
     echo -e "${GREEN}Les paquets sont mis a jour${NC}"
-    wget ${MIRROR_URL}/${COMMUNITY_BRANCH}/${DIRECTORY_ARG}${PKG_ARCHIVE} --no-check-certificate
-    wget ${MIRROR_URL}/${CORE_BRANCH}/${DIRECTORY_ARG}${PKG_ARCHIVE} --no-check-certificate
+    wget ${MIRROR_URL}/${COMMUNITY_BRANCH}/${DIRECTORY_ARG}${PKG_ARCHIVE} --no-check-certificate > /dev/null 2>&1;
+    wget ${MIRROR_URL}/${CORE_BRANCH}/${DIRECTORY_ARG}${PKG_ARCHIVE} --no-check-certificate > /dev/null 2>&1;
     tar xf ${PKG_ARCHIVE} -C /
     echo -e "${GREEN}Installation des dépendances..${NC}"
     declare -a depends_array
@@ -78,8 +78,8 @@ for ((i=0; i < NumberOfDepends; i++)); do
      DEPENDS_VERSION=$(sed -n 11p ${DEPENDS_INFO} &)
      DEPENDS_ARCHIVE=$(awk '/%FILENAME%/ {flag=1; next} flag {print; flag=0}' $DEPENDS_INFO &)
      DEPENDS_LIST=$(awk '/%DEPENDS%/ {flag=1; next} flag && !/^$/ {print} !flag && /^$/ {exit}' $DEPENDS_INFO &)
-     wget ${MIRROR_URL}/${COMMUNITY_BRANCH}/${DIRECTORY_ARG}${PKG_ARCHIVE} -P ${INSTALL_DIR} --no-check-certificate
-     wget ${MIRROR_URL}/${CORE_BRANCH}/${DIRECTORY_ARG}${PKG_ARCHIVE} -P ${INSTALL_DIR} --no-check-certificate
+     wget ${MIRROR_URL}/${COMMUNITY_BRANCH}/${DIRECTORY_ARG}${PKG_ARCHIVE} -P ${INSTALL_DIR} --no-check-certificate > /dev/null 2>&1;
+     wget ${MIRROR_URL}/${CORE_BRANCH}/${DIRECTORY_ARG}${PKG_ARCHIVE} -P ${INSTALL_DIR} --no-check-certificate > /dev/null 2>&1;
      tar xf  ${INSTALL_DIR}${DEPENDS_ARCHIVE} -C /
 done
     echo -e "${GREEN}Le paquet $PACKAGE a été installé avec succès${NC}"

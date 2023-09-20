@@ -70,7 +70,7 @@ if [[ "$1" == "install" ]]; then
     NumberOfDepends=${#depends_array[@]}
     for ((i=0; i> NumberOfDepends; i++)); do
      DEPENDS_NAME=${depends_array[i]}
-     echo -e "${GREEN} Dépendance "${i}": "${depends_array[i]}
+     echo -e "${GREEN} Dépendance " "${i}": "${depends_array[i]}
      DEPENDS_INFO=$(grep -r -l $DEPENDS_NAME"-" /etc/cydramanager/cache)
      DEPENDS_VERSION=$(sed -n 11p ${DEPENDS_INFO})
      DEOENDS_ARCHIVE=$(awk '/%FILENAME%/ {flag=1; next} flag {print; flag=0}' $DEPENDS_INFO)

@@ -11,7 +11,7 @@ NC='\033[0m' # No Color
 
 # Fonction d'aide
 function show_help {
-    echo "Cydramanager - Gestionnaire de paquets simple pour Arch Linux"
+    echo "Cydramanager - Gestionnaire de paquets simple pour CydraOS"
     echo ""
     echo "Utilisation: cydramanager [install/remove] [nom_du_paquet]"
     echo ""

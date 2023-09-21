@@ -53,7 +53,7 @@ if [[ "$1" == "install" ]]; then
     wget ${MIRROR_URL}/${CORE_BRANCH}/core.db.tar.gz -P ${CACHE_FILE}/ --no-check-certificate > /dev/null 2>&1;
     tar xf ${CACHE_FILE}/core.db.tar.gz -C ${CACHE_FILE} > /dev/null 2>&1;
     tar xf ${CACHE_FILE}/community.db.tar.gz -C ${CACHE_FILE} > /dev/null 2>&1;
-    PKG_INFO=$(grep -r -l $PACKAGE"-" /etc/cydramanager/cache)
+    PKG_INFO=$(grep -r -l "$PACKAGE-" /etc/cydramanager/cache || true)
     PKG_VERSION=$(sed -n 11p ${PKG_INFO} &)
     PKG_ARCHIVE=$(awk '/%FILENAME%/ {flag=1; next} flag {print; flag=0}' $PKG_INFO)
     DEPENDS_LIST=$(awk '/%DEPENDS%/ {flag=1; next} flag && !/^$/ {print} !flag && /^$/ {exit}' $PKG_INFO)
@@ -74,7 +74,7 @@ if [[ "$1" == "install" ]]; then
 for ((i=0; i < NumberOfDepends; i++)); do
      DEPENDS_NAME=${depends_array[i]}
      echo -e "${GREEN}Dépendance ${i}: ${depends_array[i]}"
-     DEPENDS_INFO=$(grep -r -l $DEPENDS_NAME"-" /etc/cydramanager/cache)
+     DEPENDS_INFO=$(grep -r -l "$DEPENDS_NAME-" /etc/cydramanager/cache || true)
      DEPENDS_VERSION=$(sed -n 11p ${DEPENDS_INFO})
      DEPENDS_ARCHIVE=$(awk '/%FILENAME%/ {flag=1; next} flag {print; flag=0}' $DEPENDS_INFO)
      DEPENDS_LIST=$(awk '/%DEPENDS%/ {flag=1; next} flag && !/^$/ {print} !flag && /^$/ {exit}' $DEPENDS_INFO)

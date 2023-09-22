@@ -1,7 +1,6 @@
-# Déclarer un tableau pour stocker les lignes
 declare -a lines
 flag0 = 0
-# Utiliser awk pour extraire les lignes et les stocker dans le tableau
+
 while read -r line; do
     lines+=("$line")
     if [[ "$line" == *"%*"* ]]; then
@@ -13,7 +12,6 @@ while read -r line; do
     fi
 done < <(awk '/%DEPENDS%/ {flag=1; next} flag && !/^$/ {print; if (/^$/) exit}' $DEPENDS_INFO)
 
-# Afficher les lignes du tableau
 for line in "${lines[@]}"; do
     echo "$line"
     if [[ "$flag0" == "0" ]]; then

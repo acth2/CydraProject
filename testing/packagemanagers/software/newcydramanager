@@ -10,6 +10,7 @@ DIRECTORY_ARG="core/os/x86_64/"
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
+dne2t = 0
 
 on_terminate() {
   echo -e "\n${RED}Le script a été interrompu.. \n Suppresion des variables cache et install dir \n CODE D'ERREUR: INTERRUPTION SIGTERM (CTRL + C) ${NC}"
@@ -81,34 +82,39 @@ function load_var {
             PKG_INFO=$(grep -r -l "$PACKAGE-" /etc/cydramanager/cache > /dev/null 2>&1 &)
             PKG_VERSION=$(sed -n 11p ${PKG_INFO} > /dev/null 2>&1 &)
             PKG_ARCHIVE=$(awk '/%FILENAME%/ {flag=1; next} flag {print; flag=0}' $PKG_INFO > /dev/null 2>&1 &)
+            dne2t = 1
     fi
 
-    if [ "$4" != "--without-printing-log"  ]; then
+    if [ "$4" != "--without-printing-log"  ] && [ "$dne2t" != "1" ]; then
             PACKAGE="$2"
             PKG_INFO=$(grep -r -l "$PACKAGE-" /etc/cydramanager/cache > /dev/null 2>&1 &)
             PKG_VERSION=$(sed -n 11p ${PKG_INFO} > /dev/null 2>&1 &)
             PKG_ARCHIVE=$(awk '/%FILENAME%/ {flag=1; next} flag {print; flag=0}' $PKG_INFO > /dev/null 2>&1 &)
+            dne2t = 1
     fi
 
-    if [ "$5" != "--without-printing-log"  ]; then
+    if [ "$5" != "--without-printing-log"  ] && [ "$dne2t" != "1" ]; then
             PACKAGE="$2"
             PKG_INFO=$(grep -r -l "$PACKAGE-" /etc/cydramanager/cache > /dev/null 2>&1 &)
             PKG_VERSION=$(sed -n 11p ${PKG_INFO} > /dev/null 2>&1 &)
             PKG_ARCHIVE=$(awk '/%FILENAME%/ {flag=1; next} flag {print; flag=0}' $PKG_INFO > /dev/null 2>&1 &)
+            dne2t = 1
     fi
 
-    if [ "$6" != "--without-printing-log"  ]; then
+    if [ "$6" != "--without-printing-log"  ] && [ "$dne2t" != "1" ]; then
             PACKAGE="$2"
             PKG_INFO=$(grep -r -l "$PACKAGE-" /etc/cydramanager/cache > /dev/null 2>&1 &)
             PKG_VERSION=$(sed -n 11p ${PKG_INFO} > /dev/null 2>&1 &)
             PKG_ARCHIVE=$(awk '/%FILENAME%/ {flag=1; next} flag {print; flag=0}' $PKG_INFO > /dev/null 2>&1 &)
+            dne2t = 1
     fi
 
-    if [ "$7" != "--without-printing-log"  ]; then
+    if [ "$7" != "--without-printing-log"  ] && [ "$dne2t" != "1" ]; then
             PACKAGE="$2"
             PKG_INFO=$(grep -r -l "$PACKAGE-" /etc/cydramanager/cache > /dev/null 2>&1 &)
             PKG_VERSION=$(sed -n 11p ${PKG_INFO} > /dev/null 2>&1 &)
             PKG_ARCHIVE=$(awk '/%FILENAME%/ {flag=1; next} flag {print; flag=0}' $PKG_INFO > /dev/null 2>&1 &)
+            dne2t = 1
     fi
 }
 

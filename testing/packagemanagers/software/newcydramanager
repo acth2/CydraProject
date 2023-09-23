@@ -11,6 +11,14 @@ GREEN='\033[0;32m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
 
+on_terminate() {
+  echo -e "\n${RED}Le script a été interrompu.. \n Suppresion des variables cache et install dir \n CODE D'ERREUR: INTERRUPTION SIGTERM (CTRL + C) ${NC}"
+  rm -rf ${CACHE_FILE}
+  rm -rf ${INSTALL_DIR}
+}
+
+trap 'on_terminate' SIGTERM
+
 # Fonction d'aide
 function show_help {
     echo "Cydramanager - Gestionnaire de paquets simple pour CydraOS"
@@ -23,13 +31,93 @@ function show_help {
     echo "  help                 Affiche ce message d'aide"
 }
 
-# Vérifier si l'utilisateur est root
+function install_deps {
+while read -r line; do
+    lines+=("$line")
+    if [[ "$line" == *"%*"* ]]; then
+        break
+    fi
+    if [[ "$line" == "%MAKEDEPENDS%" ]]; then
+        break
+        flag0 = 1
+    fi
+done < <(awk '/%DEPENDS%/ {flag=1; next} flag && !/^$/ {print; if (/^$/) exit}' $PKG_INFO)
+
+for line in "${lines[@]}"; do
+    echo "$line"
+    if [[ "$flag0" == "0" ]]; then
+        echo "$line"
+        cydramanager install $line --without-printing-log --without-registering-var --add-as-depends
+    fi
+done
+
+declare -a lines2
+flag1 = 0
+
+while read -r line3; do
+    lines2+=("$line3")
+    if [[ "$line3" == *"%*"* ]]; then
+        break
+    fi
+    if [[ "$line3" == "%MAKEDEPENDS%" ]]; then
+        break
+        flag1 = 1
+    fi
+done < <(awk '/%OPTDEPENDS%/ {flag=1; next} flag && !/^$/ {print; if (/^$/) exit}' $PKG_INFO)
+
+for line in "${lines2[@]}"; do
+    echo "$line3"
+    if [[ "$flag1" == "0" ]]; then
+        echo "$line3"
+        cydramanager install $line3 --without-printing-log --without-registering-var --add-as-depends
+    fi
+done
+}
+
+function load_var {
+    PKG_INFO=$(grep -r -l "$PACKAGE-" /etc/cydramanager/cache > /dev/null 2>&1 &)
+    PKG_VERSION=$(sed -n 11p ${PKG_INFO} > /dev/null 2>&1 &)
+    PKG_ARCHIVE=$(awk '/%FILENAME%/ {flag=1; next} flag {print; flag=0}' $PKG_INFO > /dev/null 2>&1 &)
+}
+
+function creating_dir {
+    mkdir ${CACHE_FILE}
+    mkdir ${INSTALL_DIR}
+}
+
+function clean_up {
+    rm -rf ${CACHE_FILE}
+    rm -rf ${INSTALL_DIR}
+}
+
+function updating_localdatabase {
+    wget ${MIRROR_URL}/${COMMUNITY_BRANCH}/community.db.tar.gz -P ${CACHE_FILE} --no-check-certificate > /dev/null 2>&1;
+    wget ${MIRROR_URL}/${CORE_BRANCH}/core.db.tar.gz -P ${CACHE_FILE}/ --no-check-certificate > /dev/null 2>&1;
+    tar xf ${CACHE_FILE}/core.db.tar.gz -C ${CACHE_FILE} > /dev/null 2>&1;
+    tar xf ${CACHE_FILE}/community.db.tar.gz -C ${CACHE_FILE} > /dev/null 2>&1;
+    echo -e "${GREEN}Les paquets sont mis a jour${NC}"
+}
+
+function install_prog {
+    wget ${MIRROR_URL}/${COMMUNITY_BRANCH}/${DIRECTORY_ARG}${PKG_ARCHIVE} -P ${INSTALL_DIR} --no-check-certificate > /dev/null 2>&1;
+    wget ${MIRROR_URL}/${CORE_BRANCH}/${DIRECTORY_ARG}${PKG_ARCHIVE} -P ${INSTALL_DIR} --no-check-certificate > /dev/null 2>&1;
+    tar xf ${INSTALL_DIR}${PKG_ARCHIVE} -C /
+}
+
+
+while true; do
+
+# Vérifier que l'argument d'action est valide
+if [[ "$1" != "install" && "$1" != "remove" ]]; then
+    echo -e "${RED}L'action est invalide. Etes vous perdu? \n cydramanager -h pour ouvrir la liste des commandes / arguments disponibles !${NC}"
+    exit 1
+fi
+
 if [[ $EUID -ne 0 ]]; then
    echo -e "${RED}Ce script doit être exécuté avec les privilèges root${NC}" 
    exit 1
 fi
 
-# Vérifier que les arguments sont fournis
 if [[ $# -eq 0 ]]; then
     show_help
     exit 0
@@ -38,53 +126,19 @@ elif [[ $# -ne 2 ]]; then
     exit 1
 fi
 
-# Vérifier que l'argument d'action est valide
-if [[ "$1" != "install" && "$1" != "remove" ]]; then
-    echo -e "${RED}L'action doit être install ou remove${NC}"
-    exit 1
-fi
-
 PACKAGE="$2"
 # Installer le paquet
 if [[ "$1" == "install" ]]; then
-    mkdir ${CACHE_FILE}
-    mkdir ${INSTALL_DIR}
-    wget ${MIRROR_URL}/${COMMUNITY_BRANCH}/community.db.tar.gz -P ${CACHE_FILE} --no-check-certificate > /dev/null 2>&1;
-    wget ${MIRROR_URL}/${CORE_BRANCH}/core.db.tar.gz -P ${CACHE_FILE}/ --no-check-certificate > /dev/null 2>&1;
-    tar xf ${CACHE_FILE}/core.db.tar.gz -C ${CACHE_FILE} > /dev/null 2>&1;
-    tar xf ${CACHE_FILE}/community.db.tar.gz -C ${CACHE_FILE} > /dev/null 2>&1;
-    PKG_INFO=$(grep -r -l "$PACKAGE-" /etc/cydramanager/cache > /dev/null 2>&1 &)
-    PKG_VERSION=$(sed -n 11p ${PKG_INFO} > /dev/null 2>&1 &)
-    PKG_ARCHIVE=$(awk '/%FILENAME%/ {flag=1; next} flag {print; flag=0}' $PKG_INFO > /dev/null 2>&1 &)
-    DEPENDS_LIST=$(awk '/%DEPENDS%/ {flag=1; next} flag && !/^$/ {print} !flag && /^$/ {exit}' $PKG_INFO > /dev/null 2>&1 &)
-    echo -e "${GREEN}Les paquets sont mis a jour${NC}"
-    wget ${MIRROR_URL}/${COMMUNITY_BRANCH}/${DIRECTORY_ARG}${PKG_ARCHIVE} --no-check-certificate > /dev/null 2>&1;
-    wget ${MIRROR_URL}/${CORE_BRANCH}/${DIRECTORY_ARG}${PKG_ARCHIVE} --no-check-certificate > /dev/null 2>&1;
-    tar xf ${PKG_ARCHIVE} -C /
-    echo -e "${GREEN}Installation des dépendances..${NC}"
-    declare -a depends_array
-    index=0
-    while read -r word; do
-        variable_name="DEPENDS_$index"
-        declare "$variable_name=$word"
-        depends_array[$index]=$word
-        ((index++))
-    done <<< "$DEPENDS_LIST"
-    NumberOfDepends=${#depends_array[@]}
-for ((i=0; i < NumberOfDepends; i++)); do
-     DEPENDS_NAME=${depends_array[i]}
-     echo -e "${GREEN}Dépendance ${i}: ${depends_array[i]}"
-     DEPENDS_INFO=$(grep -r -l "$DEPENDS_NAME-" /etc/cydramanager/cache > /dev/null 2>&1 &)
-     DEPENDS_VERSION=$(sed -n 11p ${DEPENDS_INFO} > /dev/null 2>&1 &)
-     DEPENDS_ARCHIVE=$(awk '/%FILENAME%/ {flag=1; next} flag {print; flag=0}' $DEPENDS_INFO > /dev/null 2>&1 &)
-     DEPENDS_LIST=$(awk '/%DEPENDS%/ {flag=1; next} flag && !/^$/ {print} !flag && /^$/ {exit}' $DEPENDS_INFO  > /dev/null 2>&1 &)
-     wget ${MIRROR_URL}/${COMMUNITY_BRANCH}/${DIRECTORY_ARG}${PKG_ARCHIVE} -P ${INSTALL_DIR} --no-check-certificate > /dev/null 2>&1;
-     wget ${MIRROR_URL}/${CORE_BRANCH}/${DIRECTORY_ARG}${PKG_ARCHIVE} -P ${INSTALL_DIR} --no-check-certificate > /dev/null 2>&1;
-     tar xf  ${INSTALL_DIR}${DEPENDS_ARCHIVE} -C /
-done
-    echo -e "${GREEN}Le paquet $PACKAGE a été installé avec succès${NC}"
-    rm -rf ${CACHE_FILE}
-    rm -rf ${INSTALL_DIR}
+     creating_dir
+     updating_localdatabase
+     load_var
+
+     install_prog
+     install_deps
+
+     clean_up
+
+     echo -e "${GREEN}Le paquet $PACKAGE a été installé avec succès${NC}"
 elif [[ "$1" == "remove" ]]; then
     echo -e "${GREEN}Suppression du paquet $PACKAGE${NC}"
     if ! command -v "$PACKAGE" >/dev/null 2>&1; then
@@ -103,3 +157,4 @@ elif [[ "$1" == "remove" ]]; then
 fi
 
 exit 0
+done

@@ -75,14 +75,46 @@ done
 }
 
 function load_var {
-    PKG_INFO=$(grep -r -l "$PACKAGE-" /etc/cydramanager/cache > /dev/null 2>&1 &)
-    PKG_VERSION=$(sed -n 11p ${PKG_INFO} > /dev/null 2>&1 &)
-    PKG_ARCHIVE=$(awk '/%FILENAME%/ {flag=1; next} flag {print; flag=0}' $PKG_INFO > /dev/null 2>&1 &)
+
+    if [ "$3" != "--without-printing-log"  ]; then
+            PACKAGE="$2"
+            PKG_INFO=$(grep -r -l "$PACKAGE-" /etc/cydramanager/cache > /dev/null 2>&1 &)
+            PKG_VERSION=$(sed -n 11p ${PKG_INFO} > /dev/null 2>&1 &)
+            PKG_ARCHIVE=$(awk '/%FILENAME%/ {flag=1; next} flag {print; flag=0}' $PKG_INFO > /dev/null 2>&1 &)
+    fi
+
+    if [ "$4" != "--without-printing-log"  ]; then
+            PACKAGE="$2"
+            PKG_INFO=$(grep -r -l "$PACKAGE-" /etc/cydramanager/cache > /dev/null 2>&1 &)
+            PKG_VERSION=$(sed -n 11p ${PKG_INFO} > /dev/null 2>&1 &)
+            PKG_ARCHIVE=$(awk '/%FILENAME%/ {flag=1; next} flag {print; flag=0}' $PKG_INFO > /dev/null 2>&1 &)
+    fi
+
+    if [ "$5" != "--without-printing-log"  ]; then
+            PACKAGE="$2"
+            PKG_INFO=$(grep -r -l "$PACKAGE-" /etc/cydramanager/cache > /dev/null 2>&1 &)
+            PKG_VERSION=$(sed -n 11p ${PKG_INFO} > /dev/null 2>&1 &)
+            PKG_ARCHIVE=$(awk '/%FILENAME%/ {flag=1; next} flag {print; flag=0}' $PKG_INFO > /dev/null 2>&1 &)
+    fi
+
+    if [ "$6" != "--without-printing-log"  ]; then
+            PACKAGE="$2"
+            PKG_INFO=$(grep -r -l "$PACKAGE-" /etc/cydramanager/cache > /dev/null 2>&1 &)
+            PKG_VERSION=$(sed -n 11p ${PKG_INFO} > /dev/null 2>&1 &)
+            PKG_ARCHIVE=$(awk '/%FILENAME%/ {flag=1; next} flag {print; flag=0}' $PKG_INFO > /dev/null 2>&1 &)
+    fi
+
+    if [ "$7" != "--without-printing-log"  ]; then
+            PACKAGE="$2"
+            PKG_INFO=$(grep -r -l "$PACKAGE-" /etc/cydramanager/cache > /dev/null 2>&1 &)
+            PKG_VERSION=$(sed -n 11p ${PKG_INFO} > /dev/null 2>&1 &)
+            PKG_ARCHIVE=$(awk '/%FILENAME%/ {flag=1; next} flag {print; flag=0}' $PKG_INFO > /dev/null 2>&1 &)
+    fi
 }
 
 function creating_dir {
-    mkdir ${CACHE_FILE}
-    mkdir ${INSTALL_DIR}
+      mkdir ${CACHE_FILE}
+      mkdir ${INSTALL_DIR}
 }
 
 function clean_up {
@@ -95,7 +127,25 @@ function updating_localdatabase {
     wget ${MIRROR_URL}/${CORE_BRANCH}/core.db.tar.gz -P ${CACHE_FILE}/ --no-check-certificate > /dev/null 2>&1;
     tar xf ${CACHE_FILE}/core.db.tar.gz -C ${CACHE_FILE} > /dev/null 2>&1;
     tar xf ${CACHE_FILE}/community.db.tar.gz -C ${CACHE_FILE} > /dev/null 2>&1;
-    echo -e "${GREEN}Les paquets sont mis a jour${NC}"
+    if [ "$3" != "--without-printing-log"  ]; then
+         echo -e "${GREEN}Les paquets sont mis a jour${NC}"
+    fi
+
+    if [ "$4" != "--without-printing-log"  ]; then
+        echo -e "${GREEN}Les paquets sont mis a jour${NC}"
+    fi
+
+    if [ "$5" != "--without-printing-log"  ]; then
+        echo -e "${GREEN}Les paquets sont mis a jour${NC}"
+    fi
+
+    if [ "$6" != "--without-printing-log"  ]; then
+        echo -e "${GREEN}Les paquets sont mis a jour${NC}"
+    fi
+
+    if [ "$7" != "--without-printing-log"  ]; then
+        echo -e "${GREEN}Les paquets sont mis a jour${NC}"
+    fi
 }
 
 function install_prog {
@@ -126,7 +176,6 @@ elif [[ $# -ne 2 ]]; then
     exit 1
 fi
 
-PACKAGE="$2"
 # Installer le paquet
 if [[ "$1" == "install" ]]; then
      creating_dir

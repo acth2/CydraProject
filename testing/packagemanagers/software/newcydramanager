@@ -157,6 +157,16 @@ function install_prog {
 
 while true; do
 
+    if [ "$3" = "--without-printing-log"  ]; then
+         echo "without printing var: OK"
+    fi
+
+    if [ "$4" != "--without-registering-var"  ]; then
+         echo "without registering var: OK"
+    fi
+
+exit 0
+
 # Vérifier que l'argument d'action est valide
 if [[ "$1" != "install" && "$1" != "remove" ]]; then
     echo -e "${RED}L'action est invalide. Etes vous perdu? \n cydramanager -h pour ouvrir la liste des commandes / arguments disponibles !${NC}"

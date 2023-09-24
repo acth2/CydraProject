@@ -13,6 +13,7 @@ NC='\033[0m' # No Color
 
 PRINT_LOG=true
 REGISTER_VAR=true
+ADD_AS_DEPENDS=false
 
 # Traitement des arguments
 for arg in "$@"; do
@@ -22,6 +23,9 @@ for arg in "$@"; do
       ;;
     --without-registering-var)
       REGISTER_VAR=false
+      ;;
+    --add-as-depends)
+      ADD_AS_DEPENDS=true
       ;;
   esac
 done
@@ -63,16 +67,8 @@ function install_deps {
   done < <(awk '/%DEPENDS%/ {flag=1; next} flag && !/^$/ {print; if (/^$/) exit}' $PKG_INFO)
 
   for line in "${lines[@]}"; do
-    if [ "$PRINT_LOG" = true ]; then
-      echo "$line"
-    fi
     if [[ "$flag0" == "0" ]]; then
-      if [ "$REGISTER_VAR" = true ]; then
-        echo "$line"
-        cydramanager install $line --add-as-depends
-      else
-        cydramanager install $line --without-registering-var --add-as-depends
-      fi
+        cydramanager install $line3 --without-printing-log --without-registering-var --add-as-depends
     fi
   done
 
@@ -91,16 +87,8 @@ function install_deps {
   done < <(awk '/%OPTDEPENDS%/ {flag=1; next} flag && !/^$/ {print; if (/^$/) exit}' $PKG_INFO)
 
   for line in "${lines2[@]}"; do
-    if [ "$PRINT_LOG" = true ]; then
-      echo "$line3"
-    fi
     if [[ "$flag1" == "0" ]]; then
-      if [ "$REGISTER_VAR" = true ]; then
-        echo "$line3"
-        cydramanager install $line3 --add-as-depends
-      else
-        cydramanager install $line3 --without-registering-var --add-as-depends
-      fi
+        cydramanager install $line3 --without-printing-log --without-registering-var --add-as-depends
     fi
   done
 }

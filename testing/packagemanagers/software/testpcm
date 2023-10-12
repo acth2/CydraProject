@@ -53,107 +53,68 @@ function show_help {
   fi
 }
 
-# ... Validation des arguments ...
+# Validation des arguments
+if [[ $# -ne 2 ]]; then
+    show_help
+    exit 1
+fi
 
-while true; do
+ACTION="$1"
+PACKAGE="$2"
 
-  # Vérifier que l'argument d'action est valide
-  if [[ "$1" != "install" && "$1" != "remove" ]]; then
-      echo -e "${RED}L'action est invalide. Etes-vous perdu? \n cydramanager -h pour ouvrir la liste des commandes / arguments disponibles !${NC}"
-      exit 1
-  fi
+# Vérifier que l'action est valide
+if [[ "$ACTION" != "install" && "$ACTION" != "remove" ]]; then
+    echo -e "${RED}Action invalide. Utilisez 'install' ou 'remove' comme action.${NC}"
+    exit 1
+fi
 
-  if [[ $EUID -ne 0 ]]; then
-     echo -e "${RED}Ce script doit être exécuté avec les privilèges root${NC}" 
-     exit 1
-  fi
+if [[ $EUID -ne 0 ]]; then
+    echo -e "${RED}Ce script doit être exécuté avec les privilèges root.${NC}"
+    exit 1
+fi
 
-  if [[ $# -eq 0 ]]; then
-      show_help
-      exit 0
-  elif [[ $# -ne 2 ]]; then
-      echo -e "${RED}Deux arguments sont nécessaires (install/remove) et le nom du paquet${NC}"
-      exit 1
-  fi
+# Gérer l'installation ou la suppression du paquet
+if [[ "$ACTION" == "install" ]]; then
+    mkdir -p "${CACHE_FILE}"
+    mkdir -p "${INSTALL_DIR}"
+    wget "${MIRROR_URL}/${COMMUNITY_BRANCH}/community.db.tar.gz" -P "${CACHE_FILE}" --no-check-certificate > /dev/null 2>&1
+    wget "${MIRROR_URL}/${CORE_BRANCH}/core.db.tar.gz" -P "${CACHE_FILE}" --no-check-certificate > /dev/null 2>&1
+    tar xf "${CACHE_FILE}/core.db.tar.gz" -C "${CACHE_FILE}" > /dev/null 2>&1
+    tar xf "${CACHE_FILE}/community.db.tar.gz" -C "${CACHE_FILE}" > /dev/null 2>&1
+    echo -e "${GREEN}Les paquets sont mis à jour${NC}"
 
-  # Installer le paquet
-  if [[ "$1" == "install" ]]; then
-       mkdir "${CACHE_FILE}"
-       mkdir "${INSTALL_DIR}"
-       wget "${MIRROR_URL}/${COMMUNITY_BRANCH}/community.db.tar.gz" -P "${CACHE_FILE}" --no-check-certificate > /dev/null 2>&1
-       wget "${MIRROR_URL}/${CORE_BRANCH}/core.db.tar.gz" -P "${CACHE_FILE}/" --no-check-certificate > /dev/null 2>&1
-       tar xf "${CACHE_FILE}/core.db.tar.gz" -C "${CACHE_FILE}" > /dev/null 2>&1
-       tar xf "${CACHE_FILE}/community.db.tar.gz" -C "${CACHE_FILE}" > /dev/null 2>&1
-       echo -e "${GREEN}Les paquets sont mis à jour${NC}"
+    PKG_INFO=""
+    PKG_VERSION=""
+    PKG_ARCHIVE=""
 
-       if [ "$REGISTER_VAR" = true ]; then
-         PACKAGE="$2"
-         PKG_INFO=$(grep -r -l "$PACKAGE-" "${CACHE_FILE}" | head -n 1)
-         PKG_VERSION=$(sed -n 11p "${PKG_INFO}")
-         PKG_ARCHIVE=$(awk '/%FILENAME%/ {flag=1; next} flag {print; flag=0}' "${PKG_INFO}")
-       else
-         PACKAGE="$2"
-       fi
+    if [ "$REGISTER_VAR" = true ]; then
+        PKG_INFO=$(grep -r -l "$PACKAGE-" "${CACHE_FILE}" | head -n 1)
+        PKG_VERSION=$(sed -n 11p "${PKG_INFO}")
+        PKG_ARCHIVE=$(awk '/%FILENAME%/ {flag=1; next} flag {print; flag=0}' "${PKG_INFO}")
+    fi
 
-       wget "${MIRROR_URL}/${COMMUNITY_BRANCH}/${DIRECTORY_ARG}${PKG_ARCHIVE}" -P "${INSTALL_DIR}" --no-check-certificate > /dev/null 2>&1
-       wget "${MIRROR_URL}/${CORE_BRANCH}/${DIRECTORY_ARG}${PKG_ARCHIVE}" -P "${INSTALL_DIR}" --no-check-certificate > /dev/null 2>&1
-       tar xf "${INSTALL_DIR}${PKG_ARCHIVE}" -C /
+    wget "${MIRROR_URL}/${COMMUNITY_BRANCH}/${DIRECTORY_ARG}${PKG_ARCHIVE}" -P "${INSTALL_DIR}" --no-check-certificate > /dev/null 2>&1
+    wget "${MIRROR_URL}/${CORE_BRANCH}/${DIRECTORY_ARG}${PKG_ARCHIVE}" -P "${INSTALL_DIR}" --no-check-certificate > /dev/null 2>&1
+    tar xf "${INSTALL_DIR}${PKG_ARCHIVE}" -C /
 
-        while read -r line; do
-        lines+=("$line")
-        if [[ "$line" == *"%"* ]]; then
-          break
+    # Gérer les dépendances ici si nécessaire.
+
+    echo -e "${GREEN}Le paquet $PACKAGE a été installé avec succès${NC}"
+elif [[ "$ACTION" == "remove" ]]; then
+    echo -e "${GREEN}Suppression du paquet $PACKAGE${NC}"
+    if ! command -v "$PACKAGE" >/dev/null 2>&1; then
+        echo -e "${RED}Le paquet $PACKAGE n'est pas installé${NC}"
+        exit 1
+    fi
+
+    PKG_FILES=$(find / -name "*${PACKAGE}*")
+    for FILE in $PKG_FILES; do
+        if [ -f "$FILE" ]; then
+            rm "$FILE"
+        elif [ -d "$FILE" ]; then
+            rm -r "$FILE"
         fi
-        if [[ "$line" == "%MAKEDEPENDS%" ]]; then
-          break
-          flag0=1
-        fi
-      done < <(awk '/%DEPENDS%/ {flag=1; next} flag && !/^$/ {print; if (/^$/) exit}' "${PKG_INFO}")
+    done
 
-      for line in "${lines[@]}"; do
-        if [[ "$flag0" == "0" ]]; then
-            cydramanager install $line3 --without-printing-log --without-registering-var --add-as-depends
-        fi
-      done
-
-      declare -a lines2
-      flag1=0
-
-      while read -r line3; do
-        lines2+=("$line3")
-        if [[ "$line3" == *"%"* ]]; then
-          break
-        fi
-        if [[ "$line3" == "%MAKEDEPENDS%" ]]; then
-          break
-          flag1=1
-        fi
-      done < <(awk '/%OPTDEPENDS%/ {flag=1; next} flag && !/^$/ {print; if (/^$/) exit}' "${PKG_INFO}")
-
-      for line in "${lines2[@]}"; do
-          if [[ "$flag1" == "0" ]]; then
-              cydramanager install $line3 --without-printing-log --without-registering-var --add-as-depends
-          fi
-        done
-
-      rm -rf "${CACHE_FILE}"
-      rm -rf "${INSTALL_DIR}"
-
-       echo -e "${GREEN}Le paquet $PACKAGE a été installé avec succès${NC}"
-  elif [[ "$1" == "remove" ]]; then
-      echo -e "${GREEN}Suppression du paquet $PACKAGE${NC}"
-      if ! command -v "$PACKAGE" >/dev/null 2>&1; then
-          echo -e "${RED}Le paquet $PACKAGE n'est pas installé${NC}"
-          exit 1
-      fi
-      PKG_FILES=$(find / -name "*${PACKAGE}*")
-      for FILE in $PKG_FILES; do
-          if [ -f "$FILE" ]; then
-              rm "$FILE"
-          elif [ -d "$FILE" ]; then
-              rm -r "$FILE"
-          fi
-      done
-      echo -e "${GREEN}Le paquet $PACKAGE a été supprimé avec succès${NC}"
-  fi
-done
+    echo -e "${GREEN}Le paquet $PACKAGE a été supprimé avec succès${NC}"
+fi

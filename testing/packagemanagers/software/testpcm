@@ -89,8 +89,13 @@ if [[ "$ACTION" == "install" ]]; then
 
     if [ "$REGISTER_VAR" = true ]; then
         PKG_INFO=$(grep -r -l "$PACKAGE-" "${CACHE_FILE}" | head -n 1)
-        PKG_VERSION=$(sed -n 11p "${PKG_INFO}")
-        PKG_ARCHIVE=$(awk '/%FILENAME%/ {flag=1; next} flag {print; flag=0}' "${PKG_INFO}")
+        if [ -f "$PKG_INFO" ]; then
+            PKG_VERSION=$(sed -n 11p "$PKG_INFO")
+            PKG_ARCHIVE=$(awk '/%FILENAME%/ {flag=1; next} flag {print; flag=0}' "$PKG_INFO")
+        else
+            echo -e "${RED}Le fichier $PKG_INFO n'existe pas.${NC}"
+            exit 1
+        fi
     fi
 
     wget "${MIRROR_URL}/${COMMUNITY_BRANCH}/${DIRECTORY_ARG}${PKG_ARCHIVE}" -P "${INSTALL_DIR}" --no-check-certificate > /dev/null 2>&1
@@ -118,3 +123,5 @@ elif [[ "$ACTION" == "remove" ]]; then
 
     echo -e "${GREEN}Le paquet $PACKAGE a été supprimé avec succès${NC}"
 fi
+
+exit 0

@@ -5,6 +5,7 @@ CORE_BRANCH="core"
 COMMUNITY_BRANCH="community"
 CACHE_FILE="/etc/cydramanager/cache"
 INSTALL_DIR="/etc/cydramanager/installdir/"
+DIRECTORY_ARG="core/os/x86_64/"
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 NC='\033[0m'
@@ -30,7 +31,7 @@ done
 
 on_terminate() {
   if [ "$PRINT_LOG" = true ]; then
-    echo -e "\n${RED}Le script a été interrompu.. \n Suppression des variables cache et install dir \n CODE D'ERREUR: INTERRUPTION SIGTERM (CTRL + C) ${NC}"
+    echo -e "\n${RED}Le script a été interrompu... Suppression des variables cache et install dir\n CODE D'ERREUR: INTERRUPTION SIGTERM (CTRL + C) ${NC}"
   fi
   rm -rf "${CACHE_FILE}"
   rm -rf "${INSTALL_DIR}"
@@ -58,7 +59,7 @@ while true; do
 
   # Vérifier que l'argument d'action est valide
   if [[ "$1" != "install" && "$1" != "remove" ]]; then
-      echo -e "${RED}L'action est invalide. Etes vous perdu? \n cydramanager -h pour ouvrir la liste des commandes / arguments disponibles !${NC}"
+      echo -e "${RED}L'action est invalide. Etes-vous perdu? \n cydramanager -h pour ouvrir la liste des commandes / arguments disponibles !${NC}"
       exit 1
   fi
 
@@ -87,9 +88,9 @@ while true; do
 
        if [ "$REGISTER_VAR" = true ]; then
          PACKAGE="$2"
-         PKG_INFO=$(grep -r -l "$PACKAGE-" /etc/cydramanager/cache | head -n 1)
-         PKG_VERSION=$(sed -n 11p "$PKG_INFO")
-         PKG_ARCHIVE=$(awk '/%FILENAME%/ {flag=1; next} flag {print; flag=0}' "$PKG_INFO")
+         PKG_INFO=$(grep -r -l "$PACKAGE-" "${CACHE_FILE}" | head -n 1)
+         PKG_VERSION=$(sed -n 11p "${PKG_INFO}")
+         PKG_ARCHIVE=$(awk '/%FILENAME%/ {flag=1; next} flag {print; flag=0}' "${PKG_INFO}")
        else
          PACKAGE="$2"
        fi
@@ -107,7 +108,7 @@ while true; do
           break
           flag0=1
         fi
-      done < <(awk '/%DEPENDS%/ {flag=1; next} flag && !/^$/ {print; if (/^$/) exit}' "$PKG_INFO")
+      done < <(awk '/%DEPENDS%/ {flag=1; next} flag && !/^$/ {print; if (/^$/) exit}' "${PKG_INFO}")
 
       for line in "${lines[@]}"; do
         if [[ "$flag0" == "0" ]]; then
@@ -127,7 +128,7 @@ while true; do
           break
           flag1=1
         fi
-      done < <(awk '/%OPTDEPENDS%/ {flag=1; next} flag && !/^$/ {print; if (/^$/) exit}' "$PKG_INFO")
+      done < <(awk '/%OPTDEPENDS%/ {flag=1; next} flag && !/^$/ {print; if (/^$/) exit}' "${PKG_INFO}")
 
       for line in "${lines2[@]}"; do
           if [[ "$flag1" == "0" ]]; then
@@ -155,3 +156,4 @@ while true; do
       done
       echo -e "${GREEN}Le paquet $PACKAGE a été supprimé avec succès${NC}"
   fi
+done

@@ -1,0 +1,124 @@
+#!/bin/bash
+
+MIRROR_URL="http://mirror.archlinux.ikoula.com/"
+CORE_BRANCH="core"
+COMMUNITY_BRANCH="community"
+CACHE_FILE="/etc/cydramanager/cache"
+INSTALL_DIR="/etc/cydramanager/installdir/"
+DIRECTORY_ARG="core/os/x86_64/"
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+NC='\033[0m'
+
+PRINT_LOG=true
+REGISTER_VAR=true
+ADD_AS_DEPENDS=false
+
+# Traitement des arguments
+for arg in "$@"; do
+  case "$arg" in
+    --without-printing-log)
+      PRINT_LOG=false
+      ;;
+    --without-registering-var)
+      REGISTER_VAR=false
+      ;;
+    --add-as-depends)
+      ADD_AS_DEPENDS=true
+      ;;
+  esac
+done
+
+on_terminate() {
+  if [ "$PRINT_LOG" = true ]; then
+    echo -e "\n${RED}Le script a été interrompu... Suppression des variables cache et install dir\n CODE D'ERREUR: INTERRUPTION SIGTERM (CTRL + C) ${NC}"
+  fi
+  rm -rf "${CACHE_FILE}"
+  rm -rf "${INSTALL_DIR}"
+}
+
+trap 'on_terminate' SIGTERM
+
+# Fonction d'aide
+function show_help {
+  if [ "$PRINT_LOG" = true ]; then
+    echo "Cydramanager - Gestionnaire de paquets simple pour CydraOS"
+    echo ""
+    echo "Utilisation: cydramanager [install/remove] [nom_du_paquet]"
+    echo ""
+    echo "Options:"
+    echo "  install              Installe le paquet spécifié"
+    echo "  remove               Supprime le paquet spécifié"
+    echo "  help                 Affiche ce message d'aide"
+  fi
+}
+
+# Validation des arguments
+if [[ $# -ne 2 ]]; then
+    show_help
+    exit 1
+fi
+
+ACTION="$1"
+PACKAGE="$2"
+
+# Vérifier que l'action est valide
+if [[ "$ACTION" != "install" && "$ACTION" != "remove" ]]; then
+    echo -e "${RED}Action invalide. Utilisez 'install' ou 'remove' comme action.${NC}"
+    exit 1
+fi
+
+if [[ $EUID -ne 0 ]]; then
+    echo -e "${RED}Ce script doit être exécuté avec les privilèges root.${NC}"
+    exit 1
+fi
+
+# Gérer l'installation ou la suppression du paquet
+if [[ "$ACTION" == "install" ]]; then
+    mkdir -p "${CACHE_FILE}"
+    mkdir -p "${INSTALL_DIR}"
+    wget "${MIRROR_URL}/${COMMUNITY_BRANCH}/community.db.tar.gz" -P "${CACHE_FILE}" --no-check-certificate > /dev/null 2>&1
+    wget "${MIRROR_URL}/${CORE_BRANCH}/core.db.tar.gz" -P "${CACHE_FILE}" --no-check-certificate > /dev/null 2>&1
+    tar xf "${CACHE_FILE}/core.db.tar.gz" -C "${CACHE_FILE}" > /dev/null 2>&1
+    tar xf "${CACHE_FILE}/community.db.tar.gz" -C "${CACHE_FILE}" > /dev>null 2>&1
+    echo -e "${GREEN}Les paquets sont mis à jour${NC}"
+
+    PKG_ARCHIVE=""
+    if [ "$REGISTER_VAR" = true ]; then
+        PKG_ARCHIVE=$(awk -v pkg="$PACKAGE" '$1 == pkg"-"{getline; print}' "${CACHE_FILE}/core.db")
+        if [ -z "$PKG_ARCHIVE" ]; then
+            PKG_ARCHIVE=$(awk -v pkg="$PACKAGE" '$1 == pkg"-"{getline; print}' "${CACHE_FILE}/community.db")
+        fi
+    fi
+
+    if [ -z "$PKG_ARCHIVE" ]; then
+        echo -e "${RED}Le paquet $PACKAGE n'a pas été trouvé.${NC}"
+        exit 1
+    fi
+
+    wget "${MIRROR_URL}/${CORE_BRANCH}/${DIRECTORY_ARG}${PKG_ARCHIVE}" -P "${INSTALL_DIR}" --no-check-certificate > /dev/null 2>&1
+    tar xf "${INSTALL_DIR}${PKG_ARCHIVE}" -C /
+
+    # Gérer les dépendances ici si nécessaire.
+
+    echo -e "${GREEN}Le paquet $PACKAGE a été installé avec succès${NC}"
+elif [[ "$ACTION" == "remove" ]]; then
+    echo -e "${GREEN}Suppression du paquet $PACKAGE${NC}"
+    if ! command -v "$PACKAGE" >/dev/null 2>&1; then
+        echo -e "${RED}Le paquet $PACKAGE n'est pas installé${NC}"
+        exit 1
+    fi
+
+    PKG_FILES=$(find / -name "*${PACKAGE}*")
+    for FILE in $PKG_FILES; do
+        if [ -f "$FILE" ]; then
+            rm "$FILE"
+        elif [ -d "$FILE" ]; then
+            rm -r "$FILE"
+        fi
+    done
+
+    echo -e "${GREEN}Le paquet $PACKAGE a été supprimé avec succès${NC}"
+fi
+
+exit 0

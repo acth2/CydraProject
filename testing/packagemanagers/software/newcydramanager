@@ -223,7 +223,7 @@ function install_deps {
           depsList+=("$line")
       fi
 
-      if [[ "$readState" == "%DEPS%" ]]; then
+      if [[ "$line" == "%DEPS%" ]]; then
           readState=1
       fi
   done < "${PKG_INFO}"

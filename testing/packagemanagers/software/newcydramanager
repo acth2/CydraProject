@@ -30,8 +30,6 @@ USER_INSTALLED_SOFTWARE_DB=$(cat /etc/cydraterms/usersoftware.list)
 OUTDATED_LIST=$(cat /etc/cydraterms/outdated.list)
 CHANGELOG="/etc/cydraterms/changelogs.log"
 
-depsList=()
-readState=0
 PRINT_LOG=true
 REGISTER_VAR=true
 SHOW_HELP=false
@@ -198,6 +196,8 @@ function install_packet {
 
 
 function install_deps {
+  depsList=()
+  readState=0
   while IFS= read -r line; do
 
       if [ $readState -eq 1 ]; then
@@ -207,7 +207,7 @@ function install_deps {
           depsList+=("$line")
       fi
 
-      if [[ "$line" == "%DEPS%" ]]; then
+      if [[ "$line" == "%DEPENDS%" ]]; then
           readState=1
       fi
   done < "${PKG_INFO}"

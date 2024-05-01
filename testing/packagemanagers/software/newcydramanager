@@ -195,7 +195,7 @@ function install_packet {
 }
 
 
-function install_deps {
+function get_deps {
   depsList=()
   readState=0
   while IFS= read -r line; do
@@ -213,10 +213,11 @@ function install_deps {
   done < "${PKG_INFO}"
 
   for element in "${depsList[@]}"; do
-      unset PKG_INFO
-      unset PKG_VERSION
-      unset PKG_ARCHIVE
-      cydramanager install "${element}" --without-washing-cache --without-updating-db --add-as-depends
+      echo "${element}\n" >> /etc/cydramanager/cache/deplist
+      #unset PKG_INFO
+      #unset PKG_VERSION
+      #unset PKG_ARCHIVE
+      #cydramanager install "${element}" --without-washing-cache --without-updating-db --add-as-depends
   done
 }
 
@@ -237,9 +238,6 @@ if [[ "$1" == "install" ]]; then
     fi
 
     update_db
-    unset PKG_INFO
-    unset PKG_VERSION
-    unset PKG_ARCHIVE
     PKG_INFO=$(grep -r -l -m 1 "$PACKAGE-" /etc/cydramanager/cache)
     PKG_VERSION=$(sed -n 11p ${PKG_INFO})
     PKG_ARCHIVE=$(sed -n 2p ${PKG_INFO})
@@ -271,7 +269,12 @@ if [[ "$1" == "install" ]]; then
     ask_to_continue
 
     install_packet
-    install_deps
+    get_deps
+    mapfile -t dependencies < "/etc/cydramanager/cache/depslist"
+    for dependency in "${dependencies[@]}"; do
+        sudo -u cydrasys sudo cydramanager install "${element}" --without-washing-cache --without-updating-db --add-as-depends
+    done
+
 
     if [ "${WASH_CACHE}" = true ]; then
        rm -rf "/etc/cydramanager"

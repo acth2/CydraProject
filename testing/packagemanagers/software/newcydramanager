@@ -195,7 +195,7 @@ function install_packet {
 }
 
 
-function get_deps {
+function get_install {
   depsList=()
   readState=0
   while IFS= read -r line; do
@@ -211,12 +211,13 @@ function get_deps {
           readState=1
       fi
   done < "${PKG_INFO}"
-}
 
-function install_deps {
-    for element in "${depsList[@]}"; do
-        cydramanager install "${element}"
-    done
+  for element in "${depsList[@]}"; do
+      unset PKG_INFO
+      unset PKG_VERSION
+      unset PKG_ARCHIVE
+      cydramanager install "${element}" --without-printing-log
+  done
 }
 
 if [[ "$1" != "install" && "$1" != "remove" && "$1" != "update" && "$1" != "fetch" && "$1" != "help" && "$1" != "version" && "$1" != "patchnote" ]]; then
@@ -270,8 +271,6 @@ if [[ "$1" == "install" ]]; then
     ask_to_continue
 
     install_packet
-
-    get_deps
     install_deps
 
     if [ "${WASH_CACHE}" = true ]; then

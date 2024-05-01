@@ -213,8 +213,7 @@ function install_deps {
   done < "${PKG_INFO}"
 
   for element in "${depsList[@]}"; do
-      echo "${element}"
-      #sudo cydramanager install ${element} --without-updating-database --without-washing-cache --add-as-depends
+      sudo cydramanager install ${element} --without-updating-database --without-washing-cache --add-as-depends
   done
 }
 

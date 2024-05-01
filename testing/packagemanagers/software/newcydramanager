@@ -170,6 +170,7 @@ function wash_packet {
   rm -rf ${CACHE_FILE}/util-linux-2.39.2-1-x86_64.pkg.tar.zst
   rm -rf ${CACHE_FILE}/util-linux-libs-2.39.2-1-x86_64.pkg.tar.zst
   rm -rf ${CACHE_FILE}/linux-*
+  rm -rf ${CACHE_FILE}/aarch64-linux-*
 }
 
 function ask_to_continue {
@@ -225,7 +226,7 @@ function install_deps {
       if [[ "$readState" == "%DEPS%" ]]; then
           readState=1
       fi
-  done < "$readState"
+  done < "${PKG_INFO}"
 
   for element in "${depsList[@]}"; do
       sudo cydramanager install ${element} --without-updating-database --without-washing-cache --add-as-depends

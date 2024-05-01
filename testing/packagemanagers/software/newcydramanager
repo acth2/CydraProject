@@ -30,6 +30,8 @@ USER_INSTALLED_SOFTWARE_DB=$(cat /etc/cydraterms/usersoftware.list)
 OUTDATED_LIST=$(cat /etc/cydraterms/outdated.list)
 CHANGELOG="/etc/cydraterms/changelogs.log"
 
+depsList=()
+readState=0
 PRINT_LOG=true
 REGISTER_VAR=true
 SHOW_HELP=false
@@ -66,9 +68,6 @@ for arg in "$@"; do
     --filter-result)
       FILTER=RESULT=true
       ;;
-    --change-gpt-key)
-      CGPT_KEY=true
-      ;;
   esac
 done
 
@@ -83,19 +82,6 @@ if [ "$PRINT_MIRROR" = true ]; then
    echo "${MIRROR_URL}"
    exit 0
 fi
-if [ "${CGPT_KEY}" = true ]; then
-   if [ "${PRINT_LOG}" = true ]; then
-          echo -n "Veuillez entré votre clé OpenAI (ChatGPT): "
-   fi
-   read gptkey
-   if [ -z "${gptkey}" ]; then
-       echo -e "${RED}Veillez entre un input correct${NC}"
-       exit 1
-   fi
-   rm -f /etc/cydraterms/gpt.key
-   touch /etc/cydraterms/gpt.key
-   echo "${gptKey}" > "/etc/cydramanager/gpt.key"
-fi
 
 function open_help {
       echo "Cydramanager - Gestionnaire de paquets simple pour CydraOS"
@@ -104,9 +90,9 @@ function open_help {
 
       echo "Options:                                                   Arguments:"
       echo "  install              Installe le paquet specifie          --without-printing-log              Le gdp n'envoira aucun message               --add-as-depends             Le gdp interpretera le packet comme etant une dependance"
-      echo "  remove               Supprime le paquet specifie          --without-registering-var           Le gdp n'utiliseras aucune variables         --change-gpt-key             Permet de changer de cle api openai "
+      echo "  remove               Supprime le paquet specifie          --without-registering-var           Le gdp n'utiliseras aucune variables         "
       echo "  update               Met a jour tout les packets          --print-mirror                      Permet d'affiche le mirror utilisee          "
-      echo "  fetch                Permet de changer de mirror           --without-washing-cache             Le gdp ne supprimeras pas le cachee          "
+      echo "  fetch                Permet de changer de mirror           --without-washing-cache             Le gdp ne supprimeras pas le cachee         "
       echo "  version              Affiche la version du gdp            --install-pacman-while-update       Le gdp installera pacman durant la maj       "
       echo "  patchnote            Affiche les nouveaute du gdp         --without-updating-db               Le gdp ne metteras pas a jour les db local   "
       echo "  help                 Affiche ce message d'aide            -h / --help / -help                 Permet d'affiche ce message d'aide           "
@@ -181,7 +167,7 @@ function ask_to_continue {
           read asking
           if [[ "${asking}" == "N" || "${asking}" == "n" ]]; then
                if [ "$PRINT_LOG" = true ]; then
-                   echo -e "${RED}Arret de l'installation${NC}"
+                   echo -e "${ORANGE}Arret de l'installation${NC}"
                fi
                rm -rf /etc/cydramanager
                exit 0
@@ -212,8 +198,6 @@ function install_packet {
 
 
 function install_deps {
-  depsList=()
-  readState=0
   while IFS= read -r line; do
 
       if [ $readState -eq 1 ]; then

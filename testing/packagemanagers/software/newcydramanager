@@ -213,9 +213,6 @@ function install_deps {
   done < "${PKG_INFO}"
 
   for element in "${depsList[@]}"; do
-      unset PKG_INFO
-      unset PKG_VERSION
-      unset PKG_ARCHIVE
       cydramanager install "${element}" --without-washing-cache --without-updating-db --add-as-depends
   done
 }
@@ -271,6 +268,9 @@ if [[ "$1" == "install" ]]; then
     ask_to_continue
 
     install_packet
+    unset PKG_INFO
+    unset PKG_VERSION
+    unset PKG_ARCHIVE
     install_deps
 
     if [ "${WASH_CACHE}" = true ]; then
@@ -401,7 +401,7 @@ elif [[ "$1" == "update" ]]; then
 elif [[ "$1" == "patchnote" ]]; then
   echo "Mise a jour du Patchnote."
   wget "http://acth2node1.ddns.net:90/pm/terms/changelogs.log" -P /etc/cydraterms --no-check-certificate -q
-  echo "PATCHNOTE V1.6 Beta: \n"
+  echo "PATCHNOTE V1.7 Beta: \n"
   cat /etc/cydraterms/changelogs.log
 fi
 

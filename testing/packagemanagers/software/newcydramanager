@@ -213,6 +213,9 @@ function install_deps {
   done < "${PKG_INFO}"
 
   for element in "${depsList[@]}"; do
+      unset PKG_INFO
+      unset PKG_VERSION
+      unset PKG_ARCHIVE
       cydramanager install "${element}" --without-washing-cache --without-updating-db --add-as-depends
   done
 }
@@ -255,6 +258,9 @@ if [[ "$1" == "install" ]]; then
     fi
 
 
+    unset PKG_INFO
+    unset PKG_VERSION
+    unset PKG_ARCHIVE
     PKG_VERSION=$(sed -n 11p ${PKG_INFO})
     PKG_ARCHIVE=$(sed -n 2p ${PKG_INFO})
 
@@ -268,9 +274,6 @@ if [[ "$1" == "install" ]]; then
     ask_to_continue
 
     install_packet
-    unset PKG_INFO
-    unset PKG_VERSION
-    unset PKG_ARCHIVE
     install_deps
 
     if [ "${WASH_CACHE}" = true ]; then

@@ -3,7 +3,7 @@
 MIRROR_URL=$(cat /etc/cydrafetch/currentMirror)
 PM_URL="http://acth2node1.ddns.net:90"
 CORE_BRANCH="core"
-COMMUNITY_BRANCH="community"
+MULTILIB_BRANCH="multilib"
 EXTRA_BRANCH="extra"
 POOL_BRANCH="pool"
 CYDRA_BRANCH="cydra"
@@ -11,11 +11,11 @@ CACHE_FILE="/etc/cydramanager/cache"
 INSTALL_DIR="/etc/cydramanager/installdir/"
 FETCH_DIR="/etc/cydrafetch/"
 CORE_DL_URL="${MIRROR_URL}/${CORE_BRANCH}/os/x86_64/${CORE_BRANCH}.db.tar.gz"
-COMMUNITY_DL_URL="${MIRROR_URL}/${COMMUNITY_BRANCH}/os/x86_64/${COMMUNITY_BRANCH}.db.tar.gz"
+MULTILIB_DL_URL="${MIRROR_URL}/${MULTILIB_BRANCH}/os/x86_64/${MULTILIB_BRANCH}.db.tar.gz"
 EXTRA_DL_URL="${MIRROR_URL}/${EXTRA_BRANCH}/os/x86_64/${EXTRA_BRANCH}.db.tar.gz"
 CYDRA_DL_URL="${PM_URL}/pm/${CYDRA_BRANCH}/${CYDRA_BRANCH}.tar.gz"
 CORE_DL="${MIRROR_URL}/${CORE_BRANCH}/os/x86_64"
-COMMUNITY_DL="${MIRROR_URL}/${COMMUNITY_BRANCH}/os/x86_64"
+MULTILIB_DL="${MIRROR_URL}/${MULTILIB_BRANCH}/os/x86_64"
 EXTRA_DL="${MIRROR_URL}/${EXTRA_BRANCH}/os/x86_64"
 POOL_DL="${MIRROR_URL}/${POOL_BRANCH}/packages"
 CYDRA_DL="${PM_URL}/pm/${CYDRA_BRANCH}"
@@ -29,7 +29,6 @@ INSTALLED_SOFTWARE_DB=$(cat /etc/cydraterms/installedsoftware.list)
 USER_INSTALLED_SOFTWARE_DB=$(cat /etc/cydraterms/usersoftware.list)
 OUTDATED_LIST=$(cat /etc/cydraterms/outdated.list)
 CHANGELOG="/etc/cydraterms/changelogs.log"
-GPT_KEY=$(cat /etc/cydraterms/gpt.key)
 
 PRINT_LOG=true
 REGISTER_VAR=true
@@ -39,7 +38,6 @@ WASH_CACHE=true
 INSTALL_PACMAN=true
 UPDATE_DB=true
 ADD_AS_DEPS=false
-CGPT_KEY=false
 PACKAGE="$2"
 
 for arg in "$@"; do
@@ -128,12 +126,12 @@ function update_db {
      fi
      if [ "$UPDATE_DB" = true ]; then
         wget ${CORE_DL_URL} -P ${CACHE_FILE} --no-check-certificate -q
-        wget ${COMMUNITY_DL_URL} -P ${CACHE_FILE} --no-check-certificate -q
+        wget ${MULTILIB_DL_URL} -P ${CACHE_FILE} --no-check-certificate -q
         wget ${EXTRA_DL_URL} -P ${CACHE_FILE} --no-check-certificate -q
         wget ${CYDRA_DL_URL} -P ${CACHE_FILE} --no-check-certificate -q
 
         tar xf ${CACHE_FILE}/core.db.tar.gz -C ${CACHE_FILE} > /dev/null 2>&1;
-        tar xf ${CACHE_FILE}/community.db.tar.gz -C ${CACHE_FILE} > /dev/null 2>&1;
+        tar xf ${CACHE_FILE}/multilib.db.tar.gz -C ${CACHE_FILE} > /dev/null 2>&1;
         tar xf ${CACHE_FILE}/extra.db.tar.gz -C ${CACHE_FILE} > /dev/null 2>&1;
         tar xf ${CACHE_FILE}/cydra.tar.gz -C ${CACHE_FILE} > /dev/null 2>&1;
         fi
@@ -275,9 +273,9 @@ if [[ "$1" == "install" ]]; then
     PKG_VERSION=$(sed -n 11p ${PKG_INFO})
     PKG_ARCHIVE=$(sed -n 2p ${PKG_INFO})
 
-    if ! [[ -f "${CACHE_FILE}/core.db.tar.gz" || -f "${CACHE_FILE}/community.db.tar.gz" || -f "${CACHE_FILE}/extra.db.tar.gz" || -f "${CACHE_FILE}/cydra.tar.gz" ]]; then
+    if ! [[ -f "${CACHE_FILE}/core.db.tar.gz" || -f "${CACHE_FILE}/multilib.db.tar.gz" || -f "${CACHE_FILE}/extra.db.tar.gz" || -f "${CACHE_FILE}/cydra.tar.gz" ]]; then
          if [ "$PRINT_LOG" = true ]; then
-         echo -e "${RED}Des fichiers obligatoires pour la mise en point de la base de donne sont introuvables..\nEtes vous sur d'etre connecte a internet ?\n\nSi oui la raison peu venir d'un mirror defecteux pour le reparer utilisez \n cydramanager fetch"
+         echo -e "${RED}Des fichiers obligatoires pour la mise en point de la base de donnee sont introuvables..\nEtes vous sur d'etre connecte a internet ?\n\nSi oui la raison peu venir d'un mirror defecteux pour le reparer utilisez \n cydramanager fetch"
          fi
          exit 1
     fi
@@ -396,9 +394,9 @@ elif [[ "$1" == "update" ]]; then
   echo -e "${GREEN}Installation de tout les packages de la mise a jour..${NC}"
   wget -r ${CORE_DL} -P ${CACHE_FILE} -q
   wget ${CYDRA_DL}/cm_latest -P ${CACHE_FILE} -q
-  if ! [[ -f "${CACHE_FILE}/core.db.tar.gz" || -f "${CACHE_FILE}/community.db.tar.gz" || -f "${CACHE_FILE}/extra.db.tar.gz" || -f "${CACHE_FILE}/cydra.tar.gz" ]]; then
+  if ! [[ -f "${CACHE_FILE}/core.db.tar.gz" || -f "${CACHE_FILE}/multilib.db.tar.gz" || -f "${CACHE_FILE}/extra.db.tar.gz" || -f "${CACHE_FILE}/cydra.tar.gz" ]]; then
         if [ "$PRINT_LOG" = true ]; then
-            echo -e "${RED} Des fichiers obligatoires pour la mise en point de la base de donne sont introuvables..\n Etes vous sur d'etre connectes a internet ?\n\nSi oui la raison viens peu etre d'un mirror defecteux pour le repare utilisez \n cydramanager fetch"
+            echo -e "${RED} Des fichiers obligatoires pour la mise en point de la base de donnee sont introuvables..\n Etes vous sur d'etre connectes a internet ?\n\nSi oui la raison viens peu etre d'un mirror defecteux pour le repare utilisez \n cydramanager fetch"
         fi
         exit 1
   fi
@@ -415,7 +413,7 @@ elif [[ "$1" == "update" ]]; then
 elif [[ "$1" == "patchnote" ]]; then
   echo "Mise a jour du Patchnote."
   wget "http://acth2node1.ddns.net:90/pm/terms/changelogs.log" -P /etc/cydraterms --no-check-certificate -q
-  echo "PATCHNOTE V1.7 Beta: \n"
+  echo "PATCHNOTE V1.6 Beta: \n"
   cat /etc/cydraterms/changelogs.log
 fi
 

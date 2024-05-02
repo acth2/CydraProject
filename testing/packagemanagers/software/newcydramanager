@@ -201,7 +201,7 @@ function reinstall_deps {
     done < "${DPKG_INFO[$element]}"
 
     for element in "${depsList[@]}"; do
-        DPKG_INFO["$element"]=$(find /etc/cydramanager/cache -type f -name "*$element*" | head -1)
+        DPKG_INFO["$element"]=$(grep -r -l -m 1 -o "$element-" /etc/cydramanager/cache | head -1)
         DPKG_VERSION["$element"]=$(sed -n 11p "${DPKG_INFO[$element]}")
         DPKG_ARCHIVE["$element"]=$(sed -n 2p "${DPKG_INFO[$element]}")
 
@@ -231,7 +231,7 @@ function install_deps {
     done < "${PKG_INFO}"
 
     for element in "${depsList[@]}"; do
-        DPKG_INFO["$element"]=$(find /etc/cydramanager/cache -type f -name "*$element*" | head -1)
+        DPKG_INFO["$element"]=$(grep -r -l -m 1 -o "$element-" /etc/cydramanager/cache | head -1)
         DPKG_VERSION["$element"]=$(sed -n 11p "${DPKG_INFO[$element]}")
         DPKG_ARCHIVE["$element"]=$(sed -n 2p "${DPKG_INFO[$element]}")
 
@@ -272,7 +272,7 @@ if [[ "$1" == "install" ]]; then
     fi
 
     update_db
-    PKG_INFO=$(find /etc/cydramanager/cache -type f -name "*$PACKAGE*" | head -1)
+    PKG_INFO=$(grep -r -l -m 1 -o "$PACKAGE-" /etc/cydramanager/cache | head -1)
     PKG_VERSION=$(sed -n 11p "${PKG_INFO}")
     PKG_ARCHIVE=$(sed -n 2p "${PKG_INFO}")
 

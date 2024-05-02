@@ -183,6 +183,38 @@ function install_packet {
     fi
 }
 
+function reinstall_deps {
+    depsList=()
+    readState=0
+    while IFS= read -r line; do
+
+        if [ $readState -eq 1 ]; then
+            if [ -z "$line" ]; then
+                break
+            fi
+            depsList+=("$line")
+        fi
+
+        if [[ "$line" == "%DEPENDS%" ]]; then
+            readState=1
+        fi
+    done < "${DPKG_INFO[$element]}"
+
+    for element in "${depsList[@]}"; do
+        DPKG_INFO["$element"]=$(grep -r -l -m 1 "$element-" /etc/cydramanager/cache)
+        DPKG_VERSION["$element"]=$(sed -n 11p "${DPKG_INFO[$element]}")
+        DPKG_ARCHIVE["$element"]=$(sed -n 2p "${DPKG_INFO[$element]}")
+
+        wget ${POOL_DL}/${DPKG_ARCHIVE[$element]} -P ${INSTALL_DIR} --no-check-certificate -q
+
+        chmod +rwx ${INSTALL_DIR}${DPKG_ARCHIVE[$element]}
+        tar xf ${INSTALL_DIR}${DPKG_ARCHIVE[$element]} -C /
+
+        reinstall_deps
+    done
+}
+
+
 function install_deps {
     depsList=()
     readState=0
@@ -198,14 +230,19 @@ function install_deps {
         if [[ "$line" == "%DEPENDS%" ]]; then
             readState=1
         fi
-    done < "${1PKG_INFO}"
+    done < "${PKG_INFO}"
 
     for element in "${depsList[@]}"; do
-        DPKG_INFO["$element"]=$element
-        DPKG_VERSION["$element"]=$element
-        DPKG_ARCHIVE["$element"]=$element
+        DPKG_INFO["$element"]=$(grep -r -l -m 1 "$element-" /etc/cydramanager/cache)
+        DPKG_VERSION["$element"]=$(sed -n 11p "${DPKG_INFO[$element]}")
+        DPKG_ARCHIVE["$element"]=$(sed -n 2p "${DPKG_INFO[$element]}")
 
-        sudo -u cydrasys cydramanager install "${DPKG_INFO["$element"]}" --without-washing-cache --without-updating-db --add-as-depends
+        wget ${POOL_DL}/${DPKG_ARCHIVE[$element]} -P ${INSTALL_DIR} --no-check-certificate -q
+
+        chmod +rwx ${INSTALL_DIR}${DPKG_ARCHIVE[$element]}
+        tar xf ${INSTALL_DIR}${DPKG_ARCHIVE[$element]} -C /
+
+        reinstall_deps
     done
 }
 

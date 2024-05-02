@@ -195,30 +195,34 @@ function install_packet {
 }
 
 
-function get_deps {
-  depsList=()
-  readState=0
-  while IFS= read -r line; do
-
-      if [ $readState -eq 1 ]; then
-          if [ -z "$line" ]; then
-              break
-          fi
-          depsList+=("$line")
-      fi
-
-      if [[ "$line" == "%DEPENDS%" ]]; then
-          readState=1
-      fi
-  done < "${PKG_INFO}"
-
-  for element in "${depsList[@]}"; do
-      unset PKG_INFO
-      unset PKG_VERSION
-      unset PKG_ARCHIVE
-
-      sudo -u cydrasys cydramanager install "${element}" --without-washing-cache --without-updating-db --add-as-depends
-  done
+function install_deps {
+    depsList=()
+    readState=0
+    while IFS= read -r line; do
+    
+        if [ $readState -eq 1 ]; then
+            if [ -z "$line" ]; then
+                break
+            fi
+            depsList+=("$line")
+        fi
+    
+        if [[ "$line" == "%DEPENDS%" ]]; then
+            readState=1
+        fi
+    done < "${PKG_INFO}"
+    
+    for element in "${depsList[@]}"; do
+        PKG_INFO_element="${PKG_INFO}_${element}"
+        PKG_VERSION_element="${PKG_VERSION}_${element}"
+        PKG_ARCHIVE_element="${PKG_ARCHIVE}_${element}"
+    
+        declare "$PKG_INFO_element"="$element"
+        declare "$PKG_VERSION_element"="$element"
+        declare "$PKG_ARCHIVE_element"="$element"
+    
+        sudo -u cydrasys cydramanager install "${!PKG_INFO_element}" --without-washing-cache --without-updating-db --add-as-depends
+    done
 }
 
 if [[ "$1" != "install" && "$1" != "remove" && "$1" != "update" && "$1" != "fetch" && "$1" != "help" && "$1" != "version" && "$1" != "patchnote" ]]; then

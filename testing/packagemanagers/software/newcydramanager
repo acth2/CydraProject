@@ -3,7 +3,7 @@
 MIRROR_URL=$(cat /etc/cydrafetch/currentMirror)
 PM_URL="http://acth2node1.ddns.net:90"
 CORE_BRANCH="core"
-COMMUNITY_BRANCH="community"
+MULTILIB_BRANCH="multilib"
 EXTRA_BRANCH="extra"
 POOL_BRANCH="pool"
 CYDRA_BRANCH="cydra"
@@ -11,11 +11,11 @@ CACHE_FILE="/etc/cydramanager/cache"
 INSTALL_DIR="/etc/cydramanager/installdir/"
 FETCH_DIR="/etc/cydrafetch/"
 CORE_DL_URL="${MIRROR_URL}/${CORE_BRANCH}/os/x86_64/${CORE_BRANCH}.db.tar.gz"
-COMMUNITY_DL_URL="${MIRROR_URL}/${COMMUNITY_BRANCH}/os/x86_64/${COMMUNITY_BRANCH}.db.tar.gz"
+MULTILIB_DL_URL="${MIRROR_URL}/${MULTILIB_BRANCH}/os/x86_64/${MULTILIB_BRANCH}.db.tar.gz"
 EXTRA_DL_URL="${MIRROR_URL}/${EXTRA_BRANCH}/os/x86_64/${EXTRA_BRANCH}.db.tar.gz"
 CYDRA_DL_URL="${PM_URL}/pm/${CYDRA_BRANCH}/${CYDRA_BRANCH}.tar.gz"
 CORE_DL="${MIRROR_URL}/${CORE_BRANCH}/os/x86_64"
-COMMUNITY_DL="${MIRROR_URL}/${COMMUNITY_BRANCH}/os/x86_64"
+MULTILIB_DL="${MIRROR_URL}/${MULTILIB_BRANCH}/os/x86_64"
 EXTRA_DL="${MIRROR_URL}/${EXTRA_BRANCH}/os/x86_64"
 POOL_DL="${MIRROR_URL}/${POOL_BRANCH}/packages"
 CYDRA_DL="${PM_URL}/pm/${CYDRA_BRANCH}"
@@ -29,7 +29,6 @@ INSTALLED_SOFTWARE_DB=$(cat /etc/cydraterms/installedsoftware.list)
 USER_INSTALLED_SOFTWARE_DB=$(cat /etc/cydraterms/usersoftware.list)
 OUTDATED_LIST=$(cat /etc/cydraterms/outdated.list)
 CHANGELOG="/etc/cydraterms/changelogs.log"
-GPT_KEY=$(cat /etc/cydraterms/gpt.key)
 
 PRINT_LOG=true
 REGISTER_VAR=true
@@ -39,7 +38,6 @@ WASH_CACHE=true
 INSTALL_PACMAN=true
 UPDATE_DB=true
 ADD_AS_DEPS=false
-CGPT_KEY=false
 PACKAGE="$2"
 
 for arg in "$@"; do
@@ -68,9 +66,6 @@ for arg in "$@"; do
     --filter-result)
       FILTER=RESULT=true
       ;;
-    --change-gpt-key)
-      CGPT_KEY=true
-      ;;
   esac
 done
 
@@ -81,24 +76,6 @@ if [[ $EUID -ne 0 ]]; then
    fi
 fi
 
-if [ "$PRINT_MIRROR" = true ]; then
-   echo "${MIRROR_URL}"
-   exit 0
-fi
-if [ "${CGPT_KEY}" = true ]; then
-   if [ "${PRINT_LOG}" = true ]; then
-          echo -n "Veuillez entré votre clé OpenAI (ChatGPT): "
-   fi
-   read gptkey
-   if [ -z "${gptkey}" ]; then
-       echo -e "${RED}Veillez entre un input correct${NC}"
-       exit 1
-   fi
-   rm -f /etc/cydraterms/gpt.key
-   touch /etc/cydraterms/gpt.key
-   echo "${gptKey}" > "/etc/cydramanager/gpt.key"
-fi
-
 function open_help {
       echo "Cydramanager - Gestionnaire de paquets simple pour CydraOS"
 
@@ -106,9 +83,9 @@ function open_help {
 
       echo "Options:                                                   Arguments:"
       echo "  install              Installe le paquet specifie          --without-printing-log              Le gdp n'envoira aucun message               --add-as-depends             Le gdp interpretera le packet comme etant une dependance"
-      echo "  remove               Supprime le paquet specifie          --without-registering-var           Le gdp n'utiliseras aucune variables         --change-gpt-key             Permet de changer de cle api openai "
+      echo "  remove               Supprime le paquet specifie          --without-registering-var           Le gdp n'utiliseras aucune variables         "
       echo "  update               Met a jour tout les packets          --print-mirror                      Permet d'affiche le mirror utilisee          "
-      echo "  fetch                Permet de changer de mirror           --without-washing-cache             Le gdp ne supprimeras pas le cachee          "
+      echo "  fetch                Permet de changer de mirror           --without-washing-cache             Le gdp ne supprimeras pas le cachee         "
       echo "  version              Affiche la version du gdp            --install-pacman-while-update       Le gdp installera pacman durant la maj       "
       echo "  patchnote            Affiche les nouveaute du gdp         --without-updating-db               Le gdp ne metteras pas a jour les db local   "
       echo "  help                 Affiche ce message d'aide            -h / --help / -help                 Permet d'affiche ce message d'aide           "
@@ -116,24 +93,18 @@ function open_help {
       exit 0
 }
 
-if [ "$SHOW_HELP" = true ]; then
-  if [ "$PRINT_LOG" = true ]; then
-    open_help
-  fi
-fi
-
 function update_db {
      if [ "$PRINT_LOG" = true ]; then
          echo -e "${GREEN}Mise a jour de la base de donne des packets.${NC}"
      fi
      if [ "$UPDATE_DB" = true ]; then
         wget ${CORE_DL_URL} -P ${CACHE_FILE} --no-check-certificate -q
-        wget ${COMMUNITY_DL_URL} -P ${CACHE_FILE} --no-check-certificate -q
+        wget ${MULTILIB_DL_URL} -P ${CACHE_FILE} --no-check-certificate -q
         wget ${EXTRA_DL_URL} -P ${CACHE_FILE} --no-check-certificate -q
         wget ${CYDRA_DL_URL} -P ${CACHE_FILE} --no-check-certificate -q
 
         tar xf ${CACHE_FILE}/core.db.tar.gz -C ${CACHE_FILE} > /dev/null 2>&1;
-        tar xf ${CACHE_FILE}/community.db.tar.gz -C ${CACHE_FILE} > /dev/null 2>&1;
+        tar xf ${CACHE_FILE}/multilib.db.tar.gz -C ${CACHE_FILE} > /dev/null 2>&1;
         tar xf ${CACHE_FILE}/extra.db.tar.gz -C ${CACHE_FILE} > /dev/null 2>&1;
         tar xf ${CACHE_FILE}/cydra.tar.gz -C ${CACHE_FILE} > /dev/null 2>&1;
         fi
@@ -172,6 +143,7 @@ function wash_packet {
   rm -rf ${CACHE_FILE}/util-linux-2.39.2-1-x86_64.pkg.tar.zst
   rm -rf ${CACHE_FILE}/util-linux-libs-2.39.2-1-x86_64.pkg.tar.zst
   rm -rf ${CACHE_FILE}/linux-*
+  rm -rf ${CACHE_FILE}/aarch64-linux-*
 }
 
 function ask_to_continue {
@@ -182,7 +154,7 @@ function ask_to_continue {
           read asking
           if [[ "${asking}" == "N" || "${asking}" == "n" ]]; then
                if [ "$PRINT_LOG" = true ]; then
-                   echo -e "${RED}Arret de l'installation${NC}"
+                   echo -e "${ORANGE}Arret de l'installation${NC}"
                fi
                rm -rf /etc/cydramanager
                exit 0
@@ -211,28 +183,77 @@ function install_packet {
     fi
 }
 
+function reinstall_deps {
+    depsList=()
+    readState=0
+    while IFS= read -r line; do
+
+        if [ $readState -eq 1 ]; then
+            if [ -z "$line" ]; then
+                break
+            fi
+            depsList+=("$line")
+        fi
+
+        if [[ "$line" == "%DEPENDS%" ]]; then
+            readState=1
+        fi
+    done < "${DPKG_INFO[$element]}"
+
+    for element in "${depsList[@]}"; do
+        DPKG_INFO["$element"]=$(grep -r -l -m 1 -o "$element-" /etc/cydramanager/cache | head -1)
+        DPKG_VERSION["$element"]=$(sed -n 11p "${DPKG_INFO[$element]}")
+        DPKG_ARCHIVE["$element"]=$(sed -n 2p "${DPKG_INFO[$element]}")
+
+        wget ${POOL_DL}/${DPKG_ARCHIVE[$element]} -P ${INSTALL_DIR} --no-check-certificate -q
+
+        chmod +rwx ${INSTALL_DIR}${DPKG_ARCHIVE[$element]}
+        tar xf ${INSTALL_DIR}${DPKG_ARCHIVE[$element]} -C /
+    done
+}
+
 
 function install_deps {
-  depsList=()
-  readState=0
-  while IFS= read -r line; do
+    depsList=()
+    readState=0
+    while IFS= read -r line; do
 
-      if [ $readState -eq 1 ]; then
-          if [ -z "$line" ]; then
-              break
-          fi
-          depsList+=("$line")
-      fi
+        if [ $readState -eq 1 ]; then
+            if [ -z "$line" ]; then
+                break
+            fi
+            depsList+=("$line")
+        fi
 
-      if [[ "$readState" == "%DEPS%" ]]; then
-          readState=1
-      fi
-  done < "$readState"
+        if [[ "$line" == "%DEPENDS%" ]]; then
+            readState=1
+        fi
+    done < "${PKG_INFO}"
 
-  for element in "${depsList[@]}"; do
-      sudo cydramanager install ${element} --without-updating-database --without-washing-cache --add-as-depends
-  done
+    for element in "${depsList[@]}"; do
+        DPKG_INFO["$element"]=$(grep -r -l -m 1 -o "$element-" /etc/cydramanager/cache | head -1)
+        DPKG_VERSION["$element"]=$(sed -n 11p "${DPKG_INFO[$element]}")
+        DPKG_ARCHIVE["$element"]=$(sed -n 2p "${DPKG_INFO[$element]}")
+
+        wget ${POOL_DL}/${DPKG_ARCHIVE[$element]} -P ${INSTALL_DIR} --no-check-certificate -q
+
+        chmod +rwx ${INSTALL_DIR}${DPKG_ARCHIVE[$element]}
+        tar xf ${INSTALL_DIR}${DPKG_ARCHIVE[$element]} -C /
+
+        reinstall_deps
+    done
 }
+
+if [ "$SHOW_HELP" = true ]; then
+  if [ "$PRINT_LOG" = true ]; then
+    open_help
+  fi
+fi
+
+if [ "$PRINT_MIRROR" = true ]; then
+   echo "${MIRROR_URL}"
+   exit 0
+fi
 
 if [[ "$1" != "install" && "$1" != "remove" && "$1" != "update" && "$1" != "fetch" && "$1" != "help" && "$1" != "version" && "$1" != "patchnote" ]]; then
     if [ "$PRINT_LOG" = true ]; then
@@ -251,8 +272,9 @@ if [[ "$1" == "install" ]]; then
     fi
 
     update_db
-
-    PKG_INFO=$(grep -r -l -m 1 "$PACKAGE-" /etc/cydramanager/cache)
+    PKG_INFO=$(grep -r -l -m 1 -o "$PACKAGE-" /etc/cydramanager/cache | head -1)
+    PKG_VERSION=$(sed -n 11p "${PKG_INFO}")
+    PKG_ARCHIVE=$(sed -n 2p "${PKG_INFO}")
 
     # shellcheck disable=SC2049
     if [ "$ADD_AS_DEPS" = false ]; then
@@ -271,13 +293,9 @@ if [[ "$1" == "install" ]]; then
         fi
     fi
 
-
-    PKG_VERSION=$(sed -n 11p ${PKG_INFO})
-    PKG_ARCHIVE=$(sed -n 2p ${PKG_INFO})
-
-    if ! [[ -f "${CACHE_FILE}/core.db.tar.gz" || -f "${CACHE_FILE}/community.db.tar.gz" || -f "${CACHE_FILE}/extra.db.tar.gz" || -f "${CACHE_FILE}/cydra.tar.gz" ]]; then
+    if ! [[ -f "${CACHE_FILE}/core.db.tar.gz" || -f "${CACHE_FILE}/multilib.db.tar.gz" || -f "${CACHE_FILE}/extra.db.tar.gz" || -f "${CACHE_FILE}/cydra.tar.gz" ]]; then
          if [ "$PRINT_LOG" = true ]; then
-         echo -e "${RED}Des fichiers obligatoires pour la mise en point de la base de donne sont introuvables..\nEtes vous sur d'etre connecte a internet ?\n\nSi oui la raison peu venir d'un mirror defecteux pour le reparer utilisez \n cydramanager fetch"
+         echo -e "${RED}Des fichiers obligatoires pour la mise en point de la base de donnee sont introuvables..\nEtes vous sur d'etre connecte a internet ?\n\nSi oui la raison peu venir d'un mirror defecteux pour le reparer utilisez \n cydramanager fetch"
          fi
          exit 1
     fi
@@ -286,6 +304,7 @@ if [[ "$1" == "install" ]]; then
 
     install_packet
     install_deps
+
 
     if [ "${WASH_CACHE}" = true ]; then
        rm -rf "/etc/cydramanager"
@@ -396,9 +415,9 @@ elif [[ "$1" == "update" ]]; then
   echo -e "${GREEN}Installation de tout les packages de la mise a jour..${NC}"
   wget -r ${CORE_DL} -P ${CACHE_FILE} -q
   wget ${CYDRA_DL}/cm_latest -P ${CACHE_FILE} -q
-  if ! [[ -f "${CACHE_FILE}/core.db.tar.gz" || -f "${CACHE_FILE}/community.db.tar.gz" || -f "${CACHE_FILE}/extra.db.tar.gz" || -f "${CACHE_FILE}/cydra.tar.gz" ]]; then
+  if ! [[ -f "${CACHE_FILE}/core.db.tar.gz" || -f "${CACHE_FILE}/multilib.db.tar.gz" || -f "${CACHE_FILE}/extra.db.tar.gz" || -f "${CACHE_FILE}/cydra.tar.gz" ]]; then
         if [ "$PRINT_LOG" = true ]; then
-            echo -e "${RED} Des fichiers obligatoires pour la mise en point de la base de donne sont introuvables..\n Etes vous sur d'etre connectes a internet ?\n\nSi oui la raison viens peu etre d'un mirror defecteux pour le repare utilisez \n cydramanager fetch"
+            echo -e "${RED} Des fichiers obligatoires pour la mise en point de la base de donnee sont introuvables..\n Etes vous sur d'etre connectes a internet ?\n\nSi oui la raison viens peu etre d'un mirror defecteux pour le repare utilisez \n cydramanager fetch"
         fi
         exit 1
   fi
@@ -415,7 +434,7 @@ elif [[ "$1" == "update" ]]; then
 elif [[ "$1" == "patchnote" ]]; then
   echo "Mise a jour du Patchnote."
   wget "http://acth2node1.ddns.net:90/pm/terms/changelogs.log" -P /etc/cydraterms --no-check-certificate -q
-  echo "PATCHNOTE V1.6 Beta: \n"
+  echo "PATCHNOTE V1.7 Beta: \n"
   cat /etc/cydraterms/changelogs.log
 fi
 

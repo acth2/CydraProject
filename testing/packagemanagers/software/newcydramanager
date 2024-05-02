@@ -201,11 +201,11 @@ function install_deps {
     done < "${1PKG_INFO}"
 
     for element in "${depsList[@]}"; do
-        PKG_INFO["$element"]=$element
-        PKG_VERSION["$element"]=$element
-        PKG_ARCHIVE["$element"]=$element
+        DPKG_INFO["$element"]=$element
+        DPKG_VERSION["$element"]=$element
+        DPKG_ARCHIVE["$element"]=$element
 
-        sudo -u cydrasys cydramanager install "${PKG_INFO["$element"]}" --without-washing-cache --without-updating-db --add-as-depends
+        sudo -u cydrasys cydramanager install "${DPKG_INFO["$element"]}" --without-washing-cache --without-updating-db --add-as-depends
     done
 }
 
@@ -237,23 +237,23 @@ if [[ "$1" == "install" ]]; then
     fi
 
     update_db
-    1PKG_INFO=$(grep -r -l -m 1 "$PACKAGE-" /etc/cydramanager/cache)
-    1PKG_VERSION=$(sed -n 11p ${1PKG_INFO})
-    1PKG_ARCHIVE=$(sed -n 2p ${1PKG_INFO})
+    PKG_INFO=$(grep -r -l -m 1 "$PACKAGE-" /etc/cydramanager/cache)
+    PKG_VERSION=$(sed -n 11p "${PKG_INFO}")
+    PKG_ARCHIVE=$(sed -n 2p "${PKG_INFO}")
 
     # shellcheck disable=SC2049
     if [ "$ADD_AS_DEPS" = false ]; then
-        if [[ ${1PKG_INFO} =~ *"${PACKAGE}"* ]]; then
+        if [[ ${PKG_INFO} =~ *"${PACKAGE}"* ]]; then
           echo -e "${RED}Le packet ${PACKAGE} n'est pas trouvé dans la base de données..${NC}"
           exit 1
-        elif [[ -z ${1PKG_INFO} ]]; then
+        elif [[ -z ${PKG_INFO} ]]; then
           echo -e "${RED}Le packet ${PACKAGE} n'est pas trouvé dans la base de données..${NC}"
           exit 1
         fi
     else
-        if [[ ${1PKG_INFO} =~ *"${PACKAGE}"* ]]; then
+        if [[ ${PKG_INFO} =~ *"${PACKAGE}"* ]]; then
           echo -e "${ORANGE}La dependance ${PACKAGE} n'est pas trouvé dans la base de données..${NC}"
-        elif [[ -z ${1PKG_INFO} ]]; then
+        elif [[ -z ${PKG_INFO} ]]; then
           echo -e "${ORANGE}La dependance ${PACKAGE} n'est pas trouvé dans la base de données..${NC}"
         fi
     fi

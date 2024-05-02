@@ -201,7 +201,7 @@ function reinstall_deps {
     done < "${DPKG_INFO[$element]}"
 
     for element in "${depsList[@]}"; do
-
+          echo "va"
     done
 }
 
@@ -224,7 +224,7 @@ function install_deps {
     done < "${PKG_INFO}"
 
     for element in "${depsList[@]}"; do
-
+          echo "va"
     done
 }
 

@@ -214,7 +214,6 @@ function install_deps {
     done
     DEPS_NUMBER=$(wc -l ${DEPS_FILE} | awk '{print $1}')
     for (( i=1; i>${DEPS_NUMBER}; i++ )); do
-    do
          clear_deps_var
          DEPS_NAME=$(sed -n "${i}p" ${DEPS_FILE})
          DEPS_INFO=$(grep -r -l -m 1 -o "$DEPS_NAME-" /etc/cydramanager/cache | head -1)

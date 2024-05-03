@@ -213,29 +213,10 @@ function install_deps {
           echo "${element}" > ${DEPS_FILE}
     done
     DEPS_NUMBER=$(wc -l ${DEPS_FILE} | awk '{print $1}')
-    for (( i=1; i>${DEPS_NUMBER}; i++ )); do
-         clear_deps_var
-         DEPS_NAME=$(sed -n "${i}p" ${DEPS_FILE})
-         DEPS_INFO=$(grep -r -l -m 1 -o "$DEPS_NAME-" /etc/cydramanager/cache | head -1)
-         DEPS_VERSION=$(sed -n 11p "${DEPS_INFO}")
-         DEPS_ARCHIVE=$(sed -n 2p "${DEPS_INFO}")
-
-         if [[ ${DEPS_INFO} =~ *"${DEPS_NAME}"* ]]; then
-           echo -e "${ORANGE}La dépendance ${DEPS_NAME} n'est pas trouvé dans la base de données..${NC}"
-           exit 1
-         elif [[ -z ${DEPS_INFO} ]]; then
-           echo -e "${ORANGE}La dépendance ${DEPS_NAME} n'est pas trouvé dans la base de données..${NC}"
-           exit 1
-         fi
-         
-         if [[ -z ${DEPS_NAME} ]]; then
-           exit 0
-         fi
-
-         wget "${POOL_DL}/${DEPS_ARCHIVE}" -P ${INSTALL_DIR} --no-check-certificate -q
-
-         chmod +rwx "${INSTALL_DIR}${DEPS_ARCHIVE}"
-         tar xf "${INSTALL_DIR}${DEPS_ARCHIVE}" -C /
+    
+    for ((i=1; i<=$DEPS_NUMBER; i++)); do
+        sed -n "${i}p" "${DEPS_FILE}"
+        exit 1
     done
 }
 
@@ -291,7 +272,7 @@ if [[ "$1" == "install" ]]; then
 
     ask_to_continue
 
-    install_packet
+    #install_packet
     install_deps
 
 

@@ -213,7 +213,7 @@ function install_deps {
           echo "${element}" > ${DEPS_FILE}
     done
     DEPS_NUMBER=$(wc -l ${DEPS_FILE} | awk '{print $1}')
-    for i in {0. .${DEPS_NUMBER}}
+    for (( i=1; i>${DEPS_NUMBER}; i++ )); do
     do
          clear_deps_var
          DEPS_NAME=$(sed -n "${i}p" ${DEPS_FILE})
@@ -227,6 +227,10 @@ function install_deps {
          elif [[ -z ${DEPS_INFO} ]]; then
            echo -e "${ORANGE}La dépendance ${DEPS_NAME} n'est pas trouvé dans la base de données..${NC}"
            exit 1
+         fi
+         
+         if [[ -z ${DEPS_NAME} ]]; then
+           exit 0
          fi
 
          wget "${POOL_DL}/${DEPS_ARCHIVE}" -P ${INSTALL_DIR} --no-check-certificate -q

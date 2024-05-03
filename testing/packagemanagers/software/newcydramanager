@@ -19,7 +19,7 @@ MULTILIB_DL="${MIRROR_URL}/${MULTILIB_BRANCH}/os/x86_64"
 EXTRA_DL="${MIRROR_URL}/${EXTRA_BRANCH}/os/x86_64"
 POOL_DL="${MIRROR_URL}/${POOL_BRANCH}/packages"
 CYDRA_DL="${PM_URL}/pm/${CYDRA_BRANCH}"
-DEPS_FILE="/etc/cydradeps/installdeps"
+DEPS_FILE="${CACHE_FILE}/depsfile.list"
 PKG_INFO_ARG="desc"
 GREEN='\033[0;32m'
 RED='\033[0;31m'
@@ -107,6 +107,8 @@ function update_db {
         tar xf ${CACHE_FILE}/multilib.db.tar.gz -C ${CACHE_FILE} > /dev/null 2>&1;
         tar xf ${CACHE_FILE}/extra.db.tar.gz -C ${CACHE_FILE} > /dev/null 2>&1;
         tar xf ${CACHE_FILE}/cydra.tar.gz -C ${CACHE_FILE} > /dev/null 2>&1;
+
+        touch "${DEPS_FILE}"
         fi
 
      if [ "$PRINT_LOG" = true ]; then
@@ -173,9 +175,9 @@ function install_packet {
     if [ "$PRINT_LOG" = true ]; then
         echo -e "${GREEN}Installation du packet${NC}"
     fi
-    wget ${POOL_DL}/${PKG_ARCHIVE} -P ${INSTALL_DIR} --no-check-certificate -q
+    wget "${POOL_DL}/${PKG_ARCHIVE}" -P ${INSTALL_DIR} --no-check-certificate -q
 
-    chmod +rwx ${INSTALL_DIR}${PKG_ARCHIVE}
+    chmod +rwx "${INSTALL_DIR}${PKG_ARCHIVE}"
     tar xf "${INSTALL_DIR}${PKG_ARCHIVE}" -C /
 
     if [ "$PRINT_LOG" = true ]; then
@@ -183,28 +185,12 @@ function install_packet {
     fi
 }
 
-function reinstall_deps {
-    depsList=()
-    readState=0
-    while IFS= read -r line; do
-
-        if [ $readState -eq 1 ]; then
-            if [ -z "$line" ]; then
-                break
-            fi
-            depsList+=("$line")
-        fi
-
-        if [[ "$line" == "%DEPENDS%" ]]; then
-            readState=1
-        fi
-    done < "${DPKG_INFO[$element]}"
-
-    for element in "${depsList[@]}"; do
-          echo "va"
-    done
+function clear_deps_var {
+  unset DEPS_NAME
+  unset DEPS_FILE
+  unset DEPS_VERSION
+  unset DEPS_ARCHIVE
 }
-
 
 function install_deps {
     depsList=()
@@ -224,7 +210,29 @@ function install_deps {
     done < "${PKG_INFO}"
 
     for element in "${depsList[@]}"; do
-          echo "va"
+          echo "${element}" > ${CACHE_FILE}
+    done
+    DEPS_NUMBER=$(wc -l ${DEPS_FILE} | awk '{print $1}')
+    for i in {0. .${DEPS_NUMBER}}
+    do
+         clear_deps_var
+         DEPS_NAME=$(sed -n "${i}p" ${DEPS_FILE})
+         DEPS_INFO=$(grep -r -l -m 1 -o "$DEPS_NAME-" /etc/cydramanager/cache | head -1)
+         DEPS_VERSION=$(sed -n 11p "${DEPS_INFO}")
+         DEPS_ARCHIVE=$(sed -n 2p "${DEPS_INFO}")
+
+         if [[ ${DEPS_INFO} =~ *"${DEPS_NAME}"* ]]; then
+           echo -e "${ORANGE}La dépendance ${DEPS_NAME} n'est pas trouvé dans la base de données..${NC}"
+           exit 1
+         elif [[ -z ${DEPS_INFO} ]]; then
+           echo -e "${ORANGE}La dépendance ${DEPS_NAME} n'est pas trouvé dans la base de données..${NC}"
+           exit 1
+         fi
+
+         wget "${POOL_DL}/${DEPS_ARCHIVE}" -P ${INSTALL_DIR} --no-check-certificate -q
+
+         chmod +rwx "${INSTALL_DIR}${DEPS_ARCHIVE}"
+         tar xf "${INSTALL_DIR}${DEPS_ARCHIVE}" -C /
     done
 }
 
@@ -268,12 +276,6 @@ if [[ "$1" == "install" ]]; then
         elif [[ -z ${PKG_INFO} ]]; then
           echo -e "${RED}Le packet ${PACKAGE} n'est pas trouvé dans la base de données..${NC}"
           exit 1
-        fi
-    else
-        if [[ ${PKG_INFO} =~ *"${PACKAGE}"* ]]; then
-          echo -e "${ORANGE}La dependance ${PACKAGE} n'est pas trouvé dans la base de données..${NC}"
-        elif [[ -z ${PKG_INFO} ]]; then
-          echo -e "${ORANGE}La dependance ${PACKAGE} n'est pas trouvé dans la base de données..${NC}"
         fi
     fi
 

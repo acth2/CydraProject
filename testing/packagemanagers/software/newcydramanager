@@ -210,7 +210,7 @@ function install_deps {
     done < "${PKG_INFO}"
 
     for element in "${depsList[@]}"; do
-          echo "${element}" > ${CACHE_FILE}
+          echo "${element}" > ${DEPS_FILE}
     done
     DEPS_NUMBER=$(wc -l ${DEPS_FILE} | awk '{print $1}')
     for i in {0. .${DEPS_NUMBER}}

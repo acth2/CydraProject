@@ -193,6 +193,49 @@ function clear_deps_var {
   unset DEPS_ARCHIVE
 }
 
+function install_sdeps {
+      secondDepsList=()
+      secondReadState=0
+      while IFS= read -r line; do
+
+  if [ $secondReadState -eq 1 ]; then
+      if [ -z "$line" ]; then
+          break
+      fi
+      secondDepsList+=("$line")
+      fi
+
+      if [[ "$line" == "%DEPENDS%" ]]; then
+          secondReadState=1
+      fi
+  done < "${DEPS_INFO}"
+
+  for secondElement in "${secondDepsList[@]}"; do
+        echo "${secondElement}" > ${SECONDDEPS_FILE}
+  done
+  SECONDDEPS_NUMBER=$(wc -l ${SECONDDEPS_FILE} | awk '{print $1}')
+  for ((i=1; i<=$SECONDDEPS_NUMBER; i++)); do
+    SDEPS_NAME=$(sed -n "${i}p" "${SECONDDEPS_FILE}")
+    SDEPS_INFO=$(grep -r -l -m 1 -o "$SDEPS_NAME-" /etc/cydramanager/cache | head -1)
+    SDEPS_VERSION=$(sed -n 11p "${SDEPS_INFO}")
+    SDEPS_ARCHIVE=$(sed -n 2p "${SDEPS_INFO}")
+
+    cat /etc/cydramanager/cache/sdepsfile.list
+    if [[ ${SDEPS_INFO} =~ *"${SDEPS_NAME}"* ]]; then
+      echo -e "${ORANGE}La sous-dépendence ${SDEPS_NAME} n'est pas trouvé dans la base de données..${NC}"
+      exit 1
+    elif [[ -z ${SDEPS_INFO} ]]; then
+      echo -e "${ORANGE}La sous-dépendence ${SDEPS_NAME} n'est pas trouvé dans la base de données..${NC}"
+      exit 1
+    fi
+
+    #wget "${POOL_DL}/${SDEPS_ARCHIVE}" -P ${INSTALL_DIR} --no-check-certificate -q
+
+    #chmod +rwx "${INSTALL_DIR}${SDEPS_ARCHIVE}"
+    #tar xvf "${INSTALL_DIR}${SDEPS_ARCHIVE}" -C /
+   done
+}
+
 function install_deps {
     depsList=()
     readState=0
@@ -233,46 +276,7 @@ function install_deps {
         chmod +rwx "${INSTALL_DIR}${DEPS_ARCHIVE}"
         tar xvf "${INSTALL_DIR}${DEPS_ARCHIVE}" -C /
 
-        secondDepsList=()
-        secondReadState=0
-        while IFS= read -r line; do
-
-            if [ $secondReadState -eq 1 ]; then
-                if [ -z "$line" ]; then
-                    break
-                fi
-                secondDepsList+=("$line")
-            fi
-
-            if [[ "$line" == "%DEPENDS%" ]]; then
-                secondReadState=1
-            fi
-        done < "${DEPS_INFO}"
-
-        for secondElement in "${secondDepsList[@]}"; do
-              echo "${secondElement}" > ${SECONDDEPS_FILE}
-        done
-        SECONDDEPS_NUMBER=$(wc -l ${SECONDDEPS_FILE} | awk '{print $1}')
-        for ((i=1; i<=$SECONDDEPS_NUMBER; i++)); do
-                SDEPS_NAME=$(sed -n "${i}p" "${SECONDDEPS_FILE}")
-                SDEPS_INFO=$(grep -r -l -m 1 -o "$SDEPS_NAME-" /etc/cydramanager/cache | head -1)
-                SDEPS_VERSION=$(sed -n 11p "${SDEPS_INFO}")
-                SDEPS_ARCHIVE=$(sed -n 2p "${SDEPS_INFO}")
-
-                if [[ ${SDEPS_INFO} =~ *"${SDEPS_NAME}"* ]]; then
-                  echo -e "${ORANGE}La sous-dépendence ${SDEPS_NAME} n'est pas trouvé dans la base de données..${NC}"
-                  exit 1
-                elif [[ -z ${SDEPS_INFO} ]]; then
-                  echo -e "${ORANGE}La sous-dépendence ${SDEPS_NAME} n'est pas trouvé dans la base de données..${NC}"
-                  exit 1
-                fi
-
-                wget "${POOL_DL}/${SDEPS_ARCHIVE}" -P ${INSTALL_DIR} --no-check-certificate -q
-
-                chmod +rwx "${INSTALL_DIR}${SDEPS_ARCHIVE}"
-                tar xvf "${INSTALL_DIR}${SDEPS_ARCHIVE}" -C /
-        done
-
+        install_sdeps
     done
 }
 

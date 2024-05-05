@@ -8,9 +8,9 @@
 
 [https://discord.gg/V97QUCTCrH](https://discord.gg/V97QUCTCrH)
 
-<h2>Project Screenshots:</h2>
+<h2>🎥 Screenshots:</h2>
 
-<img src="https://raw.githubusercontent.com/acth2/acth2.github.io/main/UEFIvsBIOS.PNG" alt="project-screenshot" width="400" height="400/">
+<img src="https://raw.githubusercontent.com/acth2/acth2.github.io/main/UEFIvsBIOS.PNG" alt="project-screenshot" width="1920" height="1080">
 
   
   

@@ -1,0 +1,33 @@
+Cydramanager BETA V1.8:
+
+Ajout de regles perméttant de détecté si un packet a deja été installé:
+
+CODE:
+    if grep -q "^${PKG_NAME}[[:space:]]" "${USER_INSTALLED_SOFTWARE_DB}"; then
+        VERSION=$(grep "^${PKG_NAME}[[:space:]]" "${USER_INSTALLED_SOFTWARE_DB}" | awk '{print $2}')
+        
+        if [ "$VERSION" = "$PKG_VERSION" ]; then
+            echo -e "${RED}Erreur: Le paquet ${PKG_NAME} version ${PKG_VERSION} est déjà installé sur votre système.${NC}"
+            ask_to_continue
+        else
+            echo -e "${RED}Le paquet ${PKG_NAME} est déjà installé sur votre système avec une version différente.${NC}"
+            ask_to_continue
+        fi
+    fi
+
+    if grep -q "^${PKG_NAME}[[:space:]]" "${INSTALLED_SOFTWARE_DB}"; then
+        VERSION=$(grep "^${PKG_NAME}[[:space:]]" "${INSTALLED_SOFTWARE_DB}" | awk '{print $2}')
+        
+        if [ "$VERSION" = "$PKG_VERSION" ]; then
+            echo -e "${RED}Erreur: Le paquet ${PKG_NAME} version ${PKG_VERSION} est déjà installé sur votre système.${NC}"
+            ask_to_continue
+        else
+            echo -e "${RED}Le paquet ${PKG_NAME} est déjà installé sur votre système avec une version différente.${NC}"
+            ask_to_continue
+        fi
+    fi
+
+Pour ajouté les packets installé dans la bdd (locale) le gestionnaire de packet utilise ces 2 lignes de code ( une pour le packet
+une pour la dépendance )
+
+Le systeme de détection de doublon pour la dépendance sera ajouté plus-tard.

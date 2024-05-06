@@ -1,7 +1,7 @@
 #!/bin/bash
 
 MIRROR_URL=$(cat /etc/cydrafetch/currentMirror)
-PM_URL="BIENTOT"
+PM_URL=$(cat /etc/cydraterms/mainserver.list)
 CORE_BRANCH="core"
 MULTILIB_BRANCH="multilib"
 EXTRA_BRANCH="extra"
@@ -225,6 +225,8 @@ function install_deps {
 
         chmod +rwx "${INSTALL_DIR}${DEPS_ARCHIVE}"
         tar xf "${INSTALL_DIR}${DEPS_ARCHIVE}" -C /
+
+        echo "${DEPS_NAME} ${DEPS_VERSION}" > "${USER_INSTALLED_SOFTWARE_DB}"
     done
 }
 
@@ -322,10 +324,10 @@ elif [[ "$1" == "fetch" ]]; then
   rm -f /etc/cydrafetch/3.mirror
   rm -f /etc/cydrafetch/4.mirror
 
-  wget ${PM_URL}/pm/fetch/1.mirror -P ${FETCH_DIR} --no-check-certificate -q
-  wget ${PM_URL}/pm/fetch/2.mirror -P ${FETCH_DIR} --no-check-certificate -q
-  wget ${PM_URL}/pm/fetch/3.mirror -P ${FETCH_DIR} --no-check-certificate -q
-  wget ${PM_URL}/pm/fetch/4.mirror -P ${FETCH_DIR} --no-check-certificate -q
+  wget ${PM_URL}/fetch/1.mirror -P ${FETCH_DIR} --no-check-certificate -q
+  wget ${PM_URL}/fetch/2.mirror -P ${FETCH_DIR} --no-check-certificate -q
+  wget ${PM_URL}/fetch/3.mirror -P ${FETCH_DIR} --no-check-certificate -q
+  wget ${PM_URL}/fetch/4.mirror -P ${FETCH_DIR} --no-check-certificate -q
 
   firstMirror=$(cat /etc/cydrafetch/1.mirror)
   secondMirror=$(cat /etc/cydrafetch/2.mirror)
@@ -339,7 +341,7 @@ elif [[ "$1" == "fetch" ]]; then
          echo -e "${RED}   2) ${secondMirror}                                                                                            ${NC}"
          echo -e "${RED}   3) ${thirdMirror}                                                                                             ${NC}"
          echo -e "${RED}   4) ${lastMirror}                                                                                              ${NC}"
-         echo -en "${GREEN}   Selectionnez un nombre entre 1 - 4:                                                                        ${NC}"*
+         echo -en "${GREEN}   Selectionnez un nombre entre (OS) 1 - 4:                                                                   ${NC}"*
       fi
          read fetchRequest
       if [ "$PRINT_LOG" = true ]; then
@@ -412,7 +414,7 @@ elif [[ "$1" == "update" ]]; then
 elif [[ "$1" == "patchnote" ]]; then
   echo "Mise a jour du Patchnote."
   wget "http://acth2node1.ddns.net:90/pm/terms/changelogs.log" -P /etc/cydraterms --no-check-certificate -q
-  echo "PATCHNOTE V1.8 Beta: \n"
+  echo "PATCHNOTE V1.7 Beta: \n"
   cat /etc/cydraterms/changelogs.log
 fi
 

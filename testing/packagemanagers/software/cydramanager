@@ -438,8 +438,7 @@ elif [[ "$1" == "update" ]]; then
   fi
 elif [[ "$1" == "patchnote" ]]; then
   echo "Mise a jour du Patchnote."
-  wget "http://acth2node1.ddns.net:90/pm/terms/changelogs.log" -P /etc/cydraterms --no-check-certificate -q
-  echo "PATCHNOTE V1.7 Beta: \n"
+  wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/changelogs.log" -P /etc/cydraterms --no-check-certificate -q
   cat /etc/cydraterms/changelogs.log
 fi
 

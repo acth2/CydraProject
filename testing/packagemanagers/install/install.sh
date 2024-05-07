@@ -95,10 +95,10 @@ function start_operation {
         write_files
 
         if [ "$ENCRYPT" = true ]; then
-            mv "${currentDir}/pm/cydramanager2" /usr/bin/cydramanager
+            cp -r "${currentDir}/pm/cydramanager2" /usr/bin/cydramanager
             echo -e "${GREEN} -3: Protection du gestionnaire de packets${NC}"
         else
-            mv "${currentDir}/pm/cydramanager" /usr/bin/cydramanager
+            cp -r "${currentDir}/pm/cydramanager" /usr/bin/cydramanager
             echo -e "${ORANGE} -3: Protection du gestionnaire de packets (PASSÉ)${NC}"
         fi
         chmod +rwx /usr/bin/cydramanager

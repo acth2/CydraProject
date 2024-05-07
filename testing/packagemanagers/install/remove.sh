@@ -16,6 +16,7 @@ function remove {
    rm -f /usr/bin/cmar
    rm -f /etc/cydraterms/installedsoftware.list
    echo -e "${GREEN}Le gestionnaire de packet a ete supprimé de votre systeme!${NC}"
+}
 
 if [[ $EUID -ne 0 ]]; then
    if [ "$PRINT_LOG" = true ]; then
@@ -25,3 +26,4 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 remove
+exit 0

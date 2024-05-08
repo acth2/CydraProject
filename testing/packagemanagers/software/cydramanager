@@ -22,14 +22,15 @@ CYDRA_DL="${PM_URL}/pm/${CYDRA_BRANCH}"
 DEPS_FILE="${CACHE_FILE}/depsfile.list"
 SECONDDEPS_FILE="${CACHE_FILE}/sdepsfile.list"
 PKG_INFO_ARG="desc"
+INSTALLED_SOFTWARE_DIR=$(cat /etc/cydraterms/installedsoftware)
+USER_INSTALLED_SOFTWARE_DIR=$(cat /etc/cydraterms/usersoftware)
+OUTDATED_LIST=$(cat /etc/cydraterms/outdated.list)
+CHANGELOG="/etc/cydraterms/changelogs.log"
+PM_VERSOPN=$(cat /etc/cydraterms/pmversion)
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 ORANGE='\033[0;33m'
 NC='\033[0m'
-INSTALLED_SOFTWARE_DB=$(cat /etc/cydraterms/installedsoftware.list)
-USER_INSTALLED_SOFTWARE_DB=$(cat /etc/cydraterms/usersoftware.list)
-OUTDATED_LIST=$(cat /etc/cydraterms/outdated.list)
-CHANGELOG="/etc/cydraterms/changelogs.log"
 
 PRINT_LOG=true
 REGISTER_VAR=true
@@ -277,7 +278,7 @@ if [[ "$1" == "install" ]]; then
     fi
 
     if [ -f "${PKG_NAME}" ]; then
-        VERSION=$(cat "${PKG_NAME}")
+        VERSION=$(cat "${INSTALLED_SOFTWARE_DIR}${PKG_NAME}")
         if [ "$VERSION" = "$PKG_VERSION" ]; then
             echo -e "${RED}Erreur: Le paquet ${PKG_NAME} version ${PKG_VERSION} est déjà installé sur votre système.${NC}"
             rm -rf "/etc/cydramanager"
@@ -324,7 +325,7 @@ elif [[ "$1" == "remove" ]]; then
     fi
 elif [[ "$1" == "version" ]]; then
   if [ "$PRINT_LOG" = true ]; then
-     echo "Cydramanager: VERSION 1.6 Beta"
+     echo "Cydramanager: ${PM_VERSION}"
   fi
 elif [[ "$1" == "fetch" ]]; then
   if [ "$PRINT_LOG" = true ]; then

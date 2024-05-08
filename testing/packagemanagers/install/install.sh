@@ -7,10 +7,9 @@ NC='\033[0m'
 
 currentDir=$(pwd)
 pkglistDir="pm/pkglist"
-userPkglistDir="pm/usersoftware"
 
 ENCRYPT=true
-INSTALL=FALSE
+INSTALL=false
 HELP=false
 
 for arg in "$@"; do
@@ -51,8 +50,11 @@ function install_files {
     touch /etc/cydraterms/outdated.list
     touch /etc/cydraterms/gpt.key
     cp -r ${pkglistDir} /etc/cydraterms/installedsoftware.list
-    cp -r ${userPkglistDir} /etc/cydraterms/usersoftware.list
-    wget "http://acth2node1.ddns.net:90/pm/terms/changelogs.log" -P /etc/cydraterms --no-check-certificate -q
+    touch /etc/cydraterms/usersoftware.list
+    chmod +rwx /etc/cydraterms/usersoftware.list
+    wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/changelogs.log" -P /etc/cydraterms --no-check-certificate -q
+    wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/basicmirror.list" -P /etc/cydrafetch/currentMirror.list --no-check-certificate -q
+    wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/fetch/mainserver.list" -P /etc/cydraterms/mainserver.list
 
     touch /etc/cydrafetch/1.mirror
     touch /etc/cydrafetch/2.mirror
@@ -94,10 +96,10 @@ function start_operation {
         write_files
 
         if [ "$ENCRYPT" = true ]; then
-            mv "${currentDir}/pm/cydramanager2" /usr/bin/cydramanager
+            cp -r "${currentDir}/pm/cydramanager2" /usr/bin/cydramanager
             echo -e "${GREEN} -3: Protection du gestionnaire de packets${NC}"
         else
-            mv "${currentDir}/pm/cydramanager" /usr/bin/cydramanager
+            cp -r "${currentDir}/pm/cydramanager" /usr/bin/cydramanager
             echo -e "${ORANGE} -3: Protection du gestionnaire de packets (PASSÉ)${NC}"
         fi
         chmod +rwx /usr/bin/cydramanager
@@ -106,6 +108,8 @@ function start_operation {
         echo -e "${ORANGE}USAGE: sudo cydramanager help${NC}"
         cd ${currentDir}
         exit 0
+    else
+        echo -e "${ORANGE}Pour commencé l'installation veuillez utilisé l'argument --install !${NC}"
     fi
 }
 

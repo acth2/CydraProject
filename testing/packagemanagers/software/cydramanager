@@ -263,44 +263,31 @@ if [[ "$1" == "install" ]]; then
     PKG_ARCHIVE=$(sed -n 2p "${PKG_INFO}")
     PKG_NAME=$(sed -n 5p "${PKG_INFO}")
 
-    if grep -q "^${PKG_NAME}[[:space:]]" "${USER_INSTALLED_SOFTWARE_DB}"; then
-        VERSION=$(grep "^${PKG_NAME}[[:space:]]" "${USER_INSTALLED_SOFTWARE_DB}" | awk '{print $2}')
-        
-        if [ "$VERSION" = "$PKG_VERSION" ]; then
-            echo -e "${RED}Erreur: Le paquet ${PKG_NAME} version ${PKG_VERSION} est déjà installé sur votre système.${NC}"
-            ask_to_continue
-        else
-            echo -e "${RED}Le paquet ${PKG_NAME} est déjà installé sur votre système avec une version différente.${NC}"
-            ask_to_continue
-        fi
-    fi
-
-    if grep -q "^${PKG_NAME}[[:space:]]" "${INSTALLED_SOFTWARE_DB}"; then
-        VERSION=$(grep "^${PKG_NAME}[[:space:]]" "${INSTALLED_SOFTWARE_DB}" | awk '{print $2}')
-        
-        if [ "$VERSION" = "$PKG_VERSION" ]; then
-            echo -e "${RED}Erreur: Le paquet ${PKG_NAME} version ${PKG_VERSION} est déjà installé sur votre système.${NC}"
-            ask_to_continue
-        else
-            echo -e "${RED}Le paquet ${PKG_NAME} est déjà installé sur votre système avec une version différente.${NC}"
-            ask_to_continue
-        fi
-    fi
-
     # shellcheck disable=SC2049
     if [ "$ADD_AS_DEPS" = false ]; then
         if [[ ${PKG_INFO} =~ *"${PACKAGE}"* ]]; then
-          echo -e "${RED}Le packet ${PACKAGE} n'est pas trouvé dans la base de données..${NC}"
-          exit 1
+            echo -e "${RED}Le packet ${PACKAGE} n'est pas trouvé dans la base de données..${NC}"
+            rm -rf "/etc/cydramanager"
+            exit 1
         elif [[ -z ${PKG_INFO} ]]; then
-          echo -e "${RED}Le packet ${PACKAGE} n'est pas trouvé dans la base de données..${NC}"
-          exit 1
+            echo -e "${RED}Le packet ${PACKAGE} n'est pas trouvé dans la base de données..${NC}"
+            rm -rf "/etc/cydramanager"
+            exit 1
+        fi
+    fi
+
+    if [ -f "${PKG_NAME}" ]; then
+        VERSION=$(cat "${PKG_NAME}")
+        if [ "$VERSION" = "$PKG_VERSION" ]; then
+            echo -e "${RED}Erreur: Le paquet ${PKG_NAME} version ${PKG_VERSION} est déjà installé sur votre système.${NC}"
+            rm -rf "/etc/cydramanager"
+            exit 1
         fi
     fi
 
     if ! [[ -f "${CACHE_FILE}/core.db.tar.gz" || -f "${CACHE_FILE}/multilib.db.tar.gz" || -f "${CACHE_FILE}/extra.db.tar.gz" || -f "${CACHE_FILE}/cydra.tar.gz" ]]; then
          if [ "$PRINT_LOG" = true ]; then
-         echo -e "${RED}Des fichiers obligatoires pour la mise en point de la base de donnee sont introuvables..\nEtes vous sur d'etre connecte a internet ?\n\nSi oui la raison peu venir d'un mirror defecteux pour le reparer utilisez \n cydramanager fetch"
+             echo -e "${RED}Des fichiers obligatoires pour la mise en point de la base de donnee sont introuvables..\nEtes vous sur d'etre connecte a internet ?\n\nSi oui la raison peu venir d'un mirror defecteux pour le reparer utilisez \n cydramanager fetch"
          fi
          exit 1
     fi

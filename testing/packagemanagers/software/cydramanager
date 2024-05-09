@@ -1,7 +1,7 @@
 #!/bin/bash
 
 MIRROR_URL=$(cat /etc/cydrafetch/currentMirror)
-PM_URL=$(cat /etc/cydraterms/mainserver.list/mainserver.list
+PM_URL=$(cat /etc/cydraterms/mainserver.list/mainserver.list)
 CORE_BRANCH="core"
 MULTILIB_BRANCH="multilib"
 EXTRA_BRANCH="extra"
@@ -20,16 +20,15 @@ EXTRA_DL="${MIRROR_URL}/${EXTRA_BRANCH}/os/x86_64"
 POOL_DL="${MIRROR_URL}/${POOL_BRANCH}/packages"
 CYDRA_DL="${PM_URL}/pm/${CYDRA_BRANCH}"
 DEPS_FILE="${CACHE_FILE}/depsfile.list"
-SECONDDEPS_FILE="${CACHE_FILE}/sdepsfile.list"
 PKG_INFO_ARG="desc"
+INSTALLED_SOFTWARE_DIR="/etc/cydraterms/installedsoftware"
+USER_INSTALLED_SOFTWARE_DIR="/etc/cydraterms/usersoftware"
+OUTDATED_LIST=$(cat /etc/cydraterms/outdated.list)
+CHANGELOG="/etc/cydraterms/changelogs.log"
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 ORANGE='\033[0;33m'
 NC='\033[0m'
-INSTALLED_SOFTWARE_DB=$(cat /etc/cydraterms/installedsoftware.list)
-USER_INSTALLED_SOFTWARE_DB=$(cat /etc/cydraterms/usersoftware.list)
-OUTDATED_LIST=$(cat /etc/cydraterms/outdated.list)
-CHANGELOG="/etc/cydraterms/changelogs.log"
 
 PRINT_LOG=true
 REGISTER_VAR=true
@@ -263,44 +262,31 @@ if [[ "$1" == "install" ]]; then
     PKG_ARCHIVE=$(sed -n 2p "${PKG_INFO}")
     PKG_NAME=$(sed -n 5p "${PKG_INFO}")
 
-    if grep -q "^${PKG_NAME}[[:space:]]" "${USER_INSTALLED_SOFTWARE_DB}"; then
-        VERSION=$(grep "^${PKG_NAME}[[:space:]]" "${USER_INSTALLED_SOFTWARE_DB}" | awk '{print $2}')
-        
-        if [ "$VERSION" = "$PKG_VERSION" ]; then
-            echo -e "${RED}Erreur: Le paquet ${PKG_NAME} version ${PKG_VERSION} est déjà installé sur votre système.${NC}"
-            ask_to_continue
-        else
-            echo -e "${RED}Le paquet ${PKG_NAME} est déjà installé sur votre système avec une version différente.${NC}"
-            ask_to_continue
-        fi
-    fi
-
-    if grep -q "^${PKG_NAME}[[:space:]]" "${INSTALLED_SOFTWARE_DB}"; then
-        VERSION=$(grep "^${PKG_NAME}[[:space:]]" "${INSTALLED_SOFTWARE_DB}" | awk '{print $2}')
-        
-        if [ "$VERSION" = "$PKG_VERSION" ]; then
-            echo -e "${RED}Erreur: Le paquet ${PKG_NAME} version ${PKG_VERSION} est déjà installé sur votre système.${NC}"
-            ask_to_continue
-        else
-            echo -e "${RED}Le paquet ${PKG_NAME} est déjà installé sur votre système avec une version différente.${NC}"
-            ask_to_continue
-        fi
-    fi
-
     # shellcheck disable=SC2049
     if [ "$ADD_AS_DEPS" = false ]; then
         if [[ ${PKG_INFO} =~ *"${PACKAGE}"* ]]; then
-          echo -e "${RED}Le packet ${PACKAGE} n'est pas trouvé dans la base de données..${NC}"
-          exit 1
+            echo -e "${RED}Le packet ${PACKAGE} n'est pas trouvé dans la base de données..${NC}"
+            rm -rf "/etc/cydramanager"
+            exit 1
         elif [[ -z ${PKG_INFO} ]]; then
-          echo -e "${RED}Le packet ${PACKAGE} n'est pas trouvé dans la base de données..${NC}"
-          exit 1
+            echo -e "${RED}Le packet ${PACKAGE} n'est pas trouvé dans la base de données..${NC}"
+            rm -rf "/etc/cydramanager"
+            exit 1
+        fi
+    fi
+
+    if [ -f "${PKG_NAME}" ]; then
+        VERSION=$(cat "${INSTALLED_SOFTWARE_DIR}/${PKG_NAME}")
+        if [ "$VERSION" = "$PKG_VERSION" ]; then
+            echo -e "${RED}Erreur: Le paquet ${PKG_NAME} version ${PKG_VERSION} est déjà installé sur votre système.${NC}"
+            rm -rf "/etc/cydramanager"
+            exit 1
         fi
     fi
 
     if ! [[ -f "${CACHE_FILE}/core.db.tar.gz" || -f "${CACHE_FILE}/multilib.db.tar.gz" || -f "${CACHE_FILE}/extra.db.tar.gz" || -f "${CACHE_FILE}/cydra.tar.gz" ]]; then
          if [ "$PRINT_LOG" = true ]; then
-         echo -e "${RED}Des fichiers obligatoires pour la mise en point de la base de donnee sont introuvables..\nEtes vous sur d'etre connecte a internet ?\n\nSi oui la raison peu venir d'un mirror defecteux pour le reparer utilisez \n cydramanager fetch"
+             echo -e "${RED}Des fichiers obligatoires pour la mise en point de la base de donnee sont introuvables..\nEtes vous sur d'etre connecte a internet ?\n\nSi oui la raison peu venir d'un mirror defecteux pour le reparer utilisez \n cydramanager fetch"
          fi
          exit 1
     fi
@@ -337,7 +323,9 @@ elif [[ "$1" == "remove" ]]; then
     fi
 elif [[ "$1" == "version" ]]; then
   if [ "$PRINT_LOG" = true ]; then
-     echo "Cydramanager: VERSION 1.6 Beta"
+     wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/version" -P /etc/cydrafetch/pmversion -no-check-certificate -q
+     echo "Cydramanager: ${cat /etc/cydrafetch/version}"
+     rm -f /etc/cydrafetch/version
   fi
 elif [[ "$1" == "fetch" ]]; then
   if [ "$PRINT_LOG" = true ]; then

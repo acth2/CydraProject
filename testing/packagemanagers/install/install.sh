@@ -6,7 +6,6 @@ ORANGE='\033[0;33m'
 NC='\033[0m'
 
 currentDir=$(pwd)
-pkglistDir="pm/pkglist"
 
 ENCRYPT=true
 INSTALL=false
@@ -49,12 +48,12 @@ function install_files {
     touch /etc/cydradeps/installdeps
     touch /etc/cydraterms/outdated.list
     touch /etc/cydraterms/gpt.key
-    cp -r ${pkglistDir} /etc/cydraterms/installedsoftware.list
-    touch /etc/cydraterms/usersoftware.list
-    chmod +rwx /etc/cydraterms/usersoftware.list
+    mkdir /etc/cydraterms/usersoftware
+    mkdir /etc/cydraterms/installedsoftware
     wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/changelogs.log" -P /etc/cydraterms --no-check-certificate -q
     wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/basicmirror.list" -P /etc/cydrafetch/currentMirror.list --no-check-certificate -q
-    wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/fetch/mainserver.list" -P /etc/cydraterms/mainserver.list
+    wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/fetch/mainserver.list" -P /etc/cydraterms/mainserver.list --no-check-certificate -q
+    wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/installedsoftware/" -r -nH --cut-dirs=2 --no-parent --reject="index.html*" -P /etc/cydraterms/installedsoftware --no-check-certificate -q
 
     touch /etc/cydrafetch/1.mirror
     touch /etc/cydrafetch/2.mirror

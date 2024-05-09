@@ -20,13 +20,11 @@ EXTRA_DL="${MIRROR_URL}/${EXTRA_BRANCH}/os/x86_64"
 POOL_DL="${MIRROR_URL}/${POOL_BRANCH}/packages"
 CYDRA_DL="${PM_URL}/pm/${CYDRA_BRANCH}"
 DEPS_FILE="${CACHE_FILE}/depsfile.list"
-SECONDDEPS_FILE="${CACHE_FILE}/sdepsfile.list"
 PKG_INFO_ARG="desc"
-INSTALLED_SOFTWARE_DIR=$(cat /etc/cydraterms/installedsoftware)
-USER_INSTALLED_SOFTWARE_DIR=$(cat /etc/cydraterms/usersoftware)
+INSTALLED_SOFTWARE_DIR="/etc/cydraterms/installedsoftware"
+USER_INSTALLED_SOFTWARE_DIR="/etc/cydraterms/usersoftware"
 OUTDATED_LIST=$(cat /etc/cydraterms/outdated.list)
 CHANGELOG="/etc/cydraterms/changelogs.log"
-PM_VERSOPN=$(cat /etc/cydraterms/pmversion)
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 ORANGE='\033[0;33m'
@@ -325,7 +323,7 @@ elif [[ "$1" == "remove" ]]; then
     fi
 elif [[ "$1" == "version" ]]; then
   if [ "$PRINT_LOG" = true ]; then
-     wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/version" -P /etc/cydrafetch/version -no-check-certificate -q
+     wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/version" -P /etc/cydrafetch/pmversion -no-check-certificate -q
      echo "Cydramanager: ${cat /etc/cydrafetch/version}"
      rm -f /etc/cydrafetch/version
   fi

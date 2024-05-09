@@ -48,7 +48,6 @@ function install_files {
     touch /etc/cydradeps/installdeps
     touch /etc/cydraterms/outdated.list
     touch /etc/cydraterms/gpt.key
-    cp -r ${pkglistDir} /etc/cydraterms/installedsoftware.list
     touch /etc/cydraterms/usersoftware.list
     chmod +rwx /etc/cydraterms/usersoftware.list
     wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/changelogs.log" -P /etc/cydraterms --no-check-certificate -q

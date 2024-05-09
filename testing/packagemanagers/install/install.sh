@@ -27,9 +27,11 @@ done
 function deps_check {
     echo "Recherche des dependances"
     if [ "$ENCRYPT" = true ]; then
-        if [ ! -f "/usr/bin/sch" ]; then
-            echo -e "${RED}Le logiciel SCH n est pas installé sur votre systeme !\n${ORANGE}Utilisez l'argument --without-encrypt-pm${NC}"
-            exit 1
+        if [ "$HELP" = false ]; then
+            if [ ! -f "/usr/bin/sch" ]; then
+                echo -e "${RED}Le logiciel SCH n est pas installé sur votre systeme !\n${ORANGE}Utilisez l'argument --without-encrypt-pm${NC}"
+                exit 1
+            fi
         fi
     fi
 
@@ -45,9 +47,6 @@ function install_files {
     mkdir -p /etc/cydraterms
 
     touch /etc/cydrafetch/currentMirror
-    touch /etc/cydradeps/installdeps
-    touch /etc/cydraterms/outdated.list
-    touch /etc/cydraterms/gpt.key
     mkdir /etc/cydraterms/usersoftware
     mkdir /etc/cydraterms/installedsoftware
     wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/changelogs.log" -P /etc/cydraterms --no-check-certificate -q

@@ -278,7 +278,7 @@ if [[ "$1" == "install" ]]; then
     fi
 
     if [ -f "${PKG_NAME}" ]; then
-        VERSION=$(cat "${INSTALLED_SOFTWARE_DIR}${PKG_NAME}")
+        VERSION=$(cat "${INSTALLED_SOFTWARE_DIR}/${PKG_NAME}")
         if [ "$VERSION" = "$PKG_VERSION" ]; then
             echo -e "${RED}Erreur: Le paquet ${PKG_NAME} version ${PKG_VERSION} est déjà installé sur votre système.${NC}"
             rm -rf "/etc/cydramanager"

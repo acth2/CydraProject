@@ -48,8 +48,8 @@ function install_files {
     touch /etc/cydradeps/installdeps
     touch /etc/cydraterms/outdated.list
     touch /etc/cydraterms/gpt.key
-    touch /etc/cydraterms/usersoftware.list
-    chmod +rwx /etc/cydraterms/usersoftware.list
+    mkdir /etc/cydraterms/usersoftware
+    mkdir /etc/cydraterms/installedsoftware
     wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/changelogs.log" -P /etc/cydraterms --no-check-certificate -q
     wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/basicmirror.list" -P /etc/cydrafetch/currentMirror.list --no-check-certificate -q
     wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/fetch/mainserver.list" -P /etc/cydraterms/mainserver.list --no-check-certificate -q

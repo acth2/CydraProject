@@ -323,7 +323,7 @@ elif [[ "$1" == "remove" ]]; then
     fi
 elif [[ "$1" == "version" ]]; then
   if [ "$PRINT_LOG" = true ]; then
-     wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/version" -P /etc/cydrafetch/pmversion -no-check-certificate -q
+     wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/version" -P /etc/cydrafetch/pmversion --no-check-certificate -q
      echo "Cydramanager: $(cat /etc/cydrafetch/version)"
      rm -f /etc/cydrafetch/version
   fi

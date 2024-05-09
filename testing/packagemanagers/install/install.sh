@@ -6,7 +6,6 @@ ORANGE='\033[0;33m'
 NC='\033[0m'
 
 currentDir=$(pwd)
-pkglistDir="pm/pkglist"
 
 ENCRYPT=true
 INSTALL=false

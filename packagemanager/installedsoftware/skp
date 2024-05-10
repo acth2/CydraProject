@@ -1,18 +1,12 @@
 #!/bin/bash
 
-# Nom du fichier contenant la liste des paquets
 LIST_FILE="liste_paquets.txt"
 
-# Supprimer le fichier s'il existe déjà
-
-# Boucle à travers chaque ligne de la liste des paquets
 while IFS= read -r line; do
-    # Séparation du nom du paquet et de la version
     PACKAGE=$(echo "$line" | cut -d ' ' -f1)
     VERSION=$(echo "$line" | cut -d ' ' -f2)
     
-    # Création du fichier portant le nom du paquet et écriture de sa version
     echo "${VERSION}" > "${PACKAGE}"
-done < ../dick
+done < ../dir
 
-echo "Fichiers de version des paquets créés avec succès."
+echo "cbon."

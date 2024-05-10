@@ -1,11 +1,12 @@
-Tools:
+Outils:
 
 CydraProject
 
-Installer : The installation for CydraLite and another...
-Thanks to AinTEA for collaboration [https://github.com/AinTEAsports]
+Installer : Installation de cydralite
+Merci a AinTEA pour sa contribution [https://github.com/AinTEAsports]
 
 
-cydramanager : A package managers for Cydra !
-For more information do 'cydramanager -h' or 'cydramanager --help'
-You can : Install software, do update, and more !
+cydramanager : Un gestionnaire de packet pour cydraproject
+pour plus d'informations utilisez la commande "sudo cydramanager help"
+pour installé le gestionnaire de packet, vous pouvez accédé a l'installeur
+(ATTENTION: c'est une version beta qui n'est pas terminé et qui peux généré des erreurs )

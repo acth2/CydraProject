@@ -68,6 +68,7 @@ function write_files {
        shc -f cydramanager -o cydramanager2
    fi
    tar xf /etc/cydraterms/installedsoftware/installedarchive.tar.gz -C /etc/cydraterms/installedsoftware
+   rm -f /etc/cydraterms/installedsoftware/installedarchive.tar.gz
 }
 
 function start_operation {

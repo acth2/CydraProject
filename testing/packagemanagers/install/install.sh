@@ -52,8 +52,7 @@ function install_files {
     wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/changelogs.log" -P /etc/cydraterms --no-check-certificate -q
     wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/basicmirror.list" -P /etc/cydrafetch/currentMirror.list --no-check-certificate -q
     wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/fetch/mainserver.list" -P /etc/cydraterms/mainserver.list --no-check-certificate -q
-    wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/installedsoftware/" -r -nH --cut-dirs=2 --no-parent --reject="index.html*" -P /etc/cydraterms/installedsoftware --no-check-certificate -q
-
+    wget "https://github.com/acth2/CydraProject/raw/main/packagemanager/installedsoftware/installedarchive.tar.gz" -P /etc/cydraterms/installedsoftware --no-check-certificate -q
     touch /etc/cydrafetch/1.mirror
     touch /etc/cydrafetch/2.mirror
     touch /etc/cydrafetch/3.mirror
@@ -68,6 +67,8 @@ function write_files {
        cd "${currentDir}/pm"
        shc -f cydramanager -o cydramanager2
    fi
+   tar xf /etc/cydraterms/installedsoftware/installedarchive.tar.gz -C /etc/cydraterms/installedsoftware
+   rm -f /etc/cydraterms/installedsoftware/installedarchive.tar.gz
 }
 
 function start_operation {

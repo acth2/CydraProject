@@ -23,7 +23,6 @@ DEPS_FILE="${CACHE_FILE}/depsfile.list"
 PKG_INFO_ARG="desc"
 INSTALLED_SOFTWARE_DIR="/etc/cydraterms/installedsoftware"
 USER_INSTALLED_SOFTWARE_DIR="/etc/cydraterms/usersoftware"
-OUTDATED_LIST=$(cat /etc/cydraterms/outdated.list)
 CHANGELOG="/etc/cydraterms/changelogs.log"
 GREEN='\033[0;32m'
 RED='\033[0;31m'
@@ -323,9 +322,9 @@ elif [[ "$1" == "remove" ]]; then
     fi
 elif [[ "$1" == "version" ]]; then
   if [ "$PRINT_LOG" = true ]; then
-     wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/version" -P /etc/cydrafetch/pmversion -no-check-certificate -q
-     echo "Cydramanager: ${cat /etc/cydrafetch/version}"
-     rm -f /etc/cydrafetch/version
+     wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/version" -P /etc/cydrafetch/version --no-check-certificate -q
+     echo "Cydramanager: $(cat /etc/cydrafetch/version/version)"
+     rm -f /etc/cydrafetch/version/version
   fi
 elif [[ "$1" == "fetch" ]]; then
   if [ "$PRINT_LOG" = true ]; then

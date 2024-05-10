@@ -1,7 +1,5 @@
 #!/bin/bash
 
-LIST_FILE="liste_paquets.txt"
-
 while IFS= read -r line; do
     PACKAGE=$(echo "$line" | cut -d ' ' -f1)
     VERSION=$(echo "$line" | cut -d ' ' -f2)

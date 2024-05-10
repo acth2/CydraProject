@@ -11,8 +11,6 @@
 <h2>🎥 Screenshots:</h2>
 
 <img src="https://raw.githubusercontent.com/acth2/acth2.github.io/main/UEFIvsBIOS.PNG" alt="project-screenshot" width="1920" height="550/">
-
-  
   
 <h2>🧐 Pourquoi nous?</h2>
 

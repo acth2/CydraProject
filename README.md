@@ -2,7 +2,7 @@
 
 <p align="center"><img src="https://raw.githubusercontent.com/acth2/CydraProject/main/imgs/test.png" alt="project-image"></p>
 
-<p id="description">CydraProject est un projet amateur propulsé et mis a jour par l'envie de codé par un curieux qui aimerais approfondir ces connaisances dans ce domaine. CydraProject est basé sur la documentation Linux from scratch 12.0 SystemD !</p>
+<p id="description">CydraProject est un projet amateur propulsé et mis à jour par l'envie de coder par un curieux qui aimerait approfondir ses connaissances dans ce domaine. CydraProject est basé sur la documentation Linux from Scratch 12.0 SystemD !</p>
 
 <h2>🚀 Demo</h2>
 
@@ -11,8 +11,6 @@
 <h2>🎥 Screenshots:</h2>
 
 <img src="https://raw.githubusercontent.com/acth2/acth2.github.io/main/UEFIvsBIOS.PNG" alt="project-screenshot" width="1920" height="550/">
-
-  
   
 <h2>🧐 Pourquoi nous?</h2>
 
@@ -22,19 +20,19 @@
 *   Indépendant
 *   Bon délire
 
-<h2>🛠️ Guide d'installation:</h2>
+<h2>🛠️ Guide d'installation :</h2>
 
-<p>1. Je vous conseillerais d'utilisé virtualbox / vmware et non un ordinateur réel car le projet est actuellement en beta</p>
+<p>1. Je vous conseillerais d'utiliser VirtualBox/VMware et non un ordinateur réel car le projet est actuellement en version bêta.</p>
 
-<p>2. Installez virtualbox / vmware. Créez une machine virtuel avec un disque de au minimum 5 Go de stockage et 250 Mo de ram</p>
+<p>2. Installez VirtualBox/VMware. Créez une machine virtuelle avec un disque d'au moins 5 Go de stockage et 250 Mo de RAM.</p>
 
-<p>3. Installez l'iso et démarrez dessus</p>
+<p>3. Installez l'ISO et démarrez dessus.</p>
 
-<p>4. Prennez en compte que l'os est en live uniquement et que la version normal arrive !</p>
+<p>4. Prenez en compte que l'OS est en mode live uniquement et que la version normale arrive !</p>
 
 <h2>🍰 Contributions:</h2>
 
-AinTea - L'installeur de la version lite (qui arrive): https://github.com/AinTEAsports
+AinTea - L'installeur de la version lite (à venir) : [AinTea GitHub](https://github.com/AinTEAsports)
 
   
   

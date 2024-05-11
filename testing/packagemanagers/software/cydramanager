@@ -227,7 +227,7 @@ function install_deps {
         tar xf "${INSTALL_DIR}${DEPS_ARCHIVE}" -C /
 
         touch ${USER_INSTALLED_SOFTWARE_DIR}/${DEPS_NAME}
-        echo "${DEPS_VERSION}" > "${USER_INSTALLED_SOFTWARE_DIR/${DEPS_NAME}"
+        echo "${DEPS_VERSION}" > "${USER_INSTALLED_SOFTWARE_DIR}/${DEPS_NAME}"
     done
 }
 

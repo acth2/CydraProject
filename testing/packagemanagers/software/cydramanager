@@ -178,6 +178,8 @@ function install_packet {
 
     chmod +rwx "${INSTALL_DIR}${PKG_ARCHIVE}"
     tar xf "${INSTALL_DIR}${PKG_ARCHIVE}" -C /
+    touch ${USER_INSTALLED_SOFTWARE_DIR}/${PKG_NAME}
+    echo ${PKG_VERSION} > ${USER_INSTALLED_SOFTWARE_DIR}/${PKG_NAME}
 
     if [ "$PRINT_LOG" = true ]; then
        echo -e "${GREEN}Packet installe avec succes${NC}"
@@ -224,7 +226,8 @@ function install_deps {
         chmod +rwx "${INSTALL_DIR}${DEPS_ARCHIVE}"
         tar xf "${INSTALL_DIR}${DEPS_ARCHIVE}" -C /
 
-        echo "${DEPS_NAME} ${DEPS_VERSION}" > "${USER_INSTALLED_SOFTWARE_DB}"
+        touch ${USER_INSTALLED_SOFTWARE_DIR}/${DEPS_NAME}
+        echo "${DEPS_VERSION}" > "${USER_INSTALLED_SOFTWARE_DIR/${DEPS_NAME}"
     done
 }
 

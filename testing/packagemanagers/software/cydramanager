@@ -234,12 +234,10 @@ function install_deps {
             fi
         fi
 
-        if [ -f "${DEPS_NAME}" ]; then
-            VERSION=$(cat "${INSTALLED_SOFTWARE_DIR}/${DEPS_NAME}")
-            if ! [ "$VERSION" = "$DEPS_VERSION" ]; then
-                touch ${USER_INSTALLED_SOFTWARE_DIR}/${DEPS_NAME}
-                echo "${DEPS_VERSION}" > "${USER_INSTALLED_SOFTWARE_DIR}/${DEPS_NAME}"
-            fi
+        VERSION=$(cat "${INSTALLED_SOFTWARE_DIR}/${DEPS_NAME}")
+        if ! [ "$VERSION" = "$DEPS_VERSION" ]; then
+            touch ${USER_INSTALLED_SOFTWARE_DIR}/${DEPS_NAME}
+            echo "${DEPS_VERSION}" > "${USER_INSTALLED_SOFTWARE_DIR}/${DEPS_NAME}"
         fi
     done
 }
@@ -290,13 +288,20 @@ if [[ "$1" == "install" ]]; then
         fi
     fi
 
-    if [ -f "${PKG_NAME}" ]; then
-        VERSION=$(cat "${INSTALLED_SOFTWARE_DIR}/${PKG_NAME}")
-        if [ "$VERSION" = "$PKG_VERSION" ]; then
-            echo -e "${RED}Erreur: Le paquet ${PKG_NAME} version ${PKG_VERSION} est déjà installé sur votre système.${NC}"
-            rm -rf "/etc/cydramanager"
-            exit 1
-        fi
+    VERSION=$(cat "${INSTALLED_SOFTWARE_DIR}/${PKG_NAME}")
+    echo $VERSION
+    echo $PKG_VERSION
+    if [ "${PKG_VERSION}" = "${VERSION}" ]; then
+        echo -e "${RED}Erreur: Le paquet ${PKG_NAME} version ${PKG_VERSION} est déjà installé sur votre système.${NC}"
+        rm -rf "/etc/cydramanager"
+        exit 1
+    fi
+
+    VERSION=$(cat "${USER_INSTALLED_SOFTWARE_DIR}/${PKG_NAME}")
+    if [ "${PKG_VERSION}" = "${VERSION}" ]; then
+        echo -e "${RED}Erreur: Le paquet ${PKG_NAME} version ${PKG_VERSION} est déjà installé sur votre système.${NC}"
+        rm -rf "/etc/cydramanager"
+        exit 1
     fi
 
     if [ -f "${PKG_NAME}" ]; then

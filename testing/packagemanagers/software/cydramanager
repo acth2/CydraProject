@@ -163,7 +163,7 @@ function ask_to_continue {
     fi
 }
 
-function fecth_warninglog {
+function fetch_warninglog {
     if [ "$PRINT_LOG" = true ]; then
        echo -e "${GREEN}UTILISE UN MIRROR PERSONALISE PEU CREER DES FAILLES DE SECURITE IMPORTANTES UTILISEZ LES UNIQUEMENT SI VOUS EN AVEZ CONFIANCE!\n\n ${NC}"
        echo -e "${GREEN}Le mirror ${lastMirror} seras utilise par le gestionnaire de packet${NC}"

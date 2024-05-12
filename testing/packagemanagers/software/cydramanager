@@ -177,7 +177,14 @@ function install_packet {
     wget "${POOL_DL}/${PKG_ARCHIVE}" -P ${INSTALL_DIR} --no-check-certificate -q
 
     chmod +rwx "${INSTALL_DIR}${PKG_ARCHIVE}"
-    tar xf "${INSTALL_DIR}${PKG_ARCHIVE}" -C /
+    tar xf "${INSTALL_DIR}${PKG_ARCHIVE}" -C /usr/cydramanager/pkgt
+    rm -rf /usr/cydramanager/pkgt/${PKG_ARCHIVE}
+    EXTRACTED_ARCHIVE=$(ls /usr/cydramanager/pkgt)
+    mkdir /usr/cydramanager/currentSoftware/${PKG_NAME}
+    mkdir /usr/cydramanager/oldSoftware/${PKG_NAME}
+    mv /usr/cydramanager/pkgt/${EXTRACTED_ARCHIVE}/usr/bin/* /usr/cydramanager/currentSoftware/${PKG_NAME}
+    mv /usr/cydramanager/pkgt/${EXTRACTED_ARCHIVE}/* /
+    rm -rf /usr/cydramanager/pkgt/*
     touch ${USER_INSTALLED_SOFTWARE_DIR}/${PKG_NAME}
     echo ${PKG_VERSION} > ${USER_INSTALLED_SOFTWARE_DIR}/${PKG_NAME}
 
@@ -215,9 +222,11 @@ function install_deps {
 
         if [[ ${DEPS_INFO} =~ *"${DEPS_NAME}"* ]]; then
           echo -e "${ORANGE}La dépendence ${DEPS_NAME} n'est pas trouvé dans la base de données..${NC}"
-          exit
+          rm -rf /etc/cydramanager
+          exit 1
         elif [[ -z ${DEPS_INFO} ]]; then
           echo -e "${ORANGE}La dépendence ${DEPS_NAME} n'est pas trouvé dans la base de données..${NC}"
+          rm -rf /etc/cydramanager
           exit 1
         fi
 
@@ -291,6 +300,10 @@ if [[ "$1" == "install" ]]; then
         echo -e "${RED}Erreur: Le paquet ${PKG_NAME} version ${PKG_VERSION} est déjà installé sur votre système.${NC}"
         rm -rf "/etc/cydramanager"
         exit 1
+    elif [ ! -z ${VERSION} ]
+        mv /usr/cydramanager/currentSoftware/${PKG_NAME}/* /usr/cydramanager/oldSoftware/${PKG_NAME}
+        rm -f /etc/cydraterms/userSoftware/${PKG_NAME}
+        echo -e "${ORANGE}Votre packet ${PACKAGE} est dans une version obselete (${PKG_VERSION}) LA nouvelle version ${VERSION} va etre installé..${NC}"
     fi
 
     VERSION=$(cat "${USER_INSTALLED_SOFTWARE_DIR}/${PKG_NAME}" 2> /etc/cydramanager/cache/smthawful.log)
@@ -298,6 +311,10 @@ if [[ "$1" == "install" ]]; then
         echo -e "${RED}Erreur: Le paquet ${PKG_NAME} version ${PKG_VERSION} est déjà installé sur votre système.${NC}"
         rm -rf "/etc/cydramanager"
         exit 1
+    elif [ ! -z ${VERSION} ]
+        mv /usr/cydramanager/currentSoftware/${PKG_NAME}/* /usr/cydramanager/oldSoftware/${PKG_NAME}
+        rm -f /etc/cydraterms/userSoftware/${PKG_NAME}
+        echo -e "${ORANGE}Votre packet ${PACKAGE} est dans une version obselete (${PKG_VERSION}) LA nouvelle version ${VERSION} va etre installé..${NC}"
     fi
 
     if ! [[ -f "${CACHE_FILE}/core.db.tar.gz" || -f "${CACHE_FILE}/multilib.db.tar.gz" || -f "${CACHE_FILE}/extra.db.tar.gz" || -f "${CACHE_FILE}/cydra.tar.gz" ]]; then

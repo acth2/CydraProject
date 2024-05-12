@@ -58,6 +58,19 @@ function install_files {
     touch /etc/cydrafetch/3.mirror
     touch /etc/cydrafetch/4.mirror
 
+    if [ ! -d "/usr/cydramanager" ]; then
+       mkdir /usr/cydramanager
+       mkdir /usr/cydramanager/currentSoftware
+       mkdir /usr/cydramanager/oldSoftware
+       mkdir /usr/cydramanager/currentSoftware/bin
+       mkdir /usr/cydramanager/currentSoftware/include
+       mkdir /usr/cydramanager/currentSoftware/share
+       mkdir /usr/cydramanager/oldSoftware/bin
+       mkdir /usr/cydramanager/oldSoftware/include
+       mkdir /usr/cydramanager/oldSoftware/share
+       mkdir /usr/cydramanager/pkgt
+    fi
+
 }
 
 function write_files {

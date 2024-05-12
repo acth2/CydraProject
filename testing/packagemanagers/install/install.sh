@@ -80,6 +80,12 @@ function write_files {
    rm -f /etc/cydraterms/installedsoftware/installedarchive.tar.gz
 }
 
+function set_path {
+    echo "NEW_PATH=$PATH:$(find "/usr/cydramanager/currentSoftware" -maxdepth 1 -type d | paste -sd ":" -)" > /etc/profile
+    echo "export PATH=${NEW_PATH}" > /etc/profile
+    export PATH=${NEW_PATH}
+}
+
 function start_operation {
     if [ "$HELP" = true ]; then
         echo -e "Programme d'installation de cydramanager:"
@@ -111,6 +117,9 @@ function start_operation {
             echo -e "${ORANGE} -3: Protection du gestionnaire de packets (PASSÉ)${NC}"
         fi
         chmod +rwx /usr/bin/cydramanager
+
+        echo -e "${GREEN} -4: Changement du PATH de votre systeme"
+        set_path
 
         echo -e "${GREEN} --: Gestionnaire de packet installé${NC}"
         echo -e "${ORANGE}USAGE: sudo cydramanager help${NC}"

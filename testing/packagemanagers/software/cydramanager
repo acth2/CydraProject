@@ -1,4 +1,4 @@
-#!/bin/bash
+ #!/bin/bash
 
 MIRROR_URL=$(cat /etc/cydrafetch/currentMirror)
 PM_URL=$(cat /etc/cydraterms/mainserver.list/mainserver.list)
@@ -300,7 +300,7 @@ if [[ "$1" == "install" ]]; then
         echo -e "${RED}Erreur: Le paquet ${PKG_NAME} version ${PKG_VERSION} est déjà installé sur votre système.${NC}"
         rm -rf "/etc/cydramanager"
         exit 1
-    elif [ ! -z ${VERSION} ]
+    elif [ ! -z ${VERSION} ]; then
         mv /usr/cydramanager/currentSoftware/${PKG_NAME}/* /usr/cydramanager/oldSoftware/${PKG_NAME}
         rm -f /etc/cydraterms/userSoftware/${PKG_NAME}
         echo -e "${ORANGE}Votre packet ${PACKAGE} est dans une version obselete (${PKG_VERSION}) LA nouvelle version ${VERSION} va etre installé..${NC}"
@@ -311,7 +311,7 @@ if [[ "$1" == "install" ]]; then
         echo -e "${RED}Erreur: Le paquet ${PKG_NAME} version ${PKG_VERSION} est déjà installé sur votre système.${NC}"
         rm -rf "/etc/cydramanager"
         exit 1
-    elif [ ! -z ${VERSION} ]
+    elif [ ! -z ${VERSION} ]; then
         mv /usr/cydramanager/currentSoftware/${PKG_NAME}/* /usr/cydramanager/oldSoftware/${PKG_NAME}
         rm -f /etc/cydraterms/userSoftware/${PKG_NAME}
         echo -e "${ORANGE}Votre packet ${PACKAGE} est dans une version obselete (${PKG_VERSION}) LA nouvelle version ${VERSION} va etre installé..${NC}"

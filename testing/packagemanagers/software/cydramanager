@@ -334,23 +334,41 @@ if [[ "$1" == "install" ]]; then
        rm -rf "/etc/cydramanager"
     fi
 elif [[ "$1" == "remove" ]]; then
-    if [ "$PRINT_LOG" = true ]; then
-       echo -e "${GREEN}Suppression du paquet $PACKAGE${NC}"
+    if ! [[ -d ${CACHE_FILE} ]]; then
+       mkdir -p ${CACHE_FILE}
+       mkdir -p ${INSTALL_DIR}
+    elif [ "$WASH_CACHE" = true ]; then
+         rm -rf ${CACHE_FILE}/*
+         rm -rf ${INSTALL_DIR}*
     fi
-    if ! command -v "$PACKAGE" >/dev/null 2>&1; then
-        if [ "$PRINT_LOG" = true ]; then
-           echo -e "${RED}Le paquet $PACKAGE n'est pas installe${NC}"
-        fi
+
+    update_db
+
+    PKG_INFO=$(grep -r -l -m 1 -o "$PACKAGE-" /etc/cydramanager/cache | head -1)
+    PKG_NAME=$(sed -n 5p "${PKG_INFO}")
+
+
+    if [ ! -f /etc/cydraterms/usersoftware/${PKG_NAME} ]; then
+        echo -e "${RED}Le packet ${PACKAGE} n'est pas installé sur votre systeme ..${NC}"
+        rm -rf /etc/cydramanager
         exit 1
     fi
-    PKG_FILES=$(find / -name "*${PACKAGE}*")
-    for FILE in $PKG_FILES; do
-        if [ -f "$FILE" ]; then
-            rm "$FILE"
-        elif [ -d "$FILE" ]; then
-            rm -r "$FILE"
-        fi
-    done
+
+   echo -e "${GREEN}Suppression des logs du packet.${NC}"
+   rm -f /etc/cydraterms/usersoftware/${PKG_NAME}
+   echo -e "${GREEN}Suppression du packet.${NC}"
+   if [ -d /usr/cydramanager/oldSoftware/${PKG_NAME} ]; then
+      rm -rf /usr/cydramanager/oldSoftware/${PKG_NAME}
+   fi
+
+   if [ -d /usr/cydramanager/currentSoftware/${PKG_NAME}]; then
+        rm -rf /usr/cydramanager/currentSoftware/${PKG_NAME}
+   else
+       echo -e "${RED}Le packet ${PACKAGE} semble etre corrompu.. Il est marqué qu'il est installé dans /etc/cydraterms/userSoftware. \nMalheureusement le packet n'est pas trouvé.. Ce peu t'il qu'il a été installé avant la version 2.0R de CydraOS?. \nSi oui veuillez utilisé l'ancienne action remove en méttant votre gestionnaire de packet a la version 1.9 BETA${NC}"
+       rm -rf /etc/cydramanager
+       exit 1
+   fi
+   
     if [ "$PRINT_LOG" = true ]; then
        echo -e "${GREEN}Le paquet $PACKAGE a ete supprime avec succes${NC}"
     fi

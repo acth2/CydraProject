@@ -38,6 +38,7 @@ INSTALL_PACMAN=true
 UPDATE_DB=true
 ADD_AS_DEPS=false
 PACKAGE="$2"
+PAGE="$2"
 
 for arg in "$@"; do
   case "$arg" in
@@ -76,20 +77,27 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 function open_help {
-      echo "Cydramanager - Gestionnaire de paquets simple pour CydraOS"
-
-      echo "Utilisation: cydramanager [install/remove/...] [nom_du_paquet] [arguments]"
-
-      echo "Options:                                                   Arguments:"
-      echo "  install              Installe le paquet specifie          --without-printing-log              Le gdp n'envoira aucun message               --add-as-depends             Le gdp interpretera le packet comme etant une dependance"
-      echo "  remove               Supprime le paquet specifie          --without-registering-var           Le gdp n'utiliseras aucune variables         "
-      echo "  update               Met a jour tout les packets          --print-mirror                      Permet d'affiche le mirror utilisee          "
-      echo "  fetch                Permet de changer de mirror           --without-washing-cache             Le gdp ne supprimeras pas le cachee         "
-      echo "  version              Affiche la version du gdp            --install-pacman-while-update       Le gdp installera pacman durant la maj       "
-      echo "  patchnote            Affiche les nouveaute du gdp         --without-updating-db               Le gdp ne metteras pas a jour les db local   "
-      echo "  help                 Affiche ce message d'aide            -h / --help / -help                 Permet d'affiche ce message d'aide           "
-
+      if [ -z ${PAGE} || ${PAGE} == 0]; then
+          echo "Cydramanager - Gestionnaire de paquets simple pour CydraOS"
+          echo "Utilisation: cydramanager [install/remove/...] [nom_du_paquet] [arguments]"
+          echo
+          echo "Options:                                                   Arguments:"
+          echo "  install              Installe le paquet specifie          --without-printing-log              Le gdp n'envoira aucun message               "
+          echo "  remove               Supprime le paquet specifie          --without-registering-var           Le gdp n'utiliseras aucune variables         "
+          echo "  update               Met a jour tout les packets          --print-mirror                      Permet d'affiche le mirror utilisee          "
+          echo "  fetch                Permet de changer de mirror           --without-washing-cache             Le gdp ne supprimeras pas le cachee         "
+          echo "  version              Affiche la version du gdp            --install-pacman-while-update       Le gdp installera pacman durant la maj       "
+          echo "  patchnote            Affiche les nouveaute du gdp         --without-updating-db               Le gdp ne metteras pas a jour les db local   "
+          echo "  help                 Affiche ce message d'aide            -h / --help / -help                 Permet d'affiche ce message d'aide           "
+          echo
+          echo "[PAGE 1 - 2]"
       exit 0
+      elif [ ${PACKAGE} == 1]; then
+           echo "changever            Per de changé la version d'un packet --add-as-depends                    Le gdp interpretera le packet comme étant une dependance"
+      else
+          echo -e "${RED}La page ${PAGE} n'existe pas pour le moment.${NC}"
+          exit 1
+      fi
 }
 
 function update_db {

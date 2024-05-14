@@ -5,18 +5,14 @@ NC='\033[0m'
 
 function remove_package {
     if [ "$ADD_AS_DEPS" = false ]; then
-          if [ "$PRINT_LOG" = true ]; then
-             echo -en "${NC}Voulez vous supprimé tout les packets que vous avez installé avec cydramanager? ----- [Y/N]: "
-          fi
-          read asking
-          if [[ "${asking}" == "Y" || "${asking}" == "y" ]]; then
-               rm -rf /usr/cydramanager
-               echo -e "${GREEN}Tout les packets sont supprimés${NC}"
-          fi
-
-          if [[ "${asking}" == "N" || "${asking}" == "n" ]]; then
-               echo -e "${NC}Les packets ne seront pas supprimés"
-          fi
+        echo -en "${NC}Voulez vous supprimé tout les packets que vous avez installé avec cydramanager? ----- [Y/N]: "
+        read asking
+        if [[ "${asking}" == "Y" || "${asking}" == "y" ]]; then
+            rm -rf /usr/cydramanager
+            echo -e "${GREEN}Tout les packets sont supprimés${NC}"
+        else 
+           echo -e "${NC}Les packets ne seront pas supprimés"
+        fi
     fi
 }
 

@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC2034
 
 MIRROR_URL=$(cat /etc/cydrafetch/currentMirror)
 PM_URL=$(cat /etc/cydraterms/mainserver.list/mainserver.list)
@@ -77,7 +78,7 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 function open_help {
-      if [ -z ${PAGE} ||  ${PAGE} == 0 ]; then
+      if [ -z "${PAGE}" ] || [ "${PAGE}" == 0 ]; then
           echo "Cydramanager - Gestionnaire de paquets simple pour CydraOS"
           echo "Utilisation: cydramanager [install/remove/...] [nom_du_paquet] [arguments]"
           echo
@@ -92,8 +93,9 @@ function open_help {
           echo
           echo "[PAGE 1 - 2]"
       exit 0
-      elif [ ${PACKAGE} == 1 ]; then
+      elif [ "${PACKAGE}" == 1 ]; then
            echo "changever            Permet de changé la version d'un packet --add-as-depends                    Le gdp interpretera le packet comme étant une dependance"
+           exit 0
       else
           echo -e "${RED}La page ${PAGE} n'existe pas pour le moment.${NC}"
           exit 1
@@ -105,10 +107,10 @@ function update_db {
          echo -e "${GREEN}Mise a jour de la base de donne des packets.${NC}"
      fi
      if [ "$UPDATE_DB" = true ]; then
-        wget ${CORE_DL_URL} -P ${CACHE_FILE} --no-check-certificate -q
-        wget ${MULTILIB_DL_URL} -P ${CACHE_FILE} --no-check-certificate -q
-        wget ${EXTRA_DL_URL} -P ${CACHE_FILE} --no-check-certificate -q
-        wget ${CYDRA_DL_URL} -P ${CACHE_FILE} --no-check-certificate -q
+        wget "${CORE_DL_URL}" -P ${CACHE_FILE} --no-check-certificate -q
+        wget "${MULTILIB_DL_URL}" -P ${CACHE_FILE} --no-check-certificate -q
+        wget "${EXTRA_DL_URL}" -P ${CACHE_FILE} --no-check-certificate -q
+        wget "${CYDRA_DL_URL}" -P ${CACHE_FILE} --no-check-certificate -q
 
         tar xf ${CACHE_FILE}/core.db.tar.gz -C ${CACHE_FILE} > /dev/null 2>&1;
         tar xf ${CACHE_FILE}/multilib.db.tar.gz -C ${CACHE_FILE} > /dev/null 2>&1;
@@ -160,7 +162,7 @@ function ask_to_continue {
           if [ "$PRINT_LOG" = true ]; then
              echo -en "${NC}Voulez vous procede a l'installation ? ----- [Y/N]: "
           fi
-          read asking
+          read -r asking
           if [[ "${asking}" == "N" || "${asking}" == "n" ]]; then
                if [ "$PRINT_LOG" = true ]; then
                    echo -e "${ORANGE}Arret de l'installation${NC}"
@@ -187,16 +189,16 @@ function install_packet {
     chmod +rwx "${INSTALL_DIR}${PKG_ARCHIVE}"
     tar xf "${INSTALL_DIR}${PKG_ARCHIVE}" -C /usr/cydramanager/pkgt
     EXTRACTED_ARCHIVE=$(ls /usr/cydramanager/pkgt)
-    mkdir /usr/cydramanager/currentSoftware/${PKG_NAME}
-    mkdir /usr/cydramanager/oldSoftware/${PKG_NAME}
-    mv /usr/cydramanager/pkgt/${EXTRACTED_ARCHIVE}/usr/bin/* /usr/cydramanager/currentSoftware/${PKG_NAME}
-    mv /usr/cydramanager/pkgt/${EXTRACTED_ARCHIVE}/* /
+    mkdir /usr/cydramanager/currentSoftware/"${PKG_NAME}"
+    mkdir /usr/cydramanager/oldSoftware/"${PKG_NAME}"
+    mv /usr/cydramanager/pkgt/"${EXTRACTED_ARCHIVE}"/usr/bin/* /usr/cydramanager/currentSoftware/"${PKG_NAME}"
+    mv /usr/cydramanager/pkgt/"${EXTRACTED_ARCHIVE}"/* /
     rm -rf /usr/cydramanager/pkgt/*
     sed '$d' /etc/profile
-    echo "export PATH="$PATH:/usr/cydramanager/currentSoftware/${PKG_NAME}"" > /etc/profile
+    echo "export PATH=""$PATH":/usr/cydramanager/currentSoftware/"${PKG_NAME}""" > /etc/profile
     export PATH="$PATH:/usr/cydramanager/currentSoftware/${PKG_NAME}"
-    touch ${USER_INSTALLED_SOFTWARE_DIR}/${PKG_NAME}
-    echo ${PKG_VERSION} > ${USER_INSTALLED_SOFTWARE_DIR}/${PKG_NAME}
+    touch ${USER_INSTALLED_SOFTWARE_DIR}/"${PKG_NAME}"
+    echo "${PKG_VERSION}" > ${USER_INSTALLED_SOFTWARE_DIR}/"${PKG_NAME}"
 
     if [ "$PRINT_LOG" = true ]; then
        echo -e "${GREEN}Packet installe avec succes${NC}"
@@ -224,13 +226,13 @@ function install_deps {
           echo "${element}" > ${DEPS_FILE}
     done
     DEPS_NUMBER=$(wc -l ${DEPS_FILE} | awk '{print $1}')
-    for ((i=1; i<=$DEPS_NUMBER; i++)); do
+    for ((i=1; i<=DEPS_NUMBER; i++)); do
         DEPS_NAME=$(sed -n "${i}p" "${DEPS_FILE}")
         DEPS_INFO=$(grep -r -l -m 1 -o "$DEPS_NAME-" /etc/cydramanager/cache | head -1)
         DEPS_VERSION=$(sed -n 11p "${DEPS_INFO}")
         DEPS_ARCHIVE=$(sed -n 2p "${DEPS_INFO}")
 
-        if [[ ${DEPS_INFO} =~ *"${DEPS_NAME}"* ]]; then
+        if [[ ${DEPS_INFO} = *"${DEPS_NAME}"* ]]; then
           echo -e "${ORANGE}La dépendence ${DEPS_NAME} n'est pas trouvé dans la base de données..${NC}"
           rm -rf /etc/cydramanager
           exit 1
@@ -247,13 +249,13 @@ function install_deps {
 
         VERSION=$(cat "${USER_INSTALLED_SOFTWARE_DIR}/${DEPS_NAME}" 2> /etc/cydramanager/cache/smthawful.log)
         if ! [ "$VERSION" = "$DEPS_VERSION" ]; then
-            touch ${USER_INSTALLED_SOFTWARE_DIR}/${DEPS_NAME}
+            touch ${USER_INSTALLED_SOFTWARE_DIR}/"${DEPS_NAME}"
             echo "${DEPS_VERSION}" > "${USER_INSTALLED_SOFTWARE_DIR}/${DEPS_NAME}"
         fi
 
         VERSION=$(cat "${INSTALLED_SOFTWARE_DIR}/${DEPS_NAME}" 2> /etc/cydramanager/cache/smthawful.log)
         if ! [ "$VERSION" = "$DEPS_VERSION" ]; then
-            touch ${USER_INSTALLED_SOFTWARE_DIR}/${DEPS_NAME}
+            touch ${USER_INSTALLED_SOFTWARE_DIR}/"${DEPS_NAME}"
             echo "${DEPS_VERSION}" > "${USER_INSTALLED_SOFTWARE_DIR}/${DEPS_NAME}"
         fi
     done
@@ -282,8 +284,8 @@ if [[ "$1" == "install" ]]; then
        mkdir -p ${CACHE_FILE}
        mkdir -p ${INSTALL_DIR}
     elif [ "$WASH_CACHE" = true ]; then
-         rm -rf ${CACHE_FILE}/*
-         rm -rf ${INSTALL_DIR}*
+         rm -rf "${CACHE_FILE:?}/*"
+         rm -rf "${INSTALL_DIR:?}*"
     fi
 
     update_db
@@ -310,9 +312,9 @@ if [[ "$1" == "install" ]]; then
         echo -e "${RED}Erreur: Le paquet ${PKG_NAME} version ${PKG_VERSION} est déjà installé sur votre système.${NC}"
         rm -rf "/etc/cydramanager"
         exit 1
-    elif [ ! -z ${VERSION} ]; then
-        mv /usr/cydramanager/currentSoftware/${PKG_NAME}/* /usr/cydramanager/oldSoftware/${PKG_NAME}
-        rm -f /etc/cydraterms/userSoftware/${PKG_NAME}
+    elif [ -n "${VERSION}" ]; then
+        mv /usr/cydramanager/currentSoftware/"${PKG_NAME}"/* /usr/cydramanager/oldSoftware/"${PKG_NAME}"
+        rm -f /etc/cydraterms/userSoftware/"${PKG_NAME}"
         echo -e "${ORANGE}Votre packet ${PACKAGE} est dans une version obselete (${PKG_VERSION}) LA nouvelle version ${VERSION} va etre installé..${NC}"
     fi
 
@@ -321,9 +323,9 @@ if [[ "$1" == "install" ]]; then
         echo -e "${RED}Erreur: Le paquet ${PKG_NAME} version ${PKG_VERSION} est déjà installé sur votre système.${NC}"
         rm -rf "/etc/cydramanager"
         exit 1
-    elif [ ! -z ${VERSION} ]; then
-        mv /usr/cydramanager/currentSoftware/${PKG_NAME}/* /usr/cydramanager/oldSoftware/${PKG_NAME}
-        rm -f /etc/cydraterms/userSoftware/${PKG_NAME}
+    elif [ -n "${VERSION}" ]; then
+        mv /usr/cydramanager/currentSoftware/"${PKG_NAME}"/* /usr/cydramanager/oldSoftware/"${PKG_NAME}"
+        rm -f /etc/cydraterms/userSoftware/"${PKG_NAME}"
         echo -e "${ORANGE}Votre packet ${PACKAGE} est dans une version obselete (${PKG_VERSION}) LA nouvelle version ${VERSION} va etre installé..${NC}"
     fi
 
@@ -348,8 +350,8 @@ elif [[ "$1" == "remove" ]]; then
        mkdir -p ${CACHE_FILE}
        mkdir -p ${INSTALL_DIR}
     elif [ "$WASH_CACHE" = true ]; then
-         rm -rf ${CACHE_FILE}/*
-         rm -rf ${INSTALL_DIR}*
+         rm -rf ${CACHE_FILE:?}/*
+         rm -rf ${INSTALL_DIR:?}*
     fi
 
     update_db
@@ -358,21 +360,21 @@ elif [[ "$1" == "remove" ]]; then
     PKG_NAME=$(sed -n 5p "${PKG_INFO}")
 
 
-    if [ ! -f /etc/cydraterms/usersoftware/${PKG_NAME} ]; then
+    if [ ! -f /etc/cydraterms/usersoftware/"${PKG_NAME}" ]; then
         echo -e "${RED}Le packet ${PACKAGE} n'est pas installé sur votre systeme ..${NC}"
         rm -rf /etc/cydramanager
         exit 1
     fi
 
    echo -e "${GREEN}Suppression des logs du packet.${NC}"
-   rm -f /etc/cydraterms/usersoftware/${PKG_NAME}
+   rm -f /etc/cydraterms/usersoftware/"${PKG_NAME}"
    echo -e "${GREEN}Suppression du packet.${NC}"
-   if [ -d /usr/cydramanager/oldSoftware/${PKG_NAME} ]; then
-      rm -rf /usr/cydramanager/oldSoftware/${PKG_NAME}
+   if [ -d /usr/cydramanager/oldSoftware/"${PKG_NAME}" ]; then
+      rm -rf /usr/cydramanager/oldSoftware/"${PKG_NAME}"
    fi
 
-   if [ -d /usr/cydramanager/currentSoftware/${PKG_NAME} ]; then
-        rm -rf /usr/cydramanager/currentSoftware/${PKG_NAME}
+   if [ -d /usr/cydramanager/currentSoftware/"${PKG_NAME}" ]; then
+        rm -rf /usr/cydramanager/currentSoftware/"${PKG_NAME}"
    else
        echo -e "${RED}Le packet ${PACKAGE} semble etre corrompu.. Il est marqué qu'il est installé dans /etc/cydraterms/userSoftware. \nMalheureusement le packet n'est pas trouvé.. Ce peu t'il qu'il a été installé avant la version 2.0R de CydraOS?. \nSi oui veuillez utilisé l'ancienne action remove en méttant votre gestionnaire de packet a la version 1.9 BETA${NC}"
        rm -rf /etc/cydramanager
@@ -398,10 +400,10 @@ elif [[ "$1" == "fetch" ]]; then
   rm -f /etc/cydrafetch/3.mirror
   rm -f /etc/cydrafetch/4.mirror
 
-  wget ${PM_URL}/fetch/1.mirror -P ${FETCH_DIR} --no-check-certificate -q
-  wget ${PM_URL}/fetch/2.mirror -P ${FETCH_DIR} --no-check-certificate -q
-  wget ${PM_URL}/fetch/3.mirror -P ${FETCH_DIR} --no-check-certificate -q
-  wget ${PM_URL}/fetch/4.mirror -P ${FETCH_DIR} --no-check-certificate -q
+  wget "${PM_URL}"/fetch/1.mirror -P ${FETCH_DIR} --no-check-certificate -q
+  wget "${PM_URL}"/fetch/2.mirror -P ${FETCH_DIR} --no-check-certificate -q
+  wget "${PM_URL}"/fetch/3.mirror -P ${FETCH_DIR} --no-check-certificate -q
+  wget "${PM_URL}"/fetch/4.mirror -P ${FETCH_DIR} --no-check-certificate -q
 
   firstMirror=$(cat /etc/cydrafetch/1.mirror)
   secondMirror=$(cat /etc/cydrafetch/2.mirror)
@@ -417,7 +419,7 @@ elif [[ "$1" == "fetch" ]]; then
          echo -e "${RED}   4) ${lastMirror}                                                                                              ${NC}"
          echo -en "${GREEN}   Selectionnez un nombre entre (OS) 1 - 4:                                                                   ${NC}"*
       fi
-         read fetchRequest
+         read -r fetchRequest
       if [ "$PRINT_LOG" = true ]; then
          echo -e "${GREEN}=============================================                                                                  ${NC}"
       fi
@@ -427,28 +429,28 @@ elif [[ "$1" == "fetch" ]]; then
 
           rm -f /etc/cydrafetch/currentMirror
           touch currentMirror
-          echo ${firstMirror} > /etc/cydrafetch/currentMirror
+          echo "${firstMirror}" > /etc/cydrafetch/currentMirror
           exit 0
       elif [ "${fetchRequest}" == "2" ]; then
           fetch_warninglog
 
           rm -f /etc/cydrafetch/currentMirror
           touch currentMirror
-          echo ${secondMirror} > /etc/cydrafetch/currentMirror
+          echo "${secondMirror}" > /etc/cydrafetch/currentMirror
           exit 0
       elif [ "${fetchRequest}" == "3" ]; then
           fetch_warninglog
 
           rm -f /etc/cydrafetch/currentMirror
           touch currentMirror
-          echo ${thirdMirror} > /etc/cydrafetch/currentMirror
+          echo "${thirdMirror}" > /etc/cydrafetch/currentMirror
           exit 0
       elif [ "${fetchRequest}" == "4" ]; then
           fetch_warninglog
 
           rm -f /etc/cydrafetch/currentMirror
           touch currentMirror
-          echo ${lastMirror} > /etc/cydrafetch/currentMirror
+          echo "${lastMirror}" > /etc/cydrafetch/currentMirror
           exit 0
       else
           echo -e "${RED}Veuillez choisir l'un de ces 4 mirrors. Votre reponse: ${fetchRequest} est invalide${NC}"
@@ -462,13 +464,13 @@ elif [[ "$1" == "update" ]]; then
        mkdir -p ${CACHE_FILE}
        mkdir -p ${INSTALL_DIR}
     elif [ "$WASH_CACHE" = true ]; then
-         rm -rf ${CACHE_FILE}/*
-         rm -rf ${INSTALL_DIR}*
+         rm -rf ${CACHE_FILE:?}/*
+         rm -rf ${INSTALL_DIR:?}*
     fi
   echo -e "${GREEN}Lancement de la mise a jour${NC}"
   echo -e "${GREEN}Installation de tout les packages de la mise a jour..${NC}"
-  wget -r ${CORE_DL} -P ${CACHE_FILE} -q
-  wget ${CYDRA_DL}/cm_latest -P ${CACHE_FILE} -q
+  wget -r "${CORE_DL}" -P ${CACHE_FILE} -q
+  wget "${CYDRA_DL}"/cm_latest -P ${CACHE_FILE} -q
   if ! [[ -f "${CACHE_FILE}/core.db.tar.gz" || -f "${CACHE_FILE}/multilib.db.tar.gz" || -f "${CACHE_FILE}/extra.db.tar.gz" || -f "${CACHE_FILE}/cydra.tar.gz" ]]; then
         if [ "$PRINT_LOG" = true ]; then
             echo -e "${RED} Des fichiers obligatoires pour la mise en point de la base de donnee sont introuvables..\n Etes vous sur d'etre connectes a internet ?\n\nSi oui la raison viens peu etre d'un mirror defecteux pour le repare utilisez \n cydramanager fetch"

@@ -1,4 +1,4 @@
-#!/bin/bash
+ #!/bin/bash
 
 MIRROR_URL=$(cat /etc/cydrafetch/currentMirror)
 PM_URL=$(cat /etc/cydraterms/mainserver.list/mainserver.list)
@@ -38,6 +38,7 @@ INSTALL_PACMAN=true
 UPDATE_DB=true
 ADD_AS_DEPS=false
 PACKAGE="$2"
+PAGE="$2"
 
 for arg in "$@"; do
   case "$arg" in
@@ -76,20 +77,27 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 function open_help {
-      echo "Cydramanager - Gestionnaire de paquets simple pour CydraOS"
-
-      echo "Utilisation: cydramanager [install/remove/...] [nom_du_paquet] [arguments]"
-
-      echo "Options:                                                   Arguments:"
-      echo "  install              Installe le paquet specifie          --without-printing-log              Le gdp n'envoira aucun message               --add-as-depends             Le gdp interpretera le packet comme etant une dependance"
-      echo "  remove               Supprime le paquet specifie          --without-registering-var           Le gdp n'utiliseras aucune variables         "
-      echo "  update               Met a jour tout les packets          --print-mirror                      Permet d'affiche le mirror utilisee          "
-      echo "  fetch                Permet de changer de mirror           --without-washing-cache             Le gdp ne supprimeras pas le cachee         "
-      echo "  version              Affiche la version du gdp            --install-pacman-while-update       Le gdp installera pacman durant la maj       "
-      echo "  patchnote            Affiche les nouveaute du gdp         --without-updating-db               Le gdp ne metteras pas a jour les db local   "
-      echo "  help                 Affiche ce message d'aide            -h / --help / -help                 Permet d'affiche ce message d'aide           "
-
+      if [ -z ${PAGE} || ${PAGE} == 0]; then
+          echo "Cydramanager - Gestionnaire de paquets simple pour CydraOS"
+          echo "Utilisation: cydramanager [install/remove/...] [nom_du_paquet] [arguments]"
+          echo
+          echo "Options:                                                   Arguments:"
+          echo "  install              Installe le paquet specifie          --without-printing-log              Le gdp n'envoira aucun message               "
+          echo "  remove               Supprime le paquet specifie          --without-registering-var           Le gdp n'utiliseras aucune variables         "
+          echo "  update               Met a jour tout les packets          --print-mirror                      Permet d'affiche le mirror utilisee          "
+          echo "  fetch                Permet de changer de mirror           --without-washing-cache             Le gdp ne supprimeras pas le cachee         "
+          echo "  version              Affiche la version du gdp            --install-pacman-while-update       Le gdp installera pacman durant la maj       "
+          echo "  patchnote            Affiche les nouveaute du gdp         --without-updating-db               Le gdp ne metteras pas a jour les db local   "
+          echo "  help                 Affiche ce message d'aide            -h / --help / -help                 Permet d'affiche ce message d'aide           "
+          echo
+          echo "[PAGE 1 - 2]"
       exit 0
+      elif [ ${PACKAGE} == 1]; then
+           echo "changever            Per de changé la version d'un packet --add-as-depends                    Le gdp interpretera le packet comme étant une dependance"
+      else
+          echo -e "${RED}La page ${PAGE} n'existe pas pour le moment.${NC}"
+          exit 1
+      fi
 }
 
 function update_db {
@@ -178,13 +186,15 @@ function install_packet {
 
     chmod +rwx "${INSTALL_DIR}${PKG_ARCHIVE}"
     tar xf "${INSTALL_DIR}${PKG_ARCHIVE}" -C /usr/cydramanager/pkgt
-    rm -rf /usr/cydramanager/pkgt/${PKG_ARCHIVE}
     EXTRACTED_ARCHIVE=$(ls /usr/cydramanager/pkgt)
     mkdir /usr/cydramanager/currentSoftware/${PKG_NAME}
     mkdir /usr/cydramanager/oldSoftware/${PKG_NAME}
-    mv /usr/cydramanager/pkgt/${EXTRACTED_ARCHIVE}/usr/bin/* /usr/cydramanager/currentSoftware/bin/${PKG_NAME}
+    mv /usr/cydramanager/pkgt/${EXTRACTED_ARCHIVE}/usr/bin/* /usr/cydramanager/currentSoftware/${PKG_NAME}
     mv /usr/cydramanager/pkgt/${EXTRACTED_ARCHIVE}/* /
     rm -rf /usr/cydramanager/pkgt/*
+    sed '$d' /etc/profile
+    echo "export PATH="$PATH:/usr/cydramanager/currentSoftware/${PKG_NAME}"" > /etc/profile
+    export PATH="$PATH:/usr/cydramanager/currentSoftware/${PKG_NAME}
     touch ${USER_INSTALLED_SOFTWARE_DIR}/${PKG_NAME}
     echo ${PKG_VERSION} > ${USER_INSTALLED_SOFTWARE_DIR}/${PKG_NAME}
 
@@ -300,7 +310,7 @@ if [[ "$1" == "install" ]]; then
         echo -e "${RED}Erreur: Le paquet ${PKG_NAME} version ${PKG_VERSION} est déjà installé sur votre système.${NC}"
         rm -rf "/etc/cydramanager"
         exit 1
-    elif [ ! -z ${VERSION} ]
+    elif [ ! -z ${VERSION} ]; then
         mv /usr/cydramanager/currentSoftware/${PKG_NAME}/* /usr/cydramanager/oldSoftware/${PKG_NAME}
         rm -f /etc/cydraterms/userSoftware/${PKG_NAME}
         echo -e "${ORANGE}Votre packet ${PACKAGE} est dans une version obselete (${PKG_VERSION}) LA nouvelle version ${VERSION} va etre installé..${NC}"
@@ -311,7 +321,7 @@ if [[ "$1" == "install" ]]; then
         echo -e "${RED}Erreur: Le paquet ${PKG_NAME} version ${PKG_VERSION} est déjà installé sur votre système.${NC}"
         rm -rf "/etc/cydramanager"
         exit 1
-    elif [ ! -z ${VERSION} ]
+    elif [ ! -z ${VERSION} ]; then
         mv /usr/cydramanager/currentSoftware/${PKG_NAME}/* /usr/cydramanager/oldSoftware/${PKG_NAME}
         rm -f /etc/cydraterms/userSoftware/${PKG_NAME}
         echo -e "${ORANGE}Votre packet ${PACKAGE} est dans une version obselete (${PKG_VERSION}) LA nouvelle version ${VERSION} va etre installé..${NC}"
@@ -334,23 +344,41 @@ if [[ "$1" == "install" ]]; then
        rm -rf "/etc/cydramanager"
     fi
 elif [[ "$1" == "remove" ]]; then
-    if [ "$PRINT_LOG" = true ]; then
-       echo -e "${GREEN}Suppression du paquet $PACKAGE${NC}"
+    if ! [[ -d ${CACHE_FILE} ]]; then
+       mkdir -p ${CACHE_FILE}
+       mkdir -p ${INSTALL_DIR}
+    elif [ "$WASH_CACHE" = true ]; then
+         rm -rf ${CACHE_FILE}/*
+         rm -rf ${INSTALL_DIR}*
     fi
-    if ! command -v "$PACKAGE" >/dev/null 2>&1; then
-        if [ "$PRINT_LOG" = true ]; then
-           echo -e "${RED}Le paquet $PACKAGE n'est pas installe${NC}"
-        fi
+
+    update_db
+
+    PKG_INFO=$(grep -r -l -m 1 -o "$PACKAGE-" /etc/cydramanager/cache | head -1)
+    PKG_NAME=$(sed -n 5p "${PKG_INFO}")
+
+
+    if [ ! -f /etc/cydraterms/usersoftware/${PKG_NAME} ]; then
+        echo -e "${RED}Le packet ${PACKAGE} n'est pas installé sur votre systeme ..${NC}"
+        rm -rf /etc/cydramanager
         exit 1
     fi
-    PKG_FILES=$(find / -name "*${PACKAGE}*")
-    for FILE in $PKG_FILES; do
-        if [ -f "$FILE" ]; then
-            rm "$FILE"
-        elif [ -d "$FILE" ]; then
-            rm -r "$FILE"
-        fi
-    done
+
+   echo -e "${GREEN}Suppression des logs du packet.${NC}"
+   rm -f /etc/cydraterms/usersoftware/${PKG_NAME}
+   echo -e "${GREEN}Suppression du packet.${NC}"
+   if [ -d /usr/cydramanager/oldSoftware/${PKG_NAME} ]; then
+      rm -rf /usr/cydramanager/oldSoftware/${PKG_NAME}
+   fi
+
+   if [ -d /usr/cydramanager/currentSoftware/${PKG_NAME}]; then
+        rm -rf /usr/cydramanager/currentSoftware/${PKG_NAME}
+   else
+       echo -e "${RED}Le packet ${PACKAGE} semble etre corrompu.. Il est marqué qu'il est installé dans /etc/cydraterms/userSoftware. \nMalheureusement le packet n'est pas trouvé.. Ce peu t'il qu'il a été installé avant la version 2.0R de CydraOS?. \nSi oui veuillez utilisé l'ancienne action remove en méttant votre gestionnaire de packet a la version 1.9 BETA${NC}"
+       rm -rf /etc/cydramanager
+       exit 1
+   fi
+   
     if [ "$PRINT_LOG" = true ]; then
        echo -e "${GREEN}Le paquet $PACKAGE a ete supprime avec succes${NC}"
     fi

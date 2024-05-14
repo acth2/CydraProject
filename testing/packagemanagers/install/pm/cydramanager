@@ -94,6 +94,7 @@ function open_help {
       exit 0
       elif [ "${PACKAGE}" == 1 ]; then
            echo "changever            Permet de changé la version d'un packet --add-as-depends                    Le gdp interpretera le packet comme étant une dependance"
+           exit 0
       else
           echo -e "${RED}La page ${PAGE} n'existe pas pour le moment.${NC}"
           exit 1

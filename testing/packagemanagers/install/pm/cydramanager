@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC2034
 
 MIRROR_URL=$(cat /etc/cydrafetch/currentMirror)
 PM_URL=$(cat /etc/cydraterms/mainserver.list/mainserver.list)
@@ -161,7 +162,7 @@ function ask_to_continue {
           if [ "$PRINT_LOG" = true ]; then
              echo -en "${NC}Voulez vous procede a l'installation ? ----- [Y/N]: "
           fi
-          read asking
+          read -r asking
           if [[ "${asking}" == "N" || "${asking}" == "n" ]]; then
                if [ "$PRINT_LOG" = true ]; then
                    echo -e "${ORANGE}Arret de l'installation${NC}"
@@ -225,13 +226,13 @@ function install_deps {
           echo "${element}" > ${DEPS_FILE}
     done
     DEPS_NUMBER=$(wc -l ${DEPS_FILE} | awk '{print $1}')
-    for ((i=1; i<=$DEPS_NUMBER; i++)); do
+    for ((i=1; i<=DEPS_NUMBER; i++)); do
         DEPS_NAME=$(sed -n "${i}p" "${DEPS_FILE}")
         DEPS_INFO=$(grep -r -l -m 1 -o "$DEPS_NAME-" /etc/cydramanager/cache | head -1)
         DEPS_VERSION=$(sed -n 11p "${DEPS_INFO}")
         DEPS_ARCHIVE=$(sed -n 2p "${DEPS_INFO}")
 
-        if [[ ${DEPS_INFO} =~ *"${DEPS_NAME}"* ]]; then
+        if [[ ${DEPS_INFO} = *"${DEPS_NAME}"* ]]; then
           echo -e "${ORANGE}La dépendence ${DEPS_NAME} n'est pas trouvé dans la base de données..${NC}"
           rm -rf /etc/cydramanager
           exit 1
@@ -283,8 +284,8 @@ if [[ "$1" == "install" ]]; then
        mkdir -p ${CACHE_FILE}
        mkdir -p ${INSTALL_DIR}
     elif [ "$WASH_CACHE" = true ]; then
-         rm -rf ${CACHE_FILE}/*
-         rm -rf ${INSTALL_DIR}*
+         rm -rf "${CACHE_FILE:?}/*"
+         rm -rf "${INSTALL_DIR:?}*"
     fi
 
     update_db
@@ -311,7 +312,7 @@ if [[ "$1" == "install" ]]; then
         echo -e "${RED}Erreur: Le paquet ${PKG_NAME} version ${PKG_VERSION} est déjà installé sur votre système.${NC}"
         rm -rf "/etc/cydramanager"
         exit 1
-    elif [ ! -z "${VERSION}" ]; then
+    elif [ -n "${VERSION}" ]; then
         mv /usr/cydramanager/currentSoftware/"${PKG_NAME}"/* /usr/cydramanager/oldSoftware/"${PKG_NAME}"
         rm -f /etc/cydraterms/userSoftware/"${PKG_NAME}"
         echo -e "${ORANGE}Votre packet ${PACKAGE} est dans une version obselete (${PKG_VERSION}) LA nouvelle version ${VERSION} va etre installé..${NC}"
@@ -322,7 +323,7 @@ if [[ "$1" == "install" ]]; then
         echo -e "${RED}Erreur: Le paquet ${PKG_NAME} version ${PKG_VERSION} est déjà installé sur votre système.${NC}"
         rm -rf "/etc/cydramanager"
         exit 1
-    elif [ ! -z "${VERSION}" ]; then
+    elif [ -n "${VERSION}" ]; then
         mv /usr/cydramanager/currentSoftware/"${PKG_NAME}"/* /usr/cydramanager/oldSoftware/"${PKG_NAME}"
         rm -f /etc/cydraterms/userSoftware/"${PKG_NAME}"
         echo -e "${ORANGE}Votre packet ${PACKAGE} est dans une version obselete (${PKG_VERSION}) LA nouvelle version ${VERSION} va etre installé..${NC}"
@@ -349,8 +350,8 @@ elif [[ "$1" == "remove" ]]; then
        mkdir -p ${CACHE_FILE}
        mkdir -p ${INSTALL_DIR}
     elif [ "$WASH_CACHE" = true ]; then
-         rm -rf ${CACHE_FILE}/*
-         rm -rf ${INSTALL_DIR}*
+         rm -rf ${CACHE_FILE:?}/*
+         rm -rf ${INSTALL_DIR:?}*
     fi
 
     update_db
@@ -418,7 +419,7 @@ elif [[ "$1" == "fetch" ]]; then
          echo -e "${RED}   4) ${lastMirror}                                                                                              ${NC}"
          echo -en "${GREEN}   Selectionnez un nombre entre (OS) 1 - 4:                                                                   ${NC}"*
       fi
-         read fetchRequest
+         read -r fetchRequest
       if [ "$PRINT_LOG" = true ]; then
          echo -e "${GREEN}=============================================                                                                  ${NC}"
       fi
@@ -463,8 +464,8 @@ elif [[ "$1" == "update" ]]; then
        mkdir -p ${CACHE_FILE}
        mkdir -p ${INSTALL_DIR}
     elif [ "$WASH_CACHE" = true ]; then
-         rm -rf ${CACHE_FILE}/*
-         rm -rf ${INSTALL_DIR}*
+         rm -rf ${CACHE_FILE:?}/*
+         rm -rf ${INSTALL_DIR:?}*
     fi
   echo -e "${GREEN}Lancement de la mise a jour${NC}"
   echo -e "${GREEN}Installation de tout les packages de la mise a jour..${NC}"

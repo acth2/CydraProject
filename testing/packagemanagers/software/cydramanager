@@ -1,5 +1,6 @@
 #!/bin/bash
 # shellcheck disable=SC2034
+# shellcheck disable=SC2016
 
 MIRROR_URL=$(cat /etc/cydrafetch/currentMirror)
 PM_URL=$(cat /etc/cydraterms/mainserver.list/mainserver.list)
@@ -191,8 +192,9 @@ function install_packet {
     EXTRACTED_ARCHIVE=$(ls /usr/cydramanager/pkgt)
     mkdir /usr/cydramanager/currentSoftware/"${PKG_NAME}"
     mkdir /usr/cydramanager/oldSoftware/"${PKG_NAME}"
-    softwareListed=($(ls "/usr/cydramanager/pkgt/$EXTRACTED_ARCHIVE"))
-    cp -r /usr/cydramanager/pkgt/"${EXTRACTED_ARCHIVE}"/* /usr/cydramanager/currentSoftware/${PKG_NAME}
+    softwareListed=("$(ls "/usr/cydramanager/pkgt/$EXTRACTED_ARCHIVE")")
+    mapfile -t array < <(ls "/usr/cydramanager/pkgt/$EXTRACTED_ARCHIVE")
+    cp -r /usr/cydramanager/pkgt/"${EXTRACTED_ARCHIVE}"/* /usr/cydramanager/currentSoftware/"${PKG_NAME}"
     rm -rf /usr/cydramanager/pkgt/*
     sed '$d' /etc/profile
     echo 'export PATH="$PATH:/usr/cydramanager/currentSoftware/${PKG_NAME}"' >> /etc/profile

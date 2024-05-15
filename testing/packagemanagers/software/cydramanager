@@ -192,10 +192,7 @@ function install_packet {
     mkdir /usr/cydramanager/currentSoftware/"${PKG_NAME}"
     mkdir /usr/cydramanager/oldSoftware/"${PKG_NAME}"
     softwareListed=($(ls "/usr/cydramanager/pkgt/$EXTRACTED_ARCHIVE"))
-    for software in "${softwareListed[@]}"
-    do
-        mv $software /usr/cydramanager/currentSoftware/"${PKG_NAME}"
-    done
+    cp -r 
     mv /usr/cydramanager/pkgt/"${EXTRACTED_ARCHIVE}"/* /
     rm -rf /usr/cydramanager/pkgt/*
     sed '$d' /etc/profile

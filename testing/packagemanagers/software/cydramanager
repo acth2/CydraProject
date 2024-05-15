@@ -193,7 +193,6 @@ function install_packet {
     mkdir /usr/cydramanager/currentSoftware/"${PKG_NAME}"
     mkdir /usr/cydramanager/oldSoftware/"${PKG_NAME}"
     softwareListed=("$(ls "/usr/cydramanager/pkgt/$EXTRACTED_ARCHIVE")")
-    mapfile -t array < <(ls "/usr/cydramanager/pkgt/$EXTRACTED_ARCHIVE")
     cp -r /usr/cydramanager/pkgt/"${EXTRACTED_ARCHIVE}"/* /usr/cydramanager/currentSoftware/"${PKG_NAME}"
     rm -rf /usr/cydramanager/pkgt/*
     sed '$d' /etc/profile

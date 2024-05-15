@@ -5,8 +5,6 @@ RED='\033[0;31m'
 ORANGE='\033[0;33m'
 NC='\033[0m'
 
-currentDir=$(pwd)
-
 ENCRYPT=true
 INSTALL=false
 HELP=false
@@ -28,8 +26,8 @@ function deps_check {
     echo "Recherche des dependances"
     if [ "$ENCRYPT" = true ]; then
         if [ "$HELP" = false ]; then
-            if [ ! -f "/usr/bin/sch" ]; then
-                echo -e "${RED}Le logiciel SCH n est pas installé sur votre systeme !\n${ORANGE}Utilisez l'argument --without-encrypt-pm${NC}"
+            if [ ! -f "/usr/bin/shc" ]; then
+                echo -e "${RED}Le logiciel SHC n est pas installé sur votre systeme !\n${ORANGE}Utilisez l'argument --without-encrypt-pm${NC}"
                 exit 1
             fi
         fi
@@ -53,6 +51,7 @@ function install_files {
     wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/basicmirror.list" -P /etc/cydrafetch/currentMirror.list --no-check-certificate -q
     wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/fetch/mainserver.list" -P /etc/cydraterms/mainserver.list --no-check-certificate -q
     wget "https://github.com/acth2/CydraProject/raw/main/packagemanager/installedsoftware/installedarchive.tar.gz" -P /etc/cydraterms/installedsoftware --no-check-certificate -q
+    wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/packagemanagers/software/cydramanager" -P ./pm/cydramanager --no-check-certificate -q
     touch /etc/cydrafetch/1.mirror
     touch /etc/cydrafetch/2.mirror
     touch /etc/cydrafetch/3.mirror
@@ -73,17 +72,10 @@ function write_files {
     echo "http://mir.archlinux.fr" > /etc/cydrafetch/currentMirror
 
    if [ "$ENCRYPT" = true ]; then
-       cd "${currentDir}/pm"
-       shc -f cydramanager -o cydramanager2
+       shc -f ./pm/cydramanager -o ./pm/cydramanager2
    fi
    tar xf /etc/cydraterms/installedsoftware/installedarchive.tar.gz -C /etc/cydraterms/installedsoftware
    rm -f /etc/cydraterms/installedsoftware/installedarchive.tar.gz
-}
-
-function set_path {
-    echo "NEW_PATH=$PATH:$(find "/usr/cydramanager/currentSoftware" -maxdepth 1 -type d | paste -sd ":" -)" > /etc/profile
-    echo "export PATH=${NEW_PATH}" > /etc/profile
-    export PATH=${NEW_PATH}
 }
 
 function start_operation {
@@ -110,20 +102,16 @@ function start_operation {
         write_files
 
         if [ "$ENCRYPT" = true ]; then
-            cp -r "${currentDir}/pm/cydramanager2" /usr/bin/cydramanager
+            cp -r "./pm/cydramanager2" /usr/bin/cydramanager
             echo -e "${GREEN} -3: Protection du gestionnaire de packets${NC}"
         else
-            cp -r "${currentDir}/pm/cydramanager" /usr/bin/cydramanager
+            cp -r "./pm/cydramanager" /usr/bin/cydramanager
             echo -e "${ORANGE} -3: Protection du gestionnaire de packets (PASSÉ)${NC}"
         fi
         chmod +rwx /usr/bin/cydramanager
 
-        echo -e "${GREEN} -4: Changement du PATH de votre systeme"
-        set_path
-
         echo -e "${GREEN} --: Gestionnaire de packet installé${NC}"
         echo -e "${ORANGE}USAGE: sudo cydramanager help${NC}"
-        cd ${currentDir}
         exit 0
     else
         echo -e "${ORANGE}Pour commencé l'installation veuillez utilisé l'argument --install !${NC}"

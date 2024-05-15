@@ -91,7 +91,7 @@ function open_help {
           echo "  patchnote            Affiche les nouveaute du gdp         --without-updating-db               Le gdp ne metteras pas a jour les db local   "
           echo "  help                 Affiche ce message d'aide            -h / --help / -help                 Permet d'affiche ce message d'aide           "
           echo
-          echo "[PAGE 1 - 2]"
+          echo "[PAGE 0 - 1]"
       exit 0
       elif [ "${PACKAGE}" == 1 ]; then
            echo "changever            Permet de changé la version d'un packet --add-as-depends                    Le gdp interpretera le packet comme étant une dependance"

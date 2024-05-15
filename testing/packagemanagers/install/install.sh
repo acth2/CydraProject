@@ -26,8 +26,8 @@ function deps_check {
     echo "Recherche des dependances"
     if [ "$ENCRYPT" = true ]; then
         if [ "$HELP" = false ]; then
-            if [ ! -f "/usr/bin/sch" ]; then
-                echo -e "${RED}Le logiciel SCH n est pas installé sur votre systeme !\n${ORANGE}Utilisez l'argument --without-encrypt-pm${NC}"
+            if [ ! -f "/usr/bin/shc" ]; then
+                echo -e "${RED}Le logiciel SHC n est pas installé sur votre systeme !\n${ORANGE}Utilisez l'argument --without-encrypt-pm${NC}"
                 exit 1
             fi
         fi

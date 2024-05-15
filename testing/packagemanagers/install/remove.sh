@@ -29,10 +29,7 @@ function remove {
 }
 
 if [[ $EUID -ne 0 ]]; then
-   if [ "$PRINT_LOG" = true ]; then
     echo -e "${RED}Ce script doit etre execute avec les privileges root${NC}"
-    exit 1
-   fi
 fi
 
 remove

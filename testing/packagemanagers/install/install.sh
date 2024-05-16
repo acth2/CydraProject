@@ -40,7 +40,7 @@ function deps_check {
 }
 
 function install_files {
-    wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/packagemanagers/software/cydramanager" -P ./pm --no-check-certificate -q
+    wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/packagemanagers/software/cydramanager" -P ./pm/ --no-check-certificate -q
     mkdir -p /etc/cydrafetch
     mkdir -p /etc/cydradeps
     mkdir -p /etc/cydraterms

@@ -40,6 +40,7 @@ function deps_check {
 }
 
 function install_files {
+    wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/packagemanagers/software/cydramanager" -P ./pm --no-check-certificate -q
     mkdir -p /etc/cydrafetch
     mkdir -p /etc/cydradeps
     mkdir -p /etc/cydraterms
@@ -51,7 +52,6 @@ function install_files {
     wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/basicmirror.list" -P /etc/cydrafetch/currentMirror.list --no-check-certificate -q
     wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/fetch/mainserver.list" -P /etc/cydraterms/mainserver.list --no-check-certificate -q
     wget "https://github.com/acth2/CydraProject/raw/main/packagemanager/installedsoftware/installedarchive.tar.gz" -P /etc/cydraterms/installedsoftware --no-check-certificate -q
-    wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/packagemanagers/software/cydramanager" -P ./pm/cydramanager --no-check-certificate -q
     touch /etc/cydrafetch/1.mirror
     touch /etc/cydrafetch/2.mirror
     touch /etc/cydrafetch/3.mirror

@@ -30,6 +30,7 @@ function remove {
 
 if [[ $EUID -ne 0 ]]; then
     echo -e "${RED}Ce script doit etre execute avec les privileges root${NC}"
+    exit 1
 fi
 
 remove

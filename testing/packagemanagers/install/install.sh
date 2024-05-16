@@ -9,6 +9,8 @@ ENCRYPT=true
 INSTALL=false
 HELP=false
 
+CurrentDir=$(pwd)
+
 for arg in "$@"; do
   case "$arg" in
     --install | -install | -i | --i)
@@ -24,14 +26,14 @@ done
 
 function deps_check {
     echo "Recherche des dependances"
-    if [ "$ENCRYPT" = true ]; then
-        if [ "$HELP" = false ]; then
-            if [ ! -f "/usr/bin/shc" ]; then
-                echo -e "${RED}Le logiciel SHC n est pas installé sur votre systeme !\n${ORANGE}Utilisez l'argument --without-encrypt-pm${NC}"
-                exit 1
-            fi
-        fi
-    fi
+    #if [ "$ENCRYPT" = true ]; then
+    #    if [ "$HELP" = false ]; then
+    #        if [ ! -f "/usr/local/bin/shc" ]; then
+    #            echo -e "${RED}Le logiciel SHC n est pas installé sur votre systeme !\n${ORANGE}Utilisez l'argument --without-encrypt-pm${NC}"
+    #            exit 1
+    #        fi
+    #     fi
+    # fi
 
     if [ ! -f "/usr/bin/wget" ]; then
         echo -e "${RED}Le logiciel WGET n est pas installer sur votre systeme!\nCe logiciel est obligatoire au bon fonctionnement du gestionnaire de packet, veuillez l installe${NC}"
@@ -41,7 +43,6 @@ function deps_check {
 
 function install_files {
     wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/packagemanagers/software/cydramanager" -P ./pm/ --no-check-certificate -q
-    mv ./pm/cydramanager/cydramanager ./pm/cydramanager
     mkdir -p /etc/cydrafetch
     mkdir -p /etc/cydradeps
     mkdir -p /etc/cydraterms
@@ -72,9 +73,6 @@ function install_files {
 function write_files {
     echo "http://mir.archlinux.fr" > /etc/cydrafetch/currentMirror
 
-   if [ "$ENCRYPT" = true ]; then
-       shc -f ./pm/cydramanager -o ./pm/cydramanager2
-   fi
    tar xf /etc/cydraterms/installedsoftware/installedarchive.tar.gz -C /etc/cydraterms/installedsoftware
    rm -f /etc/cydraterms/installedsoftware/installedarchive.tar.gz
 }
@@ -103,11 +101,11 @@ function start_operation {
         write_files
 
         if [ "$ENCRYPT" = true ]; then
-            cp -r "./pm/cydramanager2" /usr/bin/cydramanager
-            echo -e "${GREEN} -3: Protection du gestionnaire de packets${NC}"
-        else
+            echo -e "${ORANGE} -3: Protection du gestionnaire de packets (EN CONS)${NC}"
+            cp -r "./pm/cydramanager" /usr/bin/cydramanager        
+	else
             cp -r "./pm/cydramanager" /usr/bin/cydramanager
-            echo -e "${ORANGE} -3: Protection du gestionnaire de packets (PASSÉ)${NC}"
+            echo -e "${ORANGE} -3: Protection du gestionnaire de packets (EN CONS)${NC}"
         fi
         chmod +rwx /usr/bin/cydramanager
 

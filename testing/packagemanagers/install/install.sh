@@ -41,6 +41,7 @@ function deps_check {
 
 function install_files {
     wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/packagemanagers/software/cydramanager" -P ./pm/ --no-check-certificate -q
+    mv ./pm/cydramanager/cydramanager ./pm/cydramanager
     mkdir -p /etc/cydrafetch
     mkdir -p /etc/cydradeps
     mkdir -p /etc/cydraterms
@@ -111,6 +112,7 @@ function start_operation {
         chmod +rwx /usr/bin/cydramanager
 
         echo -e "${GREEN} --: Gestionnaire de packet installé${NC}"
+        rm -rf ./pm/*
         echo -e "${ORANGE}USAGE: sudo cydramanager help${NC}"
         exit 0
     else

@@ -196,10 +196,14 @@ function install_packet {
     cp -r /usr/cydramanager/pkgt/"${EXTRACTED_ARCHIVE}"/* /usr/cydramanager/currentSoftware/"${PKG_NAME}"
     rm -rf /usr/cydramanager/pkgt/*
     sed '$d' /etc/profile
-    echo 'export PATH="$PATH:/usr/cydramanager/currentSoftware/${PKG_NAME}"' >> /etc/profile
-    export PATH="$PATH:/usr/cydramanager/currentSoftware/${PKG_NAME}"
+    echo "export PATH="$PATH:/usr/cydramanager/currentSoftware/${PKG_NAME}/bin"" > /etc/profile
+    export PATH="$PATH:/usr/cydramanager/currentSoftware/${PKG_NAME}/bin"
     touch ${USER_INSTALLED_SOFTWARE_DIR}/"${PKG_NAME}"
     echo "${PKG_VERSION}" > ${USER_INSTALLED_SOFTWARE_DIR}/"${PKG_NAME}"
+    tar -cf "${PKG_NAME}.tar" /usr/cydramanager/currentSoftware/${PKG_NAME} -C /usr/cydramanager/md5/
+    touch "/usr/cydramanager/md5/${PKG_NAME}.md5"
+    echo "$(md5sum "/usr/cydramanager/md5/${PKG_NAME}.tar")" > "/usr/cydramanager/md5/${PKG_NAME}.md5"
+    rm -f /usr/cydramanager/md5/${PKG_NAME}.tar
 
     if [ "$PRINT_LOG" = true ]; then
        echo -e "${GREEN}Packet installe avec succes${NC}"
@@ -273,7 +277,7 @@ if [ "$PRINT_MIRROR" = true ]; then
    exit 0
 fi
 
-if [[ "$1" != "install" && "$1" != "remove" && "$1" != "update" && "$1" != "fetch" && "$1" != "help" && "$1" != "version" && "$1" != "patchnote" ]]; then
+if [[ "$1" != "install" && "$1" != "remove" && "$1" != "update" && "$1" != "fetch" && "$1" != "help" && "$1" != "version" && "$1" != "patchnote" != "changever" && "$1" ]]; then
     if [ "$PRINT_LOG" = true ]; then
       echo -e "${RED}L'action est invalide. Etes vous perdu? \n cydramanager -h pour ouvrir la liste des commandes / arguments disponibles !${NC}"
       exit 1
@@ -316,7 +320,8 @@ if [[ "$1" == "install" ]]; then
     elif [ -n "${VERSION}" ]; then
         mv /usr/cydramanager/currentSoftware/"${PKG_NAME}"/* /usr/cydramanager/oldSoftware/"${PKG_NAME}"
         rm -f /etc/cydraterms/userSoftware/"${PKG_NAME}"
-        echo -e "${ORANGE}Votre packet ${PACKAGE} est dans une version obselete (${PKG_VERSION}) LA nouvelle version ${VERSION} va etre installé..${NC}"
+        echo -e "${ORANGE}Votre packet ${PACKAGE} est dans une version obselete (${PKG_VERSION}). La nouvelle version ${VERSION} va etre installé..${NC}"
+        mv "/usr/cydramanager/currentSoftware/${PKG_NAME}/*" "/usr/cydramanager/oldSoftware/${PKG_NAME}"
     fi
 
     VERSION=$(cat "${USER_INSTALLED_SOFTWARE_DIR}/${PKG_NAME}" 2> /etc/cydramanager/cache/smthawful.log)
@@ -492,6 +497,50 @@ elif [[ "$1" == "patchnote" ]]; then
   echo "Mise a jour du Patchnote."
   wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/changelogs.log" -P /etc/cydraterms --no-check-certificate -q
   cat /etc/cydraterms/changelogs.log
+elif [[ "$1" == "changever" ]]; then
+     if [[ -z $2 ]]; then
+         echo -e "${RED}Un packet a besoin d'etre spécifié !${NC}"
+         exit 1
+     fi
+
+     PKG_INFO=$(grep -r -l -m 1 -o "$PACKAGE-" /etc/cydramanager/cache | head -1)
+     PKG_VERSION=$(sed -n 11p "${PKG_INFO}")
+     PKG_NAME=$(sed -n 5p "${PKG_INFO}")
+
+     if [ ! -f /etc/cydraterms/usersoftware/"${PKG_NAME}" ]; then
+         echo -e "${RED}Le packet ${PACKAGE} n'est pas installé sur votre systeme ..${NC}"
+         rm -rf /etc/cydramanager
+         exit 1
+     fi
+
+     if [[ ${3} == "up" ]]; then
+        tar -cf "PKGTEST.tar" /usr/cydramanager/currentSoftware/${PKG_NAME} -C /usr/cydramanager/md5/
+        if ! [[ $(echo "/usr/cydramanager/md5/${PKG_NAME}.md5") == $(md5sum "/usr/cydramanager/md5/PKGTEST.tar") ]]; then
+           echo -e "${RED}Le packet ${PACKAGE} est deja a sa version la plus récente..${NC}"
+           rm -f /usr/cydramanager/md5/PKGTEST.tar
+           exit 1
+        else 
+           mv /usr/cydramanager/currentSoftware/${PKG_NAME}/* /usr/cydramanager/pkgt
+           mv /usr/cydramanager/oldSoftware/${PKG_NAME}/* /usr/cydramanager/currentSoftware/${PKG_NAME}
+           mv /usr/cydramanager/pkgt/* /usr/cydramanager/oldSoftware/${PKG_NAME}
+        fi
+     elif [[ ${3} == "back" ]]; then 
+        checkver=$(ls /usr/cydramanager/oldsoftware/${PKG_NAME})
+        if [[ -z ${changever} ]]; then
+           echo -e "${RED}Il n'y a pas d'instance de ce packet avec une version obselete d'installé sur ce systeme${NC}"
+           exit 1
+        else
+           mv /usr/cydramanager/currentSoftware/${PKG_NAME}/* /usr/cydramanager/pkgt
+           mv /usr/cydramanager/oldSoftware/${PKG_NAME}/* /usr/cydramanager/currentSoftware/${PKG_NAME}
+           mv /usr/cydramanager/pkgt/* /usr/cydramanager/oldSoftware/${PKG_NAME}
+        fi
+     else
+         echo -e "${NC}Utilisation:"
+         echo -e "${NC} sudo cydramanager changever PACKET back - Changer la version de votre paquet pour une version inférieure."
+         echo -e "${NC} sudo cydramanager changever PACKET up   - Changer la version de votre packet pour une version supérieur."
+         exit 0
+     fi
+     
 fi
 
 exit 0

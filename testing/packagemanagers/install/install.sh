@@ -66,6 +66,7 @@ function install_files {
        mkdir /usr/cydramanager/currentSoftware/bin
        mkdir /usr/cydramanager/oldSoftware/bin
        mkdir /usr/cydramanager/pkgt
+       mkdir /usr/cydramanager/md5
     fi
 
 }

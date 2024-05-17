@@ -277,7 +277,7 @@ if [ "$PRINT_MIRROR" = true ]; then
    exit 0
 fi
 
-if [[ "$1" != "install" && "$1" != "remove" && "$1" != "update" && "$1" != "fetch" && "$1" != "help" && "$1" != "version" && "$1" != "patchnote" != "changever" && "$1" ]]; then
+if [[ "$1" != "install" && "$1" != "remove" && "$1" != "update" && "$1" != "fetch" && "$1" != "help" && "$1" != "version" && "$1" != "patchnote" && "changever" != "$1" ]]; then
     if [ "$PRINT_LOG" = true ]; then
       echo -e "${RED}L'action est invalide. Etes vous perdu? \n cydramanager -h pour ouvrir la liste des commandes / arguments disponibles !${NC}"
       exit 5

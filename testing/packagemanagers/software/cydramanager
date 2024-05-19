@@ -519,7 +519,7 @@ elif [[ "$1" == "changever" ]]; then
      fi
 
      if [[ ${3} == "up" ]]; then
-        if ! [[ ${PKG_SIG} == $(cat /usr/cydramanager/currentSoftware/${PKG_NAME}/cydramanager_md5sig) ]]; then
+        if ! [[ ${PKG_SIG} == $(cat /usr/cydramanager/oldSoftware/${PKG_NAME}/cydramanager_md5sig) ]]; then
            echo -e "${RED}Le packet ${PACKAGE} est deja a sa version la plus récente..${NC}"
            rm -rf /etc/cydramanager
            exit 5

@@ -510,7 +510,7 @@ elif [[ "$1" == "update" ]]; then
       if [[ $(cat ${tp}) == $(cat /usr/cydramanager/currentSoftware/${tp_name}/cydramanager_pkgver) ]]; then
           echo -e "${NC}[A JOUR]"
       else
-          if [[ -d /usr/cydramanager/oldSoftware/${tp_name}/*]]; then
+          if [[ -e /usr/cydramanager/oldSoftware/${tp_name}/]]; then
                  mv /usr/cydramanager/currentSoftware/${tp_name}/ * /usr/cydramanager/oldSoftware/${tp_name}
 
                  UPKG_INFO=$(grep -r -l -m 1 -o "${tp_name}-" /etc/cydramanager/cache | head -1)
@@ -569,7 +569,7 @@ elif [[ "$1" == "changever" ]]; then
      fi
 
      if [[ ${3} == "back" ]]; then 
-         if ! [[ -d /usr/cydramanager/oldSoftware/${PKG_NAME}/* ]]; then
+         if ! [[ -e /usr/cydramanager/oldSoftware/${PKG_NAME}/ ]]; then
              echo -e "${RED}Le packet que vous tentez de downgrade n'a pas encore eu de mise a jour, il n'ya donc pas de backup...${RN}"
              rm -rf /etc/cydramanager
              exit 5

@@ -521,16 +521,19 @@ elif [[ "$1" == "changever" ]]; then
      if [[ ${3} == "up" ]]; then
         if ! [[ ${PKG_SIG} == $(cat /usr/cydramanager/currentSoftware/${PKG_NAME}/cydramanager_md5sig) ]]; then
            echo -e "${RED}Le packet ${PACKAGE} est deja a sa version la plus récente..${NC}"
+           rm -rf /etc/cydramanager
            exit 5
         else 
            mv /usr/cydramanager/currentSoftware/${PKG_NAME}/* /usr/cydramanager/pkgt
            mv /usr/cydramanager/oldSoftware/${PKG_NAME}/* /usr/cydramanager/currentSoftware/${PKG_NAME}
            mv /usr/cydramanager/pkgt/* /usr/cydramanager/oldSoftware/${PKG_NAME}
+           rm -rf /etc/cydramanager
         fi
      elif [[ ${3} == "back" ]]; then 
-        checkver=$(echo "$(ls /usr/cydramanager/oldSoftware/${PKG_NAME}/cydramanager_pkgver)" | sed 's/[[:alpha:]]//g')
+        checkver=$(echo "$(cat /usr/cydramanager/oldSoftware/${PKG_NAME}/cydramanager_pkgver)" | sed 's/[[:alpha:]]//g')
         if (( $(echo "${checkver} >= ${PKG_VERSION}" | bc -l) )); then
            echo -e "${RED}Il n'y a pas d'instance de ce packet avec une version obselete d'installé sur ce systeme${NC}"
+           rm -rf /etc/cydramanager
            exit 5
         else
            mv /usr/cydramanager/currentSoftware/${PKG_NAME}/* /usr/cydramanager/pkgt
@@ -541,6 +544,7 @@ elif [[ "$1" == "changever" ]]; then
          echo -e "${NC}Utilisation:"
          echo -e "${NC} sudo cydramanager changever PACKET back - Changer la version de votre paquet pour une version inférieure."
          echo -e "${NC} sudo cydramanager changever PACKET up   - Changer la version de votre packet pour une version supérieur."
+         rm -rf /etc/cydramanager
          exit 0
      fi
      

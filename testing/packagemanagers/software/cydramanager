@@ -505,6 +505,8 @@ elif [[ "$1" == "changever" ]]; then
          exit 5
      fi
 
+     update_db
+
      PKG_INFO=$(grep -r -l -m 1 -o "$PACKAGE-" /etc/cydramanager/cache | head -1)
      PKG_VERSION=$(sed -n 11p "${PKG_INFO}")
      PKG_NAME=$(sed -n 5p "${PKG_INFO}")

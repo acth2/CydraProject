@@ -1,6 +1,9 @@
 #!/bin/bash
 # shellcheck disable=SC2034
 # shellcheck disable=SC2016
+# shellcheck disable=SC2140
+# shellcheck disable=SC2157
+# shellcheck disable=SC2128
 
 MIRROR_URL=$(cat /etc/cydrafetch/currentMirror)
 PM_URL=$(cat /etc/cydraterms/mainserver.list/mainserver.list)
@@ -181,37 +184,32 @@ function fetch_warninglog {
     fi
 }
 
-function update_packet {
-    wget "${POOL_DL}/${PKGU_ARCHIVE}" -P ${INSTALL_DIR} --no-check-certificate -q
-
-    mv ${INSTALL_DIR}* /
-}
 
 function install_packet {
     if [ "$PRINT_LOG" = true ]; then
         echo -e "${GREEN}Installation du packet${NC}"
     fi
-    wget "${POOL_DL}/${PKG_ARCHIVE}" -P ${INSTALL_DIR} --no-check-certificate -q
+    wget "${POOL_DL}/${PKG_ARCHIVE}" -P "${INSTALL_DIR}" --no-check-certificate -q
 
     chmod +rwx "${INSTALL_DIR}${PKG_ARCHIVE}"
-    tar xf "${INSTALL_DIR}${PKG_ARCHIVE}" -C /usr/cydramanager/pkgt
-    EXTRACTED_ARCHIVE=$(ls /usr/cydramanager/pkgt)
+    tar xf "${INSTALL_DIR}${PKG_ARCHIVE}" -C "/usr/cydramanager/pkgt"
+    EXTRACTED_ARCHIVE=$(ls "/usr/cydramanager/pkgt")
     mkdir /usr/cydramanager/currentSoftware/"${PKG_NAME}"
-    mkdir /usr/cydramanager/oldSoftware/"${PKG_NAME}"
-    touch /usr/cydramanager/currentSoftware/${PKG_NAME}/cydramanager_md5sig
-    echo $(md5sum "${INSTALL_DIR}${PKG_ARCHIVE}" | cut -d ' ' -f 1) > /usr/cydramanager/currentSoftware/${PKG_NAME}/cydramanager_md5sig
-    touch /usr/cydramanager/currentSoftware/${PKG_NAME}/cydramanager_pkgver
-    echo "${PKG_VERSION}" > /usr/cydramanager/currentSoftware/${PKG_NAME}/cydramanager_pkgver
+    mkdir "/usr/cydramanager/oldSoftware/${PKG_NAME}"
+    touch "/usr/cydramanager/currentSoftware/${PKG_NAME}/cydramanager_md5sig"
+    md5sum "${INSTALL_DIR}${PKG_ARCHIVE}" | cut -d ' ' -f 1 > "/usr/cydramanager/currentSoftware/${PKG_NAME}/cydramanager_md5sig"   
+    touch "/usr/cydramanager/currentSoftware/${PKG_NAME}/cydramanager_pkgver"
+    echo "${PKG_VERSION}" > "/usr/cydramanager/currentSoftware/${PKG_NAME}/cydramanager_pkgver"
     softwareListed=("$(ls "/usr/cydramanager/pkgt/$EXTRACTED_ARCHIVE")")
     cp -r /usr/cydramanager/pkgt/"${EXTRACTED_ARCHIVE}"/* /usr/cydramanager/currentSoftware/"${PKG_NAME}"
     rm -rf /usr/cydramanager/pkgt/*
     sed '$d' /etc/profile
-    echo "export PATH="$PATH:/usr/cydramanager/currentSoftware/${PKG_NAME}/bin"" > /etc/profile
+    echo 'export PATH="$PATH:/usr/cydramanager/currentSoftware/${PKG_NAME}/bin"' > /etc/profile
     export PATH="$PATH:/usr/cydramanager/currentSoftware/${PKG_NAME}/bin"
     touch ${USER_INSTALLED_SOFTWARE_DIR}/"${PKG_NAME}"
     echo "${PKG_VERSION}" > ${USER_INSTALLED_SOFTWARE_DIR}/"${PKG_NAME}"
     touch "/usr/cydramanager/md5/${PKG_NAME}.md5"
-    rm -f /usr/cydramanager/md5/${PKG_NAME}.tar
+    rm -f "/usr/cydramanager/md5/${PKG_NAME}.tar"
 
     if [ "$PRINT_LOG" = true ]; then
        echo -e "${GREEN}Packet installe avec succes${NC}"
@@ -482,7 +480,7 @@ elif [[ "$1" == "update" ]]; then
          rm -rf ${INSTALL_DIR:?}*
     fi
   echo -e "${GREEN}Lancement de la mise a jour${NC}"
-  if [[ -z /etc/cydraterms/firstupdated ]]; then
+  if [[ -z "/etc/cydraterms/firstupdated" ]]; then
        echo -e "${GREEN}Installation de tout les packages de la 1ere mise a jour${NC}"
        echo -e "${NC}Cette mise a jour est probablement la plus importante car elle installe tout les packets importants non installé sur le systeme\nLes autres consisteronts a mettre a jour les packets installés avec le gestionnaire de packet"
   
@@ -506,11 +504,11 @@ elif [[ "$1" == "update" ]]; then
     update_db
     for tp in "/etc/cydraterms/usersoftware"/*; do
       echo -n "Traitement du packet: ${tp}"
-      tp_name=(basename ${tp})
-      if [[ $(cat ${tp}) == $(cat /usr/cydramanager/currentSoftware/${tp_name}/cydramanager_pkgver) ]]; then
+      tp_name=(basename "${tp}")
+      if [[ $(cat "${tp}") == $(cat "/usr/cydramanager/currentSoftware/${tp_name}/cydramanager_pkgver") ]]; then
           echo -e "${NC}[A JOUR]"
       else
-          if [[ -e /usr/cydramanager/oldSoftware/${tp_name}/]]; then
+          if [[ -e /usr/cydramanager/oldSoftware/${tp_name}/ ]]; then
                  mv /usr/cydramanager/currentSoftware/${tp_name}/ * /usr/cydramanager/oldSoftware/${tp_name}
 
                  UPKG_INFO=$(grep -r -l -m 1 -o "${tp_name}-" /etc/cydramanager/cache | head -1)

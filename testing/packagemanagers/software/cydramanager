@@ -197,7 +197,6 @@ function install_packet {
     touch /usr/cydramanager/currentSoftware/${PKG_NAME}/cydramanager_pkgver
     echo "${PKG_VERSION}" > /usr/cydramanager/currentSoftware/${PKG_NAME}/cydramanager_pkgver
     softwareListed=("$(ls "/usr/cydramanager/pkgt/$EXTRACTED_ARCHIVE")")
-    rm -f "/usr/cydramanager/pkgt/${PKG_ARCHVIE}"
     cp -r /usr/cydramanager/pkgt/"${EXTRACTED_ARCHIVE}"/* /usr/cydramanager/currentSoftware/"${PKG_NAME}"
     rm -rf /usr/cydramanager/pkgt/*
     sed '$d' /etc/profile

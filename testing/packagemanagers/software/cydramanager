@@ -193,7 +193,7 @@ function install_packet {
     mkdir /usr/cydramanager/currentSoftware/"${PKG_NAME}"
     mkdir /usr/cydramanager/oldSoftware/"${PKG_NAME}"
     touch /usr/cydramanager/currentSoftware/${PKG_NAME}/cydramanager_md5sig
-    echo $(md5sum "/usr/cydramanager/pkgt/${PKG_ARCHIVE}") > /usr/cydramanager/currentSoftware/${PKG_NAME}/cydramanager_md5sig
+    echo $(md5sum "${INSTALL_DIR}${PKG_ARCHIVE}") > /usr/cydramanager/currentSoftware/${PKG_NAME}/cydramanager_md5sig
     touch /usr/cydramanager/currentSoftware/${PKG_NAME}/cydramanager_pkgver
     echo "${PKG_VERSION}" > /usr/cydramanager/currentSoftware/${PKG_NAME}/cydramanager_pkgver
     softwareListed=("$(ls "/usr/cydramanager/pkgt/$EXTRACTED_ARCHIVE")")

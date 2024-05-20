@@ -30,6 +30,7 @@ PKG_INFO_ARG="desc"
 INSTALLED_SOFTWARE_DIR="/etc/cydraterms/installedsoftware"
 USER_INSTALLED_SOFTWARE_DIR="/etc/cydraterms/usersoftware"
 CHANGELOG="/etc/cydraterms/changelogs.log"
+
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 ORANGE='\033[0;33m'
@@ -246,6 +247,7 @@ function install_packet {
     sed '$d' /etc/profile
     echo export PATH="$PATH:/usr/cydramanager/currentSoftware/${PKG_NAME}/bin" > /etc/profile
     export PATH=$PATH:/usr/cydramanager/currentSoftware/${PKG_NAME}/bin
+    sudo -u ${USER} source /etc/profile
     source /etc/profile
     touch ${USER_INSTALLED_SOFTWARE_DIR}/"${PKG_NAME}"
     echo "${PKG_VERSION}" > ${USER_INSTALLED_SOFTWARE_DIR}/"${PKG_NAME}"

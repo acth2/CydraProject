@@ -4,6 +4,7 @@
 # shellcheck disable=SC2140
 # shellcheck disable=SC2128
 # shellcheck disable=SC2157
+# shellcheck disable=SC2049
 
 MIRROR_URL=$(cat /etc/cydrafetch/currentMirror)
 PM_URL=$(cat /etc/cydraterms/mainserver.list/mainserver.list)
@@ -343,7 +344,11 @@ if [[ "$1" == "install" ]]; then
 
     update_db
 
-    # shellcheck disable=SC2049
+    PKG_INFO=$(grep -r -l -m 1 -o "$PACKAGE-" /etc/cydramanager/cache | head -1)
+    PKG_VERSION=$(sed -n 11p "${PKG_INFO}")
+    PKG_ARCHIVE=$(sed -n 2p "${PKG_INFO}")
+    PKG_NAME=$(sed -n 5p "${PKG_INFO}")
+
     if [ "$ADD_AS_DEPS" = false ]; then
         if [[ ${PKG_INFO} =~ *"${PACKAGE}"* ]]; then
             echo -e "${RED}Le packet ${PACKAGE} n'est pas trouvé dans la base de données..${NC}"
@@ -355,11 +360,6 @@ if [[ "$1" == "install" ]]; then
             exit 22
         fi
     fi
-
-    PKG_INFO=$(grep -r -l -m 1 -o "$PACKAGE-" /etc/cydramanager/cache | head -1)
-    PKG_VERSION=$(sed -n 11p "${PKG_INFO}")
-    PKG_ARCHIVE=$(sed -n 2p "${PKG_INFO}")
-    PKG_NAME=$(sed -n 5p "${PKG_INFO}")
 
     VERSION=$(cat "${INSTALLED_SOFTWARE_DIR}/${PKG_NAME}" 2> /etc/cydramanager/cache/smthawful.log)
     if [ "${PKG_VERSION}" = "${VERSION}" ]; then

@@ -2,8 +2,8 @@
 # shellcheck disable=SC2034
 # shellcheck disable=SC2016
 # shellcheck disable=SC2140
-# shellcheck disable=SC2157
 # shellcheck disable=SC2128
+# shellcheck disable=SC2157
 
 MIRROR_URL=$(cat /etc/cydrafetch/currentMirror)
 PM_URL=$(cat /etc/cydraterms/mainserver.list/mainserver.list)
@@ -193,31 +193,32 @@ function update_ipacket {
             echo -e "${NC}[A JOUR]"
         else
             if [[ -e /usr/cydramanager/oldSoftware/${tp_name}/ ]]; then
-                  mv /usr/cydramanager/currentSoftware/${tp_name}/ * /usr/cydramanager/oldSoftware/${tp_name}
+                  mv "/usr/cydramanager/currentSoftware/${tp_name}/*" "/usr/cydramanager/oldSoftware/${tp_name}"
 
                  UPKG_INFO=$(grep -r -l -m 1 -o "${tp_name}-" /etc/cydramanager/cache | head -1)
-                 UPKG_VERSION=$(sed -n 11p "${PKG_INFO}")
-                 UPKG_SIG=$(sed -n 23p ${PKG_INFO})
+                 UPKG_VERSION=$(sed -n 11p "${UPKG_INFO}")
+                 UPKG_ARCHIVE=$(sed -n 2p "${UPKG_INFO}")
+                 UPKG_SIG=$(sed -n 23p "${UPKG_INFO}")
 
                  wget "${POOL_DL}/${UPKG_ARCHIVE}" -P /usr/cydramanager/pkgt --no-check-certificate -q
-                 tar xf /usr/cydramanager/pkgt/${UPKG_ARCHIVE} -C /usr/cydramanager/currentSoftware/${tp_name}
-                 echo $(md5sum "/usr/cydramanager/pkgt/${UPKG_ARCHIVE}" | cut -d ' ' -f 1) > /usr/cydramanager/currentSoftware/${tp_name}/cydramanager_md5sig
-                 echo "${UPKG_VERSION}" > /usr/cydramanager/currentSoftware/${tp_name}/cydramanager_pkgver
-                 rm -f /usr/cydramanager/pkgt/${UPKG_ARCHIVE}
+                 tar xf "/usr/cydramanager/pkgt/${UPKG_ARCHIVE}" -C "/usr/cydramanager/currentSoftware/${tp_name}"
+                 md5sum "/usr/cydramanager/pkgt/${UPKG_ARCHIVE}" | cut -d ' ' -f 1 > "/usr/cydramanager/currentSoftware/${tp_name}/cydramanager_md5sig"
+                 echo "${UPKG_VERSION}" > "/usr/cydramanager/currentSoftware/${tp_name}/cydramanager_pkgver"
+                 rm -f "/usr/cydramanager/pkgt/${UPKG_ARCHIVE}"
                  echo -e "${NC}[A JOUR]"
             else
-                 rm -rf /usr/cydramanager/oldSoftware/${tp_name}/*
-                 mv /usr/cydramanager/currentSoftware/${tp_name}/* /usr/cydramanager/oldSoftware/${tp_name}
+                 rm -rf "/usr/cydramanager/oldSoftware/${tp_name}/*"
+                 mv "/usr/cydramanager/currentSoftware/${tp_name}/*" "/usr/cydramanager/oldSoftware/${tp_name}"
 
                  UPKG_INFO=$(grep -r -l -m 1 -o "${tp_name}-" /etc/cydramanager/cache | head -1)
-                 UPKG_VERSION=$(sed -n 11p "${PKG_INFO}")
-                 UPKG_SIG=$(sed -n 23p ${PKG_INFO})
+                 UPKG_VERSION=$(sed -n 11p "${UPKG_INFO}")
+                 UPKG_SIG=$(sed -n 23p "${UPKG_INFO}")
 
                  wget "${POOL_DL}/${UPKG_ARCHIVE}" -P /usr/cydramanager/pkgt --no-check-certificate -q
-                 tar xf /usr/cydramanager/pkgt/${UPKG_ARCHIVE} -C /usr/cydramanager/currentSoftware/${tp_name}
-                 echo $(md5sum "/usr/cydramanager/pkgt/${UPKG_ARCHIVE}" | cut -d ' ' -f 1) > /usr/cydramanager/currentSoftware/${tp_name}/cydramanager_md5sig
-                 echo "${UPKG_VERSION}" > /usr/cydramanager/currentSoftware/${tp_name}/cydramanager_pkgver
-                 rm -f /usr/cydramanager/pkgt/${UPKG_ARCHIVE}
+                 tar xf "/usr/cydramanager/pkgt/${UPKG_ARCHIVE}" -C "/usr/cydramanager/currentSoftware/${tp_name}"
+                 md5sum "/usr/cydramanager/pkgt/${UPKG_ARCHIVE}" | cut -d ' ' -f 1 > "/usr/cydramanager/currentSoftware/${tp_name}/cydramanager_md5sig"
+                 echo "${UPKG_VERSION}" > "/usr/cydramanager/currentSoftware/${tp_name}/cydramanager_pkgver"
+                 rm -f "/usr/cydramanager/pkgt/${UPKG_ARCHIVE}"
                  echo -e "${NC}[A JOUR]"
             fi
         fi
@@ -536,15 +537,15 @@ elif [[ "$1" == "update" ]]; then
 
       tar xf ${CACHE_FILE}/*.pkg.tar.zst -C /
       touch /etc/cydraterms/firstupdated
-      echo "Oui tu l'as fait.. Bravo!\nYes you did it.. Congrats!"
+      printf "Oui tu l'as fait.. Bravo!\nYes you did it.. Congrats!\n" > /etc/cydraterms/firstupdated
       echo -e "${GREEN}Votre systeme est a jour..${NC}"
   else
     update_db
 
-    updatedir="/etc/cydraterms/usersoftware"/*
+    updatedir='/etc/cydraterms/usersoftware/*'
     update_ipacket
 
-    updatedir="/etc/cydraterms/installedsoftware"/*
+    updatedir='/etc/cydraterms/installedsoftware/*'
     update_ipacket
   fi
 
@@ -566,7 +567,7 @@ elif [[ "$1" == "changever" ]]; then
      PKG_INFO=$(grep -r -l -m 1 -o "$PACKAGE-" /etc/cydramanager/cache | head -1)
      PKG_VERSION=$(sed -n 11p "${PKG_INFO}")
      PKG_NAME=$(sed -n 5p "${PKG_INFO}")
-     PKG_SIG=$(sed -n 23p ${PKG_INFO})
+     PKG_SIG=$(sed -n 23p "${PKG_INFO}")
 
      if [ ! -f /etc/cydraterms/usersoftware/"${PKG_NAME}" ]; then
          echo -e "${RED}Le packet ${PACKAGE} n'est pas installé sur votre systeme ..${NC}"
@@ -581,10 +582,10 @@ elif [[ "$1" == "changever" ]]; then
              exit 5
          fi
 
-         checkver=$(echo "$(cat /usr/cydramanager/oldSoftware/${PKG_NAME}/cydramanager_pkgver)" | sed 's/[[:alpha:]]//g')
-         mv /usr/cydramanager/currentSoftware/${PKG_NAME}/* /usr/cydramanager/pkgt
-         mv /usr/cydramanager/oldSoftware/${PKG_NAME}/* /usr/cydramanager/currentSoftware/${PKG_NAME}
-         mv /usr/cydramanager/pkgt/* /usr/cydramanager/oldSoftware/${PKG_NAME}
+         checkver=$("cat /usr/cydramanager/oldSoftware/${PKG_NAME}/cydramanager_pkgver" | sed 's/[[:alpha:]]//g')
+         mv "/usr/cydramanager/currentSoftware/${PKG_NAME}/*" "/usr/cydramanager/pkgt"
+         mv "/usr/cydramanager/oldSoftware/${PKG_NAME}/*"  "/usr/cydramanager/currentSoftware/${PKG_NAME}"
+         mv "/usr/cydramanager/pkgt/*" "/usr/cydramanager/oldSoftware/${PKG_NAME}"
      else
          echo -e "${NC}Utilisation:"
          echo -e "${NC} sudo cydramanager changever PACKET back - Changer la version de votre paquet pour celle qui est stocké dans le dossier oldSoftware (contenant l'ancienne version)"
@@ -593,5 +594,3 @@ elif [[ "$1" == "changever" ]]; then
      fi
      
 fi
-
-exit 0

@@ -246,12 +246,7 @@ function install_packet {
     sed '$d' /etc/profile
     echo export PATH="$PATH:/usr/cydramanager/currentSoftware/${PKG_NAME}/bin" > /etc/profile
     export PATH=$PATH:/usr/cydramanager/currentSoftware/${PKG_NAME}/bin
-    for session in $(who | awk '{print $1}' | sort | uniq); do
-    user_home=$(getent passwd $session | cut -d: -f6)
-        if [ -d "$user_home" ]; then
-           sudo -u $session bash -c "source /etc/profile"
-        fi
-    done
+    source /etc/profile
     touch ${USER_INSTALLED_SOFTWARE_DIR}/"${PKG_NAME}"
     echo "${PKG_VERSION}" > ${USER_INSTALLED_SOFTWARE_DIR}/"${PKG_NAME}"
     if [ "$PRINT_LOG" = true ]; then

@@ -95,10 +95,11 @@ function open_help {
           echo "  patchnote            Affiche les nouveaute du gdp         --without-updating-db               Le gdp ne metteras pas a jour les db local   "
           echo "  help                 Affiche ce message d'aide            -h / --help / -help                 Permet d'affiche ce message d'aide           "
           echo
-          echo "[PAGE 0 - 1]"
+          echo -e "--------------------- ${ORANGE}[PAGE 0 - 1]${NC}"
       exit 0
       elif [ "${PACKAGE}" == 1 ]; then
            echo "changever            Permet de changé la version d'un packet --add-as-depends                    Le gdp interpretera le packet comme étant une dependance"
+           echo -e "--------------------- ${ORANGE}[PAGE 0 - 1]${NC}"
            exit 0
       else
           echo -e "${RED}La page ${PAGE} n'existe pas pour le moment.${NC}"
@@ -184,7 +185,44 @@ function fetch_warninglog {
     fi
 }
 
+function update_ipacket {
+  for tp in ${updatedir}; do
+        echo -n "Traitement du packet: ${tp}"
+        tp_name=(basename "${tp}")
+        if [[ $(cat "${tp}") == $(cat "/usr/cydramanager/currentSoftware/${tp_name}/cydramanager_pkgver") ]]; then
+            echo -e "${NC}[A JOUR]"
+        else
+            if [[ -e /usr/cydramanager/oldSoftware/${tp_name}/ ]]; then
+                  mv /usr/cydramanager/currentSoftware/${tp_name}/ * /usr/cydramanager/oldSoftware/${tp_name}
 
+                 UPKG_INFO=$(grep -r -l -m 1 -o "${tp_name}-" /etc/cydramanager/cache | head -1)
+                 UPKG_VERSION=$(sed -n 11p "${PKG_INFO}")
+                 UPKG_SIG=$(sed -n 23p ${PKG_INFO})
+
+                 wget "${POOL_DL}/${UPKG_ARCHIVE}" -P /usr/cydramanager/pkgt --no-check-certificate -q
+                 tar xf /usr/cydramanager/pkgt/${UPKG_ARCHIVE} -C /usr/cydramanager/currentSoftware/${tp_name}
+                 echo $(md5sum "/usr/cydramanager/pkgt/${UPKG_ARCHIVE}" | cut -d ' ' -f 1) > /usr/cydramanager/currentSoftware/${tp_name}/cydramanager_md5sig
+                 echo "${UPKG_VERSION}" > /usr/cydramanager/currentSoftware/${tp_name}/cydramanager_pkgver
+                 rm -f /usr/cydramanager/pkgt/${UPKG_ARCHIVE}
+                 echo -e "${NC}[A JOUR]"
+            else
+                 rm -rf /usr/cydramanager/oldSoftware/${tp_name}/*
+                 mv /usr/cydramanager/currentSoftware/${tp_name}/* /usr/cydramanager/oldSoftware/${tp_name}
+
+                 UPKG_INFO=$(grep -r -l -m 1 -o "${tp_name}-" /etc/cydramanager/cache | head -1)
+                 UPKG_VERSION=$(sed -n 11p "${PKG_INFO}")
+                 UPKG_SIG=$(sed -n 23p ${PKG_INFO})
+
+                 wget "${POOL_DL}/${UPKG_ARCHIVE}" -P /usr/cydramanager/pkgt --no-check-certificate -q
+                 tar xf /usr/cydramanager/pkgt/${UPKG_ARCHIVE} -C /usr/cydramanager/currentSoftware/${tp_name}
+                 echo $(md5sum "/usr/cydramanager/pkgt/${UPKG_ARCHIVE}" | cut -d ' ' -f 1) > /usr/cydramanager/currentSoftware/${tp_name}/cydramanager_md5sig
+                 echo "${UPKG_VERSION}" > /usr/cydramanager/currentSoftware/${tp_name}/cydramanager_pkgver
+                 rm -f /usr/cydramanager/pkgt/${UPKG_ARCHIVE}
+                 echo -e "${NC}[A JOUR]"
+            fi
+        fi
+    done
+}
 function install_packet {
     if [ "$PRINT_LOG" = true ]; then
         echo -e "${GREEN}Installation du packet${NC}"
@@ -502,42 +540,12 @@ elif [[ "$1" == "update" ]]; then
       echo -e "${GREEN}Votre systeme est a jour..${NC}"
   else
     update_db
-    for tp in "/etc/cydraterms/usersoftware"/*; do
-      echo -n "Traitement du packet: ${tp}"
-      tp_name=(basename "${tp}")
-      if [[ $(cat "${tp}") == $(cat "/usr/cydramanager/currentSoftware/${tp_name}/cydramanager_pkgver") ]]; then
-          echo -e "${NC}[A JOUR]"
-      else
-          if [[ -e /usr/cydramanager/oldSoftware/${tp_name}/ ]]; then
-                 mv /usr/cydramanager/currentSoftware/${tp_name}/ * /usr/cydramanager/oldSoftware/${tp_name}
 
-                 UPKG_INFO=$(grep -r -l -m 1 -o "${tp_name}-" /etc/cydramanager/cache | head -1)
-                 UPKG_VERSION=$(sed -n 11p "${PKG_INFO}")
-                 UPKG_SIG=$(sed -n 23p ${PKG_INFO})
+    updatedir="/etc/cydraterms/usersoftware"/*
+    update_ipacket
 
-                 wget "${POOL_DL}/${UPKG_ARCHIVE}" -P /usr/cydramanager/pkgt --no-check-certificate -q
-                 tar xf /usr/cydramanager/pkgt/${UPKG_ARCHIVE} -C /usr/cydramanager/currentSoftware/${tp_name}
-                 echo $(md5sum "/usr/cydramanager/pkgt/${UPKG_ARCHIVE}" | cut -d ' ' -f 1) > /usr/cydramanager/currentSoftware/${tp_name}/cydramanager_md5sig
-                 echo "${UPKG_VERSION}" > /usr/cydramanager/currentSoftware/${tp_name}/cydramanager_pkgver
-                 rm -f /usr/cydramanager/pkgt/${UPKG_ARCHIVE}
-                 echo -e "${NC}[A JOUR]"
-          else
-                 rm -rf /usr/cydramanager/oldSoftware/${tp_name}/*
-                 mv /usr/cydramanager/currentSoftware/${tp_name}/* /usr/cydramanager/oldSoftware/${tp_name}
-
-                 UPKG_INFO=$(grep -r -l -m 1 -o "${tp_name}-" /etc/cydramanager/cache | head -1)
-                 UPKG_VERSION=$(sed -n 11p "${PKG_INFO}")
-                 UPKG_SIG=$(sed -n 23p ${PKG_INFO})
-
-                 wget "${POOL_DL}/${UPKG_ARCHIVE}" -P /usr/cydramanager/pkgt --no-check-certificate -q
-                 tar xf /usr/cydramanager/pkgt/${UPKG_ARCHIVE} -C /usr/cydramanager/currentSoftware/${tp_name}
-                 echo $(md5sum "/usr/cydramanager/pkgt/${UPKG_ARCHIVE}" | cut -d ' ' -f 1) > /usr/cydramanager/currentSoftware/${tp_name}/cydramanager_md5sig
-                 echo "${UPKG_VERSION}" > /usr/cydramanager/currentSoftware/${tp_name}/cydramanager_pkgver
-                 rm -f /usr/cydramanager/pkgt/${UPKG_ARCHIVE}
-                 echo -e "${NC}[A JOUR]"
-          fi
-      fi
-  done
+    updatedir="/etc/cydraterms/installedsoftware"/*
+    update_ipacket
   fi
 
   if [ "$WASH_CACHE" = true ]; then

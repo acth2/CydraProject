@@ -245,9 +245,14 @@ function install_packet {
     sed '$d' /etc/profile
     echo export PATH="$PATH:/usr/cydramanager/currentSoftware/${PKG_NAME}/bin" > /etc/profile
     export PATH=$PATH:/usr/cydramanager/currentSoftware/${PKG_NAME}/bin
+    for session in $(who | awk '{print $1}' | sort | uniq); do
+    user_home=$(getent passwd $session | cut -d: -f6)
+        if [ -d "$user_home" ]; then
+           sudo -u $session bash -c "source /etc/profile"
+        fi
+    done
     touch ${USER_INSTALLED_SOFTWARE_DIR}/"${PKG_NAME}"
     echo "${PKG_VERSION}" > ${USER_INSTALLED_SOFTWARE_DIR}/"${PKG_NAME}"
-
     if [ "$PRINT_LOG" = true ]; then
        echo -e "${GREEN}Packet installe avec succes${NC}"
     fi
@@ -337,10 +342,6 @@ if [[ "$1" == "install" ]]; then
     fi
 
     update_db
-    PKG_INFO=$(grep -r -l -m 1 -o "$PACKAGE-" /etc/cydramanager/cache | head -1)
-    PKG_VERSION=$(sed -n 11p "${PKG_INFO}")
-    PKG_ARCHIVE=$(sed -n 2p "${PKG_INFO}")
-    PKG_NAME=$(sed -n 5p "${PKG_INFO}")
 
     # shellcheck disable=SC2049
     if [ "$ADD_AS_DEPS" = false ]; then
@@ -354,6 +355,11 @@ if [[ "$1" == "install" ]]; then
             exit 22
         fi
     fi
+
+    PKG_INFO=$(grep -r -l -m 1 -o "$PACKAGE-" /etc/cydramanager/cache | head -1)
+    PKG_VERSION=$(sed -n 11p "${PKG_INFO}")
+    PKG_ARCHIVE=$(sed -n 2p "${PKG_INFO}")
+    PKG_NAME=$(sed -n 5p "${PKG_INFO}")
 
     VERSION=$(cat "${INSTALLED_SOFTWARE_DIR}/${PKG_NAME}" 2> /etc/cydramanager/cache/smthawful.log)
     if [ "${PKG_VERSION}" = "${VERSION}" ]; then

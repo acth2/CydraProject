@@ -247,7 +247,7 @@ function install_packet {
     sed '$d' /etc/profile
     echo export PATH="$PATH:/usr/cydramanager/currentSoftware/${PKG_NAME}/bin" > /etc/profile
     echo "DEBUG USER: ${USER}"
-    sudo -H -u ${USER} /usr/bin/bash -c 'export PATH=$PATH:/usr/cydramanager/currentSoftware/${PKG_NAME}/bin' 
+    sudo -E -H -u ${USER} /usr/bin/bash -c 'export PATH=$PATH:/usr/cydramanager/currentSoftware/${PKG_NAME}/bin' 
     source /etc/profile
     touch ${USER_INSTALLED_SOFTWARE_DIR}/"${PKG_NAME}"
     echo "${PKG_VERSION}" > ${USER_INSTALLED_SOFTWARE_DIR}/"${PKG_NAME}"

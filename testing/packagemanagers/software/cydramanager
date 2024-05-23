@@ -4,6 +4,7 @@
 # shellcheck disable=SC2140
 # shellcheck disable=SC2128
 # shellcheck disable=SC2157
+# shellcheck disable=SC2049
 
 MIRROR_URL=$(cat /etc/cydrafetch/currentMirror)
 PM_URL=$(cat /etc/cydraterms/mainserver.list/mainserver.list)
@@ -29,6 +30,7 @@ PKG_INFO_ARG="desc"
 INSTALLED_SOFTWARE_DIR="/etc/cydraterms/installedsoftware"
 USER_INSTALLED_SOFTWARE_DIR="/etc/cydraterms/usersoftware"
 CHANGELOG="/etc/cydraterms/changelogs.log"
+
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 ORANGE='\033[0;33m'
@@ -232,6 +234,10 @@ function install_packet {
 
     chmod +rwx "${INSTALL_DIR}${PKG_ARCHIVE}"
     tar xf "${INSTALL_DIR}${PKG_ARCHIVE}" -C "/usr/cydramanager/pkgt"
+    mv "/usr/cydramanager/pkgt/usr/!(bin)" "/"
+    rm -f /usr/cydramanager/pkgt/*
+    wget "${POOL_DL}/${PKG_ARCHIVE}" -P "${INSTALL_DIR}" --no-check-certificate -q
+    tar xf "${INSTALL_DIR}${PKG_ARCHIVE}" -C "/usr/cydramanager/pkgt"
     EXTRACTED_ARCHIVE=$(ls "/usr/cydramanager/pkgt")
     mkdir /usr/cydramanager/currentSoftware/"${PKG_NAME}"
     mkdir "/usr/cydramanager/oldSoftware/${PKG_NAME}"
@@ -242,12 +248,11 @@ function install_packet {
     softwareListed=("$(ls "/usr/cydramanager/pkgt/$EXTRACTED_ARCHIVE")")
     cp -r /usr/cydramanager/pkgt/"${EXTRACTED_ARCHIVE}"/* /usr/cydramanager/currentSoftware/"${PKG_NAME}"
     rm -rf /usr/cydramanager/pkgt/*
-    sed '$d' /etc/profile
-    echo export PATH="$PATH:/usr/cydramanager/currentSoftware/${PKG_NAME}/bin" > /etc/profile
-    export PATH=$PATH:/usr/cydramanager/currentSoftware/${PKG_NAME}/bin
+    for packageFile in /usr/cydramanager/currentSoftware/${PKG_NAME}/bin/*; do
+        ln -sf "$packageFile" /usr/bin
+    done    
     touch ${USER_INSTALLED_SOFTWARE_DIR}/"${PKG_NAME}"
     echo "${PKG_VERSION}" > ${USER_INSTALLED_SOFTWARE_DIR}/"${PKG_NAME}"
-
     if [ "$PRINT_LOG" = true ]; then
        echo -e "${GREEN}Packet installe avec succes${NC}"
     fi
@@ -337,12 +342,12 @@ if [[ "$1" == "install" ]]; then
     fi
 
     update_db
+
     PKG_INFO=$(grep -r -l -m 1 -o "$PACKAGE-" /etc/cydramanager/cache | head -1)
     PKG_VERSION=$(sed -n 11p "${PKG_INFO}")
     PKG_ARCHIVE=$(sed -n 2p "${PKG_INFO}")
     PKG_NAME=$(sed -n 5p "${PKG_INFO}")
 
-    # shellcheck disable=SC2049
     if [ "$ADD_AS_DEPS" = false ]; then
         if [[ ${PKG_INFO} =~ *"${PACKAGE}"* ]]; then
             echo -e "${RED}Le packet ${PACKAGE} n'est pas trouvé dans la base de données..${NC}"

@@ -1,33 +1,209 @@
-Cydramanager BETA V1.8:
+Cydramanager BETA V1.9:
 
-Ajout de regles perméttant de détecté si un packet a deja été installé:
+Ajout:
+  - Refonte de la commande update
+  - Refonte de la commande install
+  - Refonte de la commande remove
+  - Refonte de la commande version (oui..)
+  - Ajout de la commande changever
 
-CODE:
-    if grep -q "^${PKG_NAME}[[:space:]]" "${USER_INSTALLED_SOFTWARE_DB}"; then
-        VERSION=$(grep "^${PKG_NAME}[[:space:]]" "${USER_INSTALLED_SOFTWARE_DB}" | awk '{print $2}')
-        
-        if [ "$VERSION" = "$PKG_VERSION" ]; then
-            echo -e "${RED}Erreur: Le paquet ${PKG_NAME} version ${PKG_VERSION} est déjà installé sur votre système.${NC}"
-            ask_to_continue
+Code:
+function update_ipacket {
+  for tp in ${updatedir}; do
+        echo -n "Traitement du packet: ${tp}"
+        tp_name=(basename "${tp}")
+        if [[ $(cat "${tp}") == $(cat "/usr/cydramanager/currentSoftware/${tp_name}/cydramanager_pkgver") ]]; then
+            echo -e "${NC}[A JOUR]"
         else
-            echo -e "${RED}Le paquet ${PKG_NAME} est déjà installé sur votre système avec une version différente.${NC}"
-            ask_to_continue
+            if [[ -e /usr/cydramanager/oldSoftware/${tp_name}/ ]]; then
+                  mv "/usr/cydramanager/currentSoftware/${tp_name}/*" "/usr/cydramanager/oldSoftware/${tp_name}"
+
+                 UPKG_INFO=$(grep -r -l -m 1 -o "${tp_name}-" /etc/cydramanager/cache | head -1)
+                 UPKG_VERSION=$(sed -n 11p "${UPKG_INFO}")
+                 UPKG_ARCHIVE=$(sed -n 2p "${UPKG_INFO}")
+                 UPKG_SIG=$(sed -n 23p "${UPKG_INFO}")
+
+                 wget "${POOL_DL}/${UPKG_ARCHIVE}" -P /usr/cydramanager/pkgt --no-check-certificate -q
+                 tar xf "/usr/cydramanager/pkgt/${UPKG_ARCHIVE}" -C "/usr/cydramanager/currentSoftware/${tp_name}"
+                 md5sum "/usr/cydramanager/pkgt/${UPKG_ARCHIVE}" | cut -d ' ' -f 1 > "/usr/cydramanager/currentSoftware/${tp_name}/cydramanager_md5sig"
+                 echo "${UPKG_VERSION}" > "/usr/cydramanager/currentSoftware/${tp_name}/cydramanager_pkgver"
+                 rm -f "/usr/cydramanager/pkgt/${UPKG_ARCHIVE}"
+                 echo -e "${NC}[A JOUR]"
+            else
+                 rm -rf "/usr/cydramanager/oldSoftware/${tp_name}/*"
+                 mv "/usr/cydramanager/currentSoftware/${tp_name}/*" "/usr/cydramanager/oldSoftware/${tp_name}"
+
+                 UPKG_INFO=$(grep -r -l -m 1 -o "${tp_name}-" /etc/cydramanager/cache | head -1)
+                 UPKG_VERSION=$(sed -n 11p "${UPKG_INFO}")
+                 UPKG_SIG=$(sed -n 23p "${UPKG_INFO}")
+
+                 wget "${POOL_DL}/${UPKG_ARCHIVE}" -P /usr/cydramanager/pkgt --no-check-certificate -q
+                 tar xf "/usr/cydramanager/pkgt/${UPKG_ARCHIVE}" -C "/usr/cydramanager/currentSoftware/${tp_name}"
+                 md5sum "/usr/cydramanager/pkgt/${UPKG_ARCHIVE}" | cut -d ' ' -f 1 > "/usr/cydramanager/currentSoftware/${tp_name}/cydramanager_md5sig"
+                 echo "${UPKG_VERSION}" > "/usr/cydramanager/currentSoftware/${tp_name}/cydramanager_pkgver"
+                 rm -f "/usr/cydramanager/pkgt/${UPKG_ARCHIVE}"
+                 echo -e "${NC}[A JOUR]"
+            fi
         fi
+    done
+}
+function install_packet {
+    if [ "$PRINT_LOG" = true ]; then
+        echo -e "${GREEN}Installation du packet${NC}"
+    fi
+    wget "${POOL_DL}/${PKG_ARCHIVE}" -P "${INSTALL_DIR}" --no-check-certificate -q
+
+    chmod +rwx "${INSTALL_DIR}${PKG_ARCHIVE}"
+    tar xf "${INSTALL_DIR}${PKG_ARCHIVE}" -C "/usr/cydramanager/pkgt"
+    for packageFilter in /usr/cydramanager/pkgt/usr/*; do
+       if [ "$(basename "${packageFilder}")" != "bin" ]; then
+           mv "${packageFilder}" /
+       fi
+    done
+    rm -f /usr/cydramanager/pkgt/*
+    wget "${POOL_DL}/${PKG_ARCHIVE}" -P "${INSTALL_DIR}" --no-check-certificate -q
+    tar xf "${INSTALL_DIR}${PKG_ARCHIVE}" -C "/usr/cydramanager/pkgt"
+    EXTRACTED_ARCHIVE=$(ls "/usr/cydramanager/pkgt")
+    mkdir /usr/cydramanager/currentSoftware/"${PKG_NAME}"
+    mkdir "/usr/cydramanager/oldSoftware/${PKG_NAME}"
+    touch "/usr/cydramanager/currentSoftware/${PKG_NAME}/cydramanager_md5sig"
+    md5sum "${INSTALL_DIR}${PKG_ARCHIVE}" | cut -d ' ' -f 1 > "/usr/cydramanager/currentSoftware/${PKG_NAME}/cydramanager_md5sig"   
+    touch "/usr/cydramanager/currentSoftware/${PKG_NAME}/cydramanager_pkgver"
+    echo "${PKG_VERSION}" > "/usr/cydramanager/currentSoftware/${PKG_NAME}/cydramanager_pkgver"
+    softwareListed=("$(ls "/usr/cydramanager/pkgt/$EXTRACTED_ARCHIVE")")
+    cp -r /usr/cydramanager/pkgt/"${EXTRACTED_ARCHIVE}"/* /usr/cydramanager/currentSoftware/"${PKG_NAME}"
+    rm -rf /usr/cydramanager/pkgt/*
+    for packageFile in /usr/cydramanager/currentSoftware/${PKG_NAME}/bin/*; do
+        ln -sf "$packageFile" /usr/bin
+    done    
+    touch ${USER_INSTALLED_SOFTWARE_DIR}/"${PKG_NAME}"
+    echo "${PKG_VERSION}" > ${USER_INSTALLED_SOFTWARE_DIR}/"${PKG_NAME}"
+    if [ "$PRINT_LOG" = true ]; then
+       echo -e "${GREEN}Packet installe avec succes${NC}"
+    fi
+}
+[[ "$1" == "remove" ]]; then
+    if ! [[ -d ${CACHE_FILE} ]]; then
+       mkdir -p ${CACHE_FILE}
+       mkdir -p ${INSTALL_DIR}
+    elif [ "$WASH_CACHE" = true ]; then
+         rm -rf ${CACHE_FILE:?}/*
+         rm -rf ${INSTALL_DIR:?}*
     fi
 
-    if grep -q "^${PKG_NAME}[[:space:]]" "${INSTALLED_SOFTWARE_DB}"; then
-        VERSION=$(grep "^${PKG_NAME}[[:space:]]" "${INSTALLED_SOFTWARE_DB}" | awk '{print $2}')
-        
-        if [ "$VERSION" = "$PKG_VERSION" ]; then
-            echo -e "${RED}Erreur: Le paquet ${PKG_NAME} version ${PKG_VERSION} est déjà installé sur votre système.${NC}"
-            ask_to_continue
-        else
-            echo -e "${RED}Le paquet ${PKG_NAME} est déjà installé sur votre système avec une version différente.${NC}"
-            ask_to_continue
-        fi
+    update_db
+
+    PKG_INFO=$(grep -r -l -m 1 -o "$PACKAGE-" /etc/cydramanager/cache | head -1)
+    PKG_NAME=$(sed -n 5p "${PKG_INFO}")
+
+
+    if [ ! -f /etc/cydraterms/usersoftware/"${PKG_NAME}" ]; then
+        echo -e "${RED}Le packet ${PACKAGE} n'est pas installé sur votre systeme ..${NC}"
+        rm -rf /etc/cydramanager
+        exit 5
     fi
 
-Pour ajouté les packets installé dans la bdd (locale) le gestionnaire de packet utilise ces 2 lignes de code ( une pour le packet
-une pour la dépendance )
+   echo -e "${GREEN}Suppression des logs du packet.${NC}"
+   rm -f /etc/cydraterms/usersoftware/"${PKG_NAME}"
+   echo -e "${GREEN}Suppression du packet.${NC}"
+   if [ -d /usr/cydramanager/oldSoftware/"${PKG_NAME}" ]; then
+      rm -rf /usr/cydramanager/oldSoftware/"${PKG_NAME}"
+   fi
 
-Le systeme de détection de doublon pour la dépendance sera ajouté plus-tard.
+   if [ -d /usr/cydramanager/currentSoftware/"${PKG_NAME}" ]; then
+        rm -rf /usr/cydramanager/currentSoftware/"${PKG_NAME}"
+   else
+       echo -e "${RED}Le packet ${PACKAGE} semble etre corrompu.. Il est marqué qu'il est installé dans /etc/cydraterms/userSoftware. \nMalheureusement le packet n'est pas trouvé.. Ce peu t'il qu'il a été installé avant la version 2.0R de CydraOS?. \nSi oui veuillez utilisé l'ancienne action remove en méttant votre gestionnaire de packet a la version 1.9 BETA${NC}"
+       rm -rf /etc/cydramanager
+       exit 2
+   fi
+   
+    if [ "$PRINT_LOG" = true ]; then
+       echo -e "${GREEN}Le paquet $PACKAGE a ete supprime avec succes${NC}"
+    fi
+elif [[ "$1" == "version" ]]; then
+  if [ "$PRINT_LOG" = true ]; then
+     wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/version" -P /etc/cydrafetch/version --no-check-certificate -q
+     echo "Cydramanager: $(cat /etc/cydrafetch/version/version)"
+     rm -f /etc/cydrafetch/version/version
+  fi
+elif [[ "$1" == "update" ]]; then
+    if ! [[ -d ${CACHE_FILE} ]]; then
+       mkdir -p ${CACHE_FILE}
+       mkdir -p ${INSTALL_DIR}
+    elif [ "$WASH_CACHE" = true ]; then
+         rm -rf ${CACHE_FILE:?}/*
+         rm -rf ${INSTALL_DIR:?}*
+    fi
+  echo -e "${GREEN}Lancement de la mise a jour${NC}"
+  if [[ -z "/etc/cydraterms/firstupdated" ]]; then
+       echo -e "${GREEN}Installation de tout les packages de la 1ere mise a jour${NC}"
+       echo -e "${NC}Cette mise a jour est probablement la plus importante car elle installe tout les packets importants non installé sur le systeme\nLes autres consisteronts a mettre a jour les packets installés avec le gestionnaire de packet"
+  
+       wget -r "${CORE_DL}" -P ${CACHE_FILE} -q
+       wget "${CYDRA_DL}"/cm_latest -P ${CACHE_FILE} -q
+       if ! [[ -f "${CACHE_FILE}/core.db.tar.gz" || -f "${CACHE_FILE}/multilib.db.tar.gz" || -f "${CACHE_FILE}/extra.db.tar.gz" || -f "${CACHE_FILE}/cydra.tar.gz" ]]; then
+           if [ "$PRINT_LOG" = true ]; then
+               echo -e "${RED} Des fichiers obligatoires pour la mise en point de la base de donnee sont introuvables..\n Etes vous sur d'etre connectes a internet ?\n\nSi oui la raison viens peu etre d'un mirror defecteux pour le repare utilisez \n cydramanager fetch"
+           fi
+           exit 100
+      fi
+      echo -e "${GREEN}Nettoyage des packets inutile${NC}"
+      wash_packet
+      ask_to_continue
+
+      tar xf ${CACHE_FILE}/*.pkg.tar.zst -C /
+      touch /etc/cydraterms/firstupdated
+      printf "Oui tu l'as fait.. Bravo!\nYes you did it.. Congrats!\n" > /etc/cydraterms/firstupdated
+      echo -e "${GREEN}Votre systeme est a jour..${NC}"
+  else
+    update_db
+
+    updatedir='/etc/cydraterms/usersoftware/*'
+    update_ipacket
+
+    updatedir='/etc/cydraterms/installedsoftware/*'
+    update_ipacket
+  fi
+
+  if [ "$WASH_CACHE" = true ]; then
+      rm -rf "/etc/cydramanager"
+  fi
+elif [[ "$1" == "changever" ]]; then
+     if [[ -z $2 ]]; then
+         echo -e "${RED}Un packet a besoin d'etre spécifié !${NC}"
+         exit 5
+     fi
+
+     update_db
+
+     PKG_INFO=$(grep -r -l -m 1 -o "$PACKAGE-" /etc/cydramanager/cache | head -1)
+     PKG_VERSION=$(sed -n 11p "${PKG_INFO}")
+     PKG_NAME=$(sed -n 5p "${PKG_INFO}")
+     PKG_SIG=$(sed -n 23p "${PKG_INFO}")
+
+     if [ ! -f /etc/cydraterms/usersoftware/"${PKG_NAME}" ]; then
+         echo -e "${RED}Le packet ${PACKAGE} n'est pas installé sur votre systeme ..${NC}"
+         rm -rf /etc/cydramanager
+         exit 5
+     fi
+
+     if [[ ${3} == "back" ]]; then 
+         if ! [[ -e /usr/cydramanager/oldSoftware/${PKG_NAME}/ ]]; then
+             echo -e "${RED}Le packet que vous tentez de downgrade n'a pas encore eu de mise a jour, il n'ya donc pas de backup...${RN}"
+             rm -rf /etc/cydramanager
+             exit 5
+         fi
+
+         checkver=$("cat /usr/cydramanager/oldSoftware/${PKG_NAME}/cydramanager_pkgver" | sed 's/[[:alpha:]]//g')
+         mv "/usr/cydramanager/currentSoftware/${PKG_NAME}/*" "/usr/cydramanager/pkgt"
+         mv "/usr/cydramanager/oldSoftware/${PKG_NAME}/*"  "/usr/cydramanager/currentSoftware/${PKG_NAME}"
+         mv "/usr/cydramanager/pkgt/*" "/usr/cydramanager/oldSoftware/${PKG_NAME}"
+     else
+         echo -e "${NC}Utilisation:"
+         echo -e "${NC} sudo cydramanager changever PACKET back - Changer la version de votre paquet pour celle qui est stocké dans le dossier oldSoftware (contenant l'ancienne version)"
+         rm -rf /etc/cydramanager
+         exit 0
+     fi
+Les packets sont ajoutés dans /usr/cydramanager qui gere les mises a jours de packets et de changé les versions en parlant des mise a jours update n'est pas encore testé et va le falloir!
+Passé de 400 a 600 lignes de codes sa impose.. Meme le patchnote est plus grand que la 1ere version du gestionnaire de packet

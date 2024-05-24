@@ -33,7 +33,7 @@
 <h2>🍰 Contributions:</h2>
 
 AinTea - L'installeur de la version lite (à venir) : [AinTea GitHub](https://github.com/AinTEAsports)
-
+Wipeey - Modification de l'installeur / pm         : [Wipeey Gituhb](https://github.com/wipeey)
   
   
 <h2>💻 Fait avec</h2>

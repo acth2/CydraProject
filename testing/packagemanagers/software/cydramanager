@@ -100,9 +100,13 @@ function open_help {
           echo -e "--------------------- ${ORANGE}[PAGE 0 - 1]${NC}"
       exit 0
       elif [ "${PACKAGE}" == 1 ]; then
-           echo "changever            Permet de changé la version d'un packet --add-as-depends                    Le gdp interpretera le packet comme étant une dependance"
-           echo -e "--------------------- ${ORANGE}[PAGE 0 - 1]${NC}"
-           exit 0
+          echo "Cydramanager - Gestionnaire de paquets simple pour CydraOS"
+          echo "Utilisation: cydramanager [install/remove/...] [nom_du_paquet] [arguments]"
+          echo
+          echo "Options:                                                           Arguments:"
+          echo "  changever            Permet de changé la version d'un packet       --add-as-depends                    Le gdp interpretera le packet comme étant une dependance"
+          echo -e "--------------------- ${ORANGE}[PAGE 0 - 1]${NC}"
+          exit 0
       else
           echo -e "${RED}La page ${PAGE} n'existe pas pour le moment.${NC}"
           exit 1

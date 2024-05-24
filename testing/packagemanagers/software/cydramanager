@@ -593,6 +593,7 @@ elif [[ "$1" == "changever" ]]; then
          mv "/usr/cydramanager/currentSoftware/${PKG_NAME}/*" "/usr/cydramanager/pkgt"
          mv "/usr/cydramanager/oldSoftware/${PKG_NAME}/*"  "/usr/cydramanager/currentSoftware/${PKG_NAME}"
          mv "/usr/cydramanager/pkgt/*" "/usr/cydramanager/oldSoftware/${PKG_NAME}"
+         cp -r "/usr/cydramanager/currentSoftware/${PKG_NAME}/*" "/"
      else
          echo -e "${NC}Utilisation:"
          echo -e "${NC} sudo cydramanager changever PACKET back - Changer la version de votre paquet pour celle qui est stocké dans le dossier oldSoftware (contenant l'ancienne version)"

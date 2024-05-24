@@ -210,6 +210,7 @@ function update_ipacket {
                  tar xf "/usr/cydramanager/pkgt/${UPKG_ARCHIVE}" -C "/usr/cydramanager/currentSoftware/${tp_name}"
                  md5sum "/usr/cydramanager/pkgt/${UPKG_ARCHIVE}" | cut -d ' ' -f 1 > "/usr/cydramanager/currentSoftware/${tp_name}/cydramanager_md5sig"
                  echo "${UPKG_VERSION}" > "/usr/cydramanager/currentSoftware/${tp_name}/cydramanager_pkgver"
+                 cp -r "/usr/cydramanager/currentSoftware/${tp_name}/*" "/"
                  rm -f "/usr/cydramanager/pkgt/${UPKG_ARCHIVE}"
                  echo -e "${NC}[A JOUR]"
             else
@@ -224,6 +225,7 @@ function update_ipacket {
                  tar xf "/usr/cydramanager/pkgt/${UPKG_ARCHIVE}" -C "/usr/cydramanager/currentSoftware/${tp_name}"
                  md5sum "/usr/cydramanager/pkgt/${UPKG_ARCHIVE}" | cut -d ' ' -f 1 > "/usr/cydramanager/currentSoftware/${tp_name}/cydramanager_md5sig"
                  echo "${UPKG_VERSION}" > "/usr/cydramanager/currentSoftware/${tp_name}/cydramanager_pkgver"
+                 cp -r "/usr/cydramanager/currentSoftware/${tp_name}/*" "/"
                  rm -f "/usr/cydramanager/pkgt/${UPKG_ARCHIVE}"
                  echo -e "${NC}[A JOUR]"
             fi

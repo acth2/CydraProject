@@ -241,8 +241,8 @@ function install_packet {
     chmod +rwx "${INSTALL_DIR}${PKG_ARCHIVE}"
     tar xf "${INSTALL_DIR}${PKG_ARCHIVE}" -C "/usr/cydramanager/pkgt"
     for packageFilter in /usr/cydramanager/pkgt/usr/*; do
-       if [ "$(basename "${packageFilder}")" != "bin" ]; then
-           mv "${packageFilder}" / 2> /etc/cydramanager/cache/smthawful.log
+       if [ "$(basename "${packageFilter}")" != "bin" ]; then
+           mv "${packageFilter}" / 2> /etc/cydramanager/cache/smthawful.log
        fi
     done
     rm -rf /usr/cydramanager/pkgt/*
@@ -258,7 +258,7 @@ function install_packet {
     softwareListed=("$(ls "/usr/cydramanager/pkgt/$EXTRACTED_ARCHIVE")")
     cp -r /usr/cydramanager/pkgt/"${EXTRACTED_ARCHIVE}"/* /usr/cydramanager/currentSoftware/"${PKG_NAME}"
     rm -rf /usr/cydramanager/pkgt/*
-    for packageFile in /usr/cydramanager/currentSoftware/${PKG_NAME}/bin/*; do
+    for packageFile in "/usr/cydramanager/currentSoftware/${PKG_NAME}/bin"/*; do
         ln -sf "$packageFile" /usr/bin
     done    
     touch ${USER_INSTALLED_SOFTWARE_DIR}/"${PKG_NAME}"

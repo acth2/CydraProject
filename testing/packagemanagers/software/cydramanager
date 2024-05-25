@@ -196,7 +196,7 @@ function update_ipacket {
         echo -n "Traitement du packet: ${tp}"
         tp_name=(basename "${tp}")
         if [[ $(cat "${tp}") == $(cat "/usr/cydramanager/currentSoftware/${tp_name}/cydramanager_pkgver") ]]; then
-            echo -e "${NC}[A JOUR]"
+            echo -e "${NC} ${tp}-[A JOUR]"
         else
             if [[ -e /usr/cydramanager/oldSoftware/${tp_name}/ ]]; then
                   mv "/usr/cydramanager/currentSoftware/${tp_name}/*" "/usr/cydramanager/oldSoftware/${tp_name}"
@@ -212,7 +212,7 @@ function update_ipacket {
                  echo "${UPKG_VERSION}" > "/usr/cydramanager/currentSoftware/${tp_name}/cydramanager_pkgver"
                  cp -r "/usr/cydramanager/currentSoftware/${tp_name}/*" "/"
                  rm -f "/usr/cydramanager/pkgt/${UPKG_ARCHIVE}"
-                 echo -e "${NC}[A JOUR]"
+                 echo -e "${NC} ${tp}-[A JOUR]"
             else
                  rm -rf "/usr/cydramanager/oldSoftware/${tp_name}/*"
                  mv "/usr/cydramanager/currentSoftware/${tp_name}/*" "/usr/cydramanager/oldSoftware/${tp_name}"
@@ -227,7 +227,7 @@ function update_ipacket {
                  echo "${UPKG_VERSION}" > "/usr/cydramanager/currentSoftware/${tp_name}/cydramanager_pkgver"
                  cp -r "/usr/cydramanager/currentSoftware/${tp_name}/*" "/"
                  rm -f "/usr/cydramanager/pkgt/${UPKG_ARCHIVE}"
-                 echo -e "${NC}[A JOUR]"
+                 echo -e "${NC} ${tp}-[A JOUR]"
             fi
         fi
     done
@@ -423,7 +423,6 @@ elif [[ "$1" == "remove" ]]; then
     PKG_INFO=$(grep -r -l -m 1 -o "$PACKAGE-" /etc/cydramanager/cache | head -1)
     PKG_NAME=$(sed -n 5p "${PKG_INFO}")
 
-
     if [ ! -f /etc/cydraterms/usersoftware/"${PKG_NAME}" ]; then
         echo -e "${RED}Le packet ${PACKAGE} n'est pas installé sur votre systeme ..${NC}"
         rm -rf /etc/cydramanager
@@ -532,7 +531,32 @@ elif [[ "$1" == "update" ]]; then
          rm -rf ${INSTALL_DIR:?}*
     fi
   echo -e "${GREEN}Lancement de la mise a jour${NC}"
-  if [[ -z "/etc/cydraterms/firstupdated" ]]; then
+  if [[ ! -z ${3} ]]; then
+       update_db
+       UPDATE_INFO=$(grep -r -l -m 1 -o "${3}-" /etc/cydramanager/cache | head -1)
+       UPDATE_VERSION=$(sed -n 11p "${UPDATE_INFO}")
+       UPDATE_ARCHIVE=$(sed -n 2p "${UPDATE_INFO}")
+       UPDATE_NAME=$(sed -n 5p "${UPDATE_INFO}")
+
+      VERSION=$(cat "${USER_INSTALLED_SOFTWARE_DIR}/${PKG_NAME}" 2> /etc/cydramanager/cache/smthawful.log)
+      if [ "${PKG_VERSION}" = "${VERSION}" ]; then
+          echo -e "${NC} ${UPDATE_NAME}-[A JOUR]"
+          rm -rf "/etc/cydramanager"
+          exit 5
+      elif [ -n "${VERSION}" ]; then
+          mv /usr/cydramanager/currentSoftware/"${UPDATE_NAME}"/* /usr/cydramanager/oldSoftware/"${UPDATE_NAME}"
+          rm -f /etc/cydraterms/userSoftware/"${UPDATE_NAME}"
+          touch /etc/cydraterms/userSoftware/"${UPDATE_NAME}"
+          rm -rf "/usr/cydramanager/pkgt/*"
+          wget "${POOL_DL}/${UPDATE_ARCHIVE}" -P "/usr/cydramanager/pkgt" --no-check-certificate -q
+          updated_archive=$(ls /usr/cydramanager/pkgt)
+          tar xf "/usr/cydramanager/pkgt/${updated_archive}" -C "/usr/cydramanager/currentSoftware/${UPDATE_NAME}"
+          tar xf "/usr/cydramanager/pkgt/${updated_archive}" -C "/"
+          rm -rf "/usr/cydramanager/pkgt/*"
+          echo -e "${NC} ${tp}-[A JOUR]"
+      fi
+  fi
+  if [[ ! -f "/etc/cydraterms/firstupdated" ]]; then
        echo -e "${GREEN}Installation de tout les packages de la 1ere mise a jour${NC}"
        echo -e "${NC}Cette mise a jour est probablement la plus importante car elle installe tout les packets importants non installé sur le systeme\nLes autres consisteronts a mettre a jour les packets installés avec le gestionnaire de packet"
   

@@ -612,23 +612,63 @@ elif [[ "$1" == "changever" ]]; then
          exit 5
      fi
 
-     if [[ ${3} == "back" ]]; then 
-         if ! [[ -e /usr/cydramanager/oldSoftware/${PKG_NAME}/ ]]; then
-             echo -e "${RED}Le packet que vous tentez de downgrade n'a pas encore eu de mise a jour, il n'ya donc pas de backup...${RN}"
-             rm -rf /etc/cydramanager
-             exit 5
-         fi
+if [[ ${3} == "back" ]]; then 
+    if ! [[ -e /usr/cydramanager/oldSoftware/${PKG_NAME}/ ]]; then
+        for variant in "/etc/cydramanager/cache"/*; do
+            variant_name=$(basename "$variant")
+            if [[ "${variant_name}" =~ ($PACKAGE)([0-9]+) ]]; then
+                pkg="${BASH_REMATCH[1]}"
+                ver="${BASH_REMATCH[2]}"
+        
+                if [[ -n ${pkgs[$pkg]} ]]; then
+                    pkgs[$pkg]+=" $ver"
+                else
+                    pkgs[$pkg]="$ver"
+                fi
+            fi
+        done
 
-         checkver=$("cat /usr/cydramanager/oldSoftware/${PKG_NAME}/cydramanager_pkgver" | sed 's/[[:alpha:]]//g')
-         mv "/usr/cydramanager/currentSoftware/${PKG_NAME}/*" "/usr/cydramanager/pkgt"
-         mv "/usr/cydramanager/oldSoftware/${PKG_NAME}/*"  "/usr/cydramanager/currentSoftware/${PKG_NAME}"
-         mv "/usr/cydramanager/pkgt/*" "/usr/cydramanager/oldSoftware/${PKG_NAME}"
-         cp -r "/usr/cydramanager/currentSoftware/${PKG_NAME}/*" "/"
-     else
-         echo -e "${NC}Utilisation:"
-         echo -e "${NC} sudo cydramanager changever PACKET back - Changer la version de votre paquet pour celle qui est stocké dans le dossier oldSoftware (contenant l'ancienne version)"
-         rm -rf /etc/cydramanager
-         exit 0
-     fi
-     
+        for paquet in "${!pkgs[@]}"; do
+            versions=(${ver[$pkg]})
+            if [[ ${#versions[@]} -gt 1 ]]; then
+                echo -e "${GREEN}Variantes détectées pour le paquet ${pkg} : ${versions[@]} ${NC}"
+                if [[ ${#version_list[@]} -gt 1 ]]; then
+                    echo "Choisissez la variante à installer :"
+                    select variante in "${version_list[@]}"; do
+                        if [ -n "$variante" ]; then
+                            echo "Vous avez choisi la variante $variante"
+                            break
+                        else
+                            echo "Choix invalide. Veuillez sélectionner une option valide."
+                        fi
+                    done
+                fi
+        
+                VARIANT_INFO=$(grep -r -l -m 1 -o "${pkg}${variante}-" "/etc/cydramanager/cache" | head -1)
+                VARIANT_VERSION=$(sed -n 11p "${VARIANTE_INFO}")
+                VARIANT_NAME=$(sed -n 5p "${VARIANTE_INFO}")
+                VARIANT_SIG=$(sed -n 23p "${VARIANTE_INFO}")
+
+                rm -rf "/usr/cydramanager/pkgt/*"
+                wget "${POOL_DL}/${VARIANT_ARCHIVE}" -P "/usr/cydramanager/pkgt" --no-check-certificate -q
+                variantArchive=$(ls /usr/cydramanager/pkgt)
+                tar xf ${variantArchive} -C /usr/cydramanager/oldSoftware/${pkg}
+                ln -sf "/usr/cydramanager/oldSoftware/${pkg}/bin/" /usr/bin
+            fi
+        done
+    fi
+
+    checkver=$("cat /usr/cydramanager/oldSoftware/${PKG_NAME}/cydramanager_pkgver" | sed 's/[[:alpha:]]//g')
+    mv "/usr/cydramanager/currentSoftware/${PKG_NAME}/*" "/usr/cydramanager/pkgt"
+    mv "/usr/cydramanager/oldSoftware/${PKG_NAME}/*"  "/usr/cydramanager/currentSoftware/${PKG_NAME}"
+    mv "/usr/cydramanager/pkgt/*" "/usr/cydramanager/oldSoftware/${PKG_NAME}"
+    for packageFile in "/usr/cydramanager/oldSoftware/${pkg}/bin"/*; do
+        ln -sf "${packagefile}" "/usr/bin/${pkg}${VARIANT_VERSION}"
+    done    
+    echo -e "${GREEN}La variante du packet ${pkg} est stocké entant que la commande ${pkg}${VARIANT_VERSION}"
+else
+    echo -e "${NC}Utilisation:"
+    echo -e "${NC} sudo cydramanager changever PACKET back - Changer la version de votre paquet pour celle qui est stocké dans le dossier oldSoftware (contenant l'ancienne version)"
+    rm -rf /etc/cydramanager
+    exit 0
 fi

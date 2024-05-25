@@ -258,9 +258,11 @@ function install_packet {
     softwareListed=("$(ls "/usr/cydramanager/pkgt/$EXTRACTED_ARCHIVE")")
     cp -r /usr/cydramanager/pkgt/"${EXTRACTED_ARCHIVE}"/* /usr/cydramanager/currentSoftware/"${PKG_NAME}"
     rm -rf /usr/cydramanager/pkgt/*
-    for packageFile in "/usr/cydramanager/currentSoftware/${PKG_NAME}/bin"/*; do
-        ln -sf "$packageFile" /usr/bin
-    done    
+    for potentialexecutable in $(find "/usr/cydramanager/currentSoftware/${PKG_NAME}" -type f); do
+        if [[ -x potentialexecutable ]]; then
+           ln -sf "${potentialexecutable}"
+        fi
+    done
     touch ${USER_INSTALLED_SOFTWARE_DIR}/"${PKG_NAME}"
     echo "${PKG_VERSION}" > ${USER_INSTALLED_SOFTWARE_DIR}/"${PKG_NAME}"
     if [ "$PRINT_LOG" = true ]; then
@@ -660,16 +662,18 @@ elif [[ ${3} == "back" ]]; then
         mv "/usr/cydramanager/currentSoftware/${PKG_NAME}/*" "/usr/cydramanager/pkgt"
         mv "/usr/cydramanager/oldSoftware/${PKG_NAME}/*"  "/usr/cydramanager/currentSoftware/${PKG_NAME}"
         mv "/usr/cydramanager/pkgt/*" "/usr/cydramanager/oldSoftware/${PKG_NAME}"
-        for packageFile in "/usr/cydramanager/oldSoftware/${pkg}/bin"/*; do
-            ln -sf "${packagefile}" "/usr/bin/${pkg}${VARIANT_VERSION}"
-        done    
+        for potentialexecutable in $(find "/usr/cydramanager/currentSoftware/${pkg}" -type f); do
+            if [[ -x potentialexecutable ]]; then
+                ln -sf "${potentialexecutable}"
+            fi
+        done
         echo -e "${GREEN}La variante du packet ${pkg} est stocké entant que la commande ${pkg}${VARIANT_VERSION}"
-    fi
-else
-    echo -e "${NC}Utilisation:"
-    echo -e "${NC} sudo cydramanager changever PACKET back - Changer la version de votre paquet pour celle qui est stocké dans le dossier oldSoftware (contenant l'ancienne version)"
-    rm -rf /etc/cydramanager
-    exit 0
+  else
+      echo -e "${NC}Utilisation:"
+      echo -e "${NC} sudo cydramanager changever PACKET back - Changer la version de votre paquet pour celle qui est stocké dans le dossier oldSoftware (contenant l'ancienne version)"
+      rm -rf /etc/cydramanager
+      exit 0
+  fi
 fi
 
 exit 0

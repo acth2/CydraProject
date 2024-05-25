@@ -105,6 +105,7 @@ function open_help {
           echo
           echo "Options:                                                           Arguments:"
           echo "  changever            Permet de changé la version d'un packet       --add-as-depends                    Le gdp interpretera le packet comme étant une dependance"
+          echo
           echo -e "--------------------- ${ORANGE}[PAGE 0 - 1]${NC}"
           exit 0
       else
@@ -182,6 +183,49 @@ function ask_to_continue {
                exit 0
           fi
     fi
+}
+
+function install_ask_to_continue {
+    if [ "$ADD_AS_DEPS" = false ]; then
+        echo -en "${NC}Packets a installé: ${PKG_NAME}       ${DEPS_NAME} "
+        depsList=()
+        readState=0
+        while IFS= read -r line; do
+                if [ ${readState} -eq 1 ]; then
+                        if [ -z "${line}" ]; then
+                                break
+                        fi
+
+                        if [[ ! ${line} =~ "=" ]]; then
+                           depsList+=("${line}")
+                        fi
+                fi
+
+                if [[ "${line}" == "%DEPENDS%" ]]; then
+                        readState=1
+                fi
+        done < "${PKG_INFO}"
+
+        for element in "${depsList[@]}"; do
+                 echo "${element}" > ${DEPS_FILE}
+        done
+        DEPS_NUMBER=$(wc -l ${DEPS_FILE} | awk '{print $1}')
+        for ((i=1; i<=DEPS_NUMBER; i++)); do
+                DEPS_NAME=$(sed -n "${i}p" "${DEPS_FILE}")
+                echo -en "${NC}${DEPS_NAME} "
+        done
+        if [ "$PRINT_LOG" = true ]; then
+           echo -en "\n${NC}Voulez vous procede a l'installation ? ----- [Y/N]: "
+        fi
+        read -r asking
+        if [[ "${asking}" == "N" || "${asking}" == "n" ]]; then
+             if [ "$PRINT_LOG" = true ]; then
+                 echo -e "${ORANGE}Arret de l'installation${NC}"
+             fi
+             rm -rf /etc/cydramanager
+             exit 0
+        fi
+  fi
 }
 
 function fetch_warninglog {
@@ -402,7 +446,7 @@ if [[ "$1" == "install" ]]; then
          exit 1
     fi
 
-    ask_to_continue
+    install_ask_to_continue
 
     install_packet
     install_deps
@@ -662,18 +706,21 @@ elif [[ ${3} == "back" ]]; then
         mv "/usr/cydramanager/currentSoftware/${PKG_NAME}/*" "/usr/cydramanager/pkgt"
         mv "/usr/cydramanager/oldSoftware/${PKG_NAME}/*"  "/usr/cydramanager/currentSoftware/${PKG_NAME}"
         mv "/usr/cydramanager/pkgt/*" "/usr/cydramanager/oldSoftware/${PKG_NAME}"
+        for packageFile in "/usr/cydramanager/oldSoftware/${pkg}/bin"/*; do
+            ln -sf "${packagefile}" "/usr/bin/${pkg}${VARIANT_VERSION}"
+        done
         for potentialexecutable in $(find "/usr/cydramanager/currentSoftware/${pkg}" -type f); do
             if [[ -x potentialexecutable ]]; then
                 ln -sf "${potentialexecutable}"
             fi
         done
         echo -e "${GREEN}La variante du packet ${pkg} est stocké entant que la commande ${pkg}${VARIANT_VERSION}"
-  else
-      echo -e "${NC}Utilisation:"
-      echo -e "${NC} sudo cydramanager changever PACKET back - Changer la version de votre paquet pour celle qui est stocké dans le dossier oldSoftware (contenant l'ancienne version)"
-      rm -rf /etc/cydramanager
-      exit 0
-  fi
+    else
+        echo -e "${NC}Utilisation:"
+        echo -e "${NC} sudo cydramanager changever PACKET back - Changer la version de votre paquet pour celle qui est stocké dans le dossier oldSoftware (contenant l'ancienne version)"
+        rm -rf /etc/cydramanager
+        exit 0
+    fi
 fi
 
 exit 0

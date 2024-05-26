@@ -221,6 +221,7 @@ function install_ask_to_continue {
            echo -e "${NC}\nTotal des packets a installé: ${DEPS_COUNTER}"
            echo -en "\n${NC}Voulez vous procede a l'installation ? ----- [Y/N]: "
         fi
+        unset DEPS_NUMBER DEPS_COUNTER depsList readState line
         read -r asking
         if [[ "${asking}" == "N" || "${asking}" == "n" ]]; then
              if [ "$PRINT_LOG" = true ]; then

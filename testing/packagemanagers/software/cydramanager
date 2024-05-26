@@ -187,7 +187,7 @@ function ask_to_continue {
 
 function install_ask_to_continue {
     if [ "$ADD_AS_DEPS" = false ]; then
-        echo -en "${NC}Packets a installé: ${PKG_NAME}       ${DEPS_NAME} "
+        echo -en "${ORANGE}Packets a installé: ${GREEN}${PKG_NAME}${ORANGE}\nDépendances: ${NC}"
         depsList=()
         readState=0
         while IFS= read -r line; do
@@ -208,13 +208,17 @@ function install_ask_to_continue {
 
         for element in "${depsList[@]}"; do
                  echo "${element}" > ${DEPS_FILE}
+                 echo -en "${NC}${element} "
+                 DEPS_COUNTER=$((DEPS_COUNTER+1))
         done
         DEPS_NUMBER=$(wc -l ${DEPS_FILE} | awk '{print $1}')
         for ((i=1; i<=DEPS_NUMBER; i++)); do
                 DEPS_NAME=$(sed -n "${i}p" "${DEPS_FILE}")
-                echo -en "${NC}${DEPS_NAME} "
         done
         if [ "$PRINT_LOG" = true ]; then
+           echo
+           DEPS_COUNTER=$(($DEPS_COUNTER+1))
+           echo -e "${NC}\nTotal des packets a installé: ${DEPS_COUNTER}"
            echo -en "\n${NC}Voulez vous procede a l'installation ? ----- [Y/N]: "
         fi
         read -r asking
@@ -367,7 +371,19 @@ function install_deps {
             touch ${USER_INSTALLED_SOFTWARE_DIR}/"${DEPS_NAME}"
             echo "${DEPS_VERSION}" > "${USER_INSTALLED_SOFTWARE_DIR}/${DEPS_NAME}"
         fi
-    done
+        PERCENT=$(( (i+1) * 100 / DEPS_NUMBER ))
+
+        printf "Progression : ["
+        for ((j=0; j<100; j+=2)); do
+            if [ $j -lt $((PERCENT/2)) ]; then
+                printf "#"
+            else
+                printf " "
+            fi
+        done
+        printf "] %d%%\r" "$PERCENT" 
+
+   done
 }
 
 if [ "$SHOW_HELP" = true ]; then

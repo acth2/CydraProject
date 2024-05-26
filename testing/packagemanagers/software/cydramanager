@@ -307,8 +307,8 @@ function install_packet {
     cp -r /usr/cydramanager/pkgt/"${EXTRACTED_ARCHIVE}"/* /usr/cydramanager/currentSoftware/"${PKG_NAME}"
     rm -rf /usr/cydramanager/pkgt/*
     for potentialexecutable in $(find "/usr/cydramanager/currentSoftware/${PKG_NAME}" -type f); do
-        if [[ -x potentialexecutable ]]; then
-           ln -sf "${potentialexecutable}"
+        if [[ -x ${potentialexecutable} ]]; then
+           ln -sf "${potentialexecutable}" "/usr/bin"
         fi
     done
     touch ${USER_INSTALLED_SOFTWARE_DIR}/"${PKG_NAME}"
@@ -726,8 +726,8 @@ elif [[ ${3} == "back" ]]; then
             ln -sf "${packagefile}" "/usr/bin/${pkg}${VARIANT_VERSION}"
         done
         for potentialexecutable in $(find "/usr/cydramanager/currentSoftware/${pkg}" -type f); do
-            if [[ -x potentialexecutable ]]; then
-                ln -sf "${potentialexecutable}"
+            if [[ -x ${potentialexecutable} ]]; then
+               ln -sf "${potentialexecutable}" "/usr/bin"
             fi
         done
         echo -e "${GREEN}La variante du packet ${pkg} est stocké entant que la commande ${pkg}${VARIANT_VERSION}"

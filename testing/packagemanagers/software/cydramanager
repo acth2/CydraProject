@@ -493,7 +493,7 @@ elif [[ "$1" == "remove" ]]; then
 
     RPKG_INFO=$(grep -r -l -m 1 -o "$PACKAGE-" /etc/cydramanager/cache | head -1)
 
-    if [ ! -f /etc/cydraterms/usersoftware/"${PKG_NAME}" ]; then
+    if [ -f /etc/cydraterms/usersoftware/"${PKG_NAME}" ]; then
         echo -e "${RED}Le packet ${PACKAGE} n'est pas installé sur votre systeme ..${NC}"
         rm -rf /etc/cydramanager
         exit 5

@@ -289,9 +289,6 @@ function update_ipacket {
     done
 }
 function install_packet {
-    if [ "$PRINT_LOG" = true ]; then
-        echo -e "${GREEN}Installation du paquet ${PACKAGE}${NC}"
-    fi
     wget "${POOL_DL}/${PKG_ARCHIVE}" -P "${INSTALL_DIR}" --no-check-certificate -q
 
     chmod +rwx "${INSTALL_DIR}${PKG_ARCHIVE}"
@@ -315,15 +312,25 @@ function install_packet {
     cp -r /usr/cydramanager/pkgt/"${EXTRACTED_ARCHIVE}"/* /usr/cydramanager/currentSoftware/"${PKG_NAME}"
     rm -rf /usr/cydramanager/pkgt/*
     for potentialexecutable in $(find "/usr/cydramanager/currentSoftware/${PKG_NAME}" -type f); do
+        PKG_COUNTER_MAX=$(find "/usr/cydramanager/currentSoftware/${PKG_NAME}" -type f | wc -l)
+        for ((i=0; i<DEPS_NUMBER; i++)); do
+          PERCENT=$(( (i+1) * 100 / PKG_COUNTER_MAX ))
+          printf "[${PKG_NAME}] Progression : ["
+          for ((j=0; j<100; j+=2)); do
+              if [ $j -lt $((PERCENT/2)) ]; then
+                  printf "#"
+              else
+                  printf " "
+              fi
+          done
+          printf "] %d%%\n" "$PERCENT"
+done-
         if [[ -x ${potentialexecutable} ]]; then
            ln -sf "${potentialexecutable}" "/usr/bin"
         fi
     done
     touch ${USER_INSTALLED_SOFTWARE_DIR}/"${PKG_NAME}"
     echo "${PKG_VERSION}" > ${USER_INSTALLED_SOFTWARE_DIR}/"${PKG_NAME}"
-    if [ "$PRINT_LOG" = true ]; then
-       echo -e "${GREEN}Paquet installer avec succès${NC}"
-    fi
 }
 
 function install_deps {
@@ -362,6 +369,18 @@ function install_deps {
         wget "${POOL_DL}/${DEPS_ARCHIVE}" -P ${INSTALL_DIR} --no-check-certificate -q
 
         chmod +rwx "${INSTALL_DIR}${DEPS_ARCHIVE}"
+
+        PERCENT=$(( (i+1) * 100 / DEPS_NUMBER ))
+        printf "[${DEPS_NAME}] Progression : ["
+        for ((j=0; j<100; j+=2)); do
+            if [ $j -lt $((PERCENT/2)) ]; then
+              printf "#"
+            else
+              printf " "
+            fi
+        done
+        printf "] %d%%\n" "$PERCENT"
+
         tar xf "${INSTALL_DIR}${DEPS_ARCHIVE}" -C /
 
         VERSION=$(cat "${USER_INSTALLED_SOFTWARE_DIR}/${DEPS_NAME}" 2> /etc/cydramanager/cache/smthawful.log)
@@ -375,19 +394,6 @@ function install_deps {
             touch ${USER_INSTALLED_SOFTWARE_DIR}/"${DEPS_NAME}"
             echo "${DEPS_VERSION}" > "${USER_INSTALLED_SOFTWARE_DIR}/${DEPS_NAME}"
         fi
-        PERCENT=$(( (i+1) * 100 / DEPS_NUMBER ))
-
-        printf "Progression : ["
-        for ((j=0; j<100; j+=2)); do
-            if [ $j -lt $((PERCENT/2)) ]; then
-              printf "#"
-            else
-              printf " "
-            fi
-        done
-        printf "] %d%%\n" "$PERCENT"
-
-
    done
 }
 

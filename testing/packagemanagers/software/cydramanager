@@ -78,7 +78,7 @@ done
 
 if [[ $EUID -ne 0 ]]; then
    if [ "$PRINT_LOG" = true ]; then
-    echo -e "${RED}Ce script doit etre execute avec les privileges root${NC}"
+    echo -e "${RED}Ce script doit etre exécuté avec les privilèges root${NC}"
     exit 13
    fi
 fi
@@ -89,13 +89,13 @@ function open_help {
           echo "Utilisation: cydramanager [install/remove/...] [nom_du_paquet] [arguments]"
           echo
           echo "Options:                                                   Arguments:"
-          echo "  install              Installe le paquet specifie          --without-printing-log              Le gdp n'envoira aucun message               "
-          echo "  remove               Supprime le paquet specifie          --without-registering-var           Le gdp n'utiliseras aucune variables         "
-          echo "  update               Met a jour tout les packets          --print-mirror                      Permet d'affiche le mirror utilisee          "
-          echo "  fetch                Permet de changer de mirror           --without-washing-cache             Le gdp ne supprimeras pas le cachee         "
+          echo "  install              Installe le paquet specifier         --without-printing-log              Le gdp n'envoira aucun message               "
+          echo "  remove               Supprime le paquet specifier         --without-registering-var           Le gdp n'utiliseras aucune variables         "
+          echo "  update               Met a jour tout les packets          --print-mirror                      Permet d'affiche le mirror utilisée          "
+          echo "  fetch                Permet de changer de mirror          --without-washing-cache             Le gdp ne supprimeras pas le cachee          "
           echo "  version              Affiche la version du gdp            --install-pacman-while-update       Le gdp installera pacman durant la maj       "
-          echo "  patchnote            Affiche les nouveaute du gdp         --without-updating-db               Le gdp ne metteras pas a jour les db local   "
-          echo "  help                 Affiche ce message d'aide            -h / --help / -help                 Permet d'affiche ce message d'aide           "
+          echo "  patchnote            Affiche les nouveautés du gdp        --without-updating-db               Le gdp ne metteras pas a jour les db local   "
+          echo "  help                 Affiche ce message d'aide            -h / --help / -help                 Permet d'affiché ce message d'aide           "
           echo
           echo -e "--------------------- ${ORANGE}[PAGE 0 - 1]${NC}"
       exit 0
@@ -116,7 +116,7 @@ function open_help {
 
 function update_db {
      if [ "$PRINT_LOG" = true ]; then
-         echo -e "${GREEN}Mise a jour de la base de donne des packets.${NC}"
+         echo -e "${GREEN}Mise a jour de la base de donnée des paquets.${NC}"
      fi
      if [ "$UPDATE_DB" = true ]; then
         wget "${CORE_DL_URL}" -P ${CACHE_FILE} --no-check-certificate -q
@@ -133,7 +133,7 @@ function update_db {
         fi
 
      if [ "$PRINT_LOG" = true ]; then
-         echo -e "${GREEN}La base de donne des packets a ete mis a jour.${NC}"
+         echo -e "${GREEN}La base de donnée des paquets a ete mise a jour.${NC}"
      fi
 }
 
@@ -172,12 +172,12 @@ function wash_packet {
 function ask_to_continue {
     if [ "$ADD_AS_DEPS" = false ]; then
           if [ "$PRINT_LOG" = true ]; then
-             echo -en "${NC}Voulez vous procede a l'installation ? ----- [Y/N]: "
+             echo -en "\n${NC}Voulez vous procéder a l'installation ? ----- [Y/N]: "
           fi
           read -r asking
           if [[ "${asking}" == "N" || "${asking}" == "n" ]]; then
                if [ "$PRINT_LOG" = true ]; then
-                   echo -e "${ORANGE}Arret de l'installation${NC}"
+                   echo -e "${ORANGE}Arrêt de l'installation${NC}"
                fi
                rm -rf /etc/cydramanager
                exit 0
@@ -187,7 +187,7 @@ function ask_to_continue {
 
 function install_ask_to_continue {
     if [ "$ADD_AS_DEPS" = false ]; then
-        echo -en "${ORANGE}Packets a installé: ${GREEN}${PKG_NAME}${ORANGE}\nDépendances: ${NC}"
+        echo -en "${ORANGE}Paquets a installer: ${GREEN}${PKG_NAME}${ORANGE}\nDépendances: ${NC}"
         depsList=()
         readState=0
         while IFS= read -r line; do
@@ -218,14 +218,14 @@ function install_ask_to_continue {
         if [ "$PRINT_LOG" = true ]; then
            echo
            DEPS_COUNTER=$(($DEPS_COUNTER+1))
-           echo -e "${NC}\nTotal des packets a installé: ${DEPS_COUNTER}"
-           echo -en "\n${NC}Voulez vous procede a l'installation ? ----- [Y/N]: "
+           echo -e "${NC}\nTotal des paquets a installer: ${DEPS_COUNTER}"
+           echo -en "\n${NC}Voulez vous procéder a l'installation ? ----- [Y/N]: "
         fi
         unset DEPS_NUMBER DEPS_COUNTER depsList readState line
         read -r asking
         if [[ "${asking}" == "N" || "${asking}" == "n" ]]; then
              if [ "$PRINT_LOG" = true ]; then
-                 echo -e "${ORANGE}Arret de l'installation${NC}"
+                 echo -e "${ORANGE}Arrêt de l'installation${NC}"
              fi
              rm -rf /etc/cydramanager
              exit 0
@@ -235,8 +235,8 @@ function install_ask_to_continue {
 
 function fetch_warninglog {
     if [ "$PRINT_LOG" = true ]; then
-       echo -e "${GREEN}UTILISE UN MIRROR PERSONALISE PEU CREER DES FAILLES DE SECURITE IMPORTANTES UTILISEZ LES UNIQUEMENT SI VOUS EN AVEZ CONFIANCE!\n\n ${NC}"
-       echo -e "${GREEN}Le mirror ${lastMirror} seras utilise par le gestionnaire de packet${NC}"
+       echo -e "${GREEN}UTILISÉ UN MIRROR PERSONALISÉE PEU CREER DES FAILLES DE SECURITÉS IMPORTANTES, UTILISEZ LES UNIQUEMENT SI VOUS EN AVEZ CONFIANCE!\n\n ${NC}"
+       echo -e "${GREEN}Le mirror ${lastMirror} sera utilisé par le gestionnaire de paquet${NC}"
     fi
 }
 

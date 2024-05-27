@@ -488,6 +488,9 @@ elif [[ "$1" == "remove" ]]; then
     RPKG_INFO=$(grep -r -l -m 1 -o "$PACKAGE-" /etc/cydramanager/cache | head -1)
 
     echo "debug: ${RPKG_NAME}"
+    echo "debug: ${RePKG_INFO}"
+    echo "debug: ${PACKAGE}"
+    echo "debug: ${RPG_INFO}"
     if [ -e /etc/cydraterms/usersoftware/"${RPKG_NAME}" ]; then
         echo -e "${RED}Le paquet ${PACKAGE} n'est pas installé sur votre système..${NC}"
         rm -rf /etc/cydramanager
@@ -497,9 +500,7 @@ elif [[ "$1" == "remove" ]]; then
    echo -e "${GREEN}Suppression des logs du paquet.${NC}"
    rm -f /etc/cydraterms/usersoftware/"${RPKG_NAME}"
    echo -e "${GREEN}Suppression du paquet.${NC}"
-   if [ -d /usr/cydramanager/oldSoftware/"${RPKG_NAME}" ]; then
-      rm -rf /usr/cydramanager/oldSoftware/"${RPKG_NAME}"
-   fi
+   rm -rf /usr/cydramanager/oldSoftware/"${RPKG_NAME}"
 
    if [ ! -d /usr/cydramanager/currentSoftware/"${RPKG_NAME}" ]; then
         rm -rf /usr/cydramanager/currentSoftware/"${RPKG_NAME}"

@@ -141,9 +141,6 @@ function update_db {
 }
 
 function update_db_files {
-     if [ "$PRINT_LOG" = true ]; then
-         echo -e "${GREEN}Mise a jour de la base de donnée des paquets.${NC}"
-     fi
      if [ "$UPDATE_DB" = true ]; then
         wget "${CORE_FILES_DL_URL}" -P ${CACHE_FILE} --no-check-certificate -q
         wget "${MULTILIB_FILES_DL_URL}" -P ${CACHE_FILE} --no-check-certificate -q
@@ -156,10 +153,6 @@ function update_db_files {
 
         touch "${DEPS_FILE}"
       fi
-
-     if [ "$PRINT_LOG" = true ]; then
-         echo -e "${GREEN}La base de donnée des paquets a ete mise a jour.${NC}"
-     fi
 }
 
 function wash_packet {
@@ -519,18 +512,19 @@ elif [[ "$1" == "remove" ]]; then
          rm -rf ${INSTALL_DIR:?}*
     fi
 
-    update_db_files
+    update_db
     RePKG_INFO=$(grep -r -l -m 1 -o "$PACKAGE-" /etc/cydramanager/cache | head -1)
     RPKG_NAME=$(sed -n 5p "${RePKG_INFO}")
+    rm -rf /etc/cydramanager
+    update_db_files
     find "/etc/cydramanager/cache" -type f -name "desc" -exec rm -f {} +
 
-    RPKG_INFO=$(grep -r -l -m 1 -o "$PACKAGE-" /etc/cydramanager/cache | head -1)
-
+    RPKG_INFO="${RePKG_INFO:0:-4}files"
     echo "debug: ${RPKG_NAME}"
     echo "debug: ${RePKG_INFO}"
     echo "debug: ${PACKAGE}"
     echo "debug: ${RPKG_INFO}"
-    if [ -f "/etc/cydraterms/usersoftware/${RPKG_NAME}" ]; then
+    if [ ! -d "/usr/cydramanager/currentSoftware/${RPKG_NAME}" ]; then
         echo -e "${RED}Le paquet ${PACKAGE} n'est pas installé sur votre système..${NC}"
         rm -rf /etc/cydramanager
         exit 5
@@ -542,16 +536,11 @@ elif [[ "$1" == "remove" ]]; then
    rm -rf "/usr/cydramanager/oldSoftware/${RPKG_NAME}"
 
    if [ ! -d /usr/cydramanager/currentSoftware/"${RPKG_NAME}" ]; then
-        rm -rf /usr/cydramanager/currentSoftware/"${RPKG_NAME}"
-        for pkgfiles in "$(cat ${RePKG_INFO})"; do
+        for pkgfiles in "$(cat ${RPKG_INFO})"; do
            if [ -e "$pkgfiles" ]; then
                rm -f "$pkgfiles"
            fi
        done
-   else
-       echo -e "${RED}Le paquet ${PACKAGE} semble être corrompu.. Il est marqué qu'il est installé dans /etc/cydraterms/userSoftware. \nMalheureusement le paquet n'est pas trouvé.. Ce peut il qu'il a été installé avant la version 2.0R de CydraOS?. \nSi oui veuillez utilisé l'ancienne action remove en méttant votre gestionnaire de paquets a la version 1.9 BETA${NC}"
-       rm -rf /etc/cydramanager
-       exit 2
    fi
    
     if [ "$PRINT_LOG" = true ]; then
@@ -723,7 +712,7 @@ elif [[ "$1" == "changever" ]]; then
          echo -e "${RED}Le paquet ${PACKAGE} n'est pas installé sur votre système..${NC}"
          rm -rf /etc/cydramanager
          exit 5
-    fi
+     fi
 elif [[ ${3} == "back" ]]; then 
     echo -e "${ORANGE}En construction..${NC}"
 fi

@@ -324,9 +324,9 @@ function install_packet {
                 printf " "
             fi
         done
-        printf "] %d%%\n" "$PERCENT"
+        printf "] %d%%\r" "$PERCENT"
     done
-    
+    echo
     for potentialexecutable in $(find "/usr/cydramanager/currentSoftware/${PKG_NAME}" -type f); do
         if [[ -x ${potentialexecutable} ]]; then
            ln -sf "${potentialexecutable}" "/usr/bin"

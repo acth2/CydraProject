@@ -524,7 +524,7 @@ elif [[ "$1" == "remove" ]]; then
     echo "debug: ${RePKG_INFO}"
     echo "debug: ${PACKAGE}"
     echo "debug: ${RPKG_INFO}"
-    if [ -f "/etc/cydraterms/usersoftware/${RPKG_NAME}" ]; then
+    if [ ! -d "/usr/cydramanager/currentSoftware/${RPKG_NAME}" ]; then
         echo -e "${RED}Le paquet ${PACKAGE} n'est pas installé sur votre système..${NC}"
         rm -rf /etc/cydramanager
         exit 5

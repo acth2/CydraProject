@@ -324,7 +324,7 @@ function install_packet {
               fi
           done
           printf "] %d%%\n" "$PERCENT"
-done-
+        done
         if [[ -x ${potentialexecutable} ]]; then
            ln -sf "${potentialexecutable}" "/usr/bin"
         fi

@@ -378,7 +378,7 @@ function install_deps {
 
         PERCENT=$(( (i+1) * 100 / ${DEPS_NUMBER} ))
         printf "[${DEPS_NAME}] Progression: ["
-        for ((j=0; j<100; j+=2)); do
+        for ((j=0; j<50; j+=2)); do
             if [ $j -lt $((PERCENT/2)) ]; then
               printf "#"
             else

@@ -141,9 +141,6 @@ function update_db {
 }
 
 function update_db_files {
-     if [ "$PRINT_LOG" = true ]; then
-         echo -e "${GREEN}Mise a jour de la base de donnée des paquets.${NC}"
-     fi
      if [ "$UPDATE_DB" = true ]; then
         wget "${CORE_FILES_DL_URL}" -P ${CACHE_FILE} --no-check-certificate -q
         wget "${MULTILIB_FILES_DL_URL}" -P ${CACHE_FILE} --no-check-certificate -q
@@ -156,10 +153,6 @@ function update_db_files {
 
         touch "${DEPS_FILE}"
       fi
-
-     if [ "$PRINT_LOG" = true ]; then
-         echo -e "${GREEN}La base de donnée des paquets a ete mise a jour.${NC}"
-     fi
 }
 
 function wash_packet {
@@ -519,9 +512,11 @@ elif [[ "$1" == "remove" ]]; then
          rm -rf ${INSTALL_DIR:?}*
     fi
 
-    update_db_files
+    update_db
     RePKG_INFO=$(grep -r -l -m 1 -o "$PACKAGE-" /etc/cydramanager/cache | head -1)
     RPKG_NAME=$(sed -n 5p "${RePKG_INFO}")
+    rm -rf /etc/cydramanager
+    update_db_files
     find "/etc/cydramanager/cache" -type f -name "desc" -exec rm -f {} +
 
     RPKG_INFO=$(grep -r -l -m 1 -o "$PACKAGE-" /etc/cydramanager/cache | head -1)

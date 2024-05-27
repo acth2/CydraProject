@@ -692,15 +692,15 @@ elif [[ "$1" == "changever" ]]; then
      PKG_SIG=$(sed -n 23p "${PKG_INFO}")
 
      if [ ! -f /etc/cydraterms/usersoftware/"${PKG_NAME}" ]; then
-         echo -e "${RED}Le paquet ${PACKAGE} n'est pas installé sur votre systéme ..${NC}"
+         echo -e "${RED}Le paquet ${PACKAGE} n'est pas installé sur votre système..${NC}"
          rm -rf /etc/cydramanager
          exit 5
-     fi
-elif [[ ${3} == "back" ]]; then 
-      echo -e "${ORANGE}En construction.."
+    fi
+if [[ ${3} == "back" ]]; then 
+    echo -e "${ORANGE}En construction.."
 else
     echo -e "${NC}Utilisation:"
-    echo -e "${NC} sudo cydramanager changever PACKET back - Changer la version de votre paquet ou bien installé une variante de celle-ci"
+    echo -e "${NC} sudo cydramanager changever PACKET back - Changer la version de votre paquet ou bien installer une variante de celle-ci"
     rm -rf /etc/cydramanager
     exit 0
 fi

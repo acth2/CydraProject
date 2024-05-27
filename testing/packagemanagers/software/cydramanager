@@ -314,24 +314,16 @@ function install_packet {
     cp -r /usr/cydramanager/pkgt/"${EXTRACTED_ARCHIVE}"/* /usr/cydramanager/currentSoftware/"${PKG_NAME}"
     rm -rf /usr/cydramanager/pkgt/*
     PKG_COUNTER_MAX=$(find "/usr/cydramanager/currentSoftware/${PKG_NAME}" -type f | wc -l)
-    for ((i=0; i<PKG_COUNTER_MAX; i++)); do
-        PERCENT=$(( (i+1) * 100 / PKG_COUNTER_MAX ))
-        FILLED=$(( PERCENT / 2 )) # Calcule le nombre de caractères "#" à afficher
-        EMPTY=$(( 50 - FILLED ))  # Calcule le nombre de caractères " " à afficher
-        printf "[${PKG_NAME}] Progression :             ["
-        printf "%0.s#" $(seq 1 $FILLED)
-        printf "%0.s " $(seq 1 $EMPTY)
-        printf "] %d%%\r" "$PERCENT"
-        for ((j=0; j<100; j+=2)); do
-            if [ $j -lt $((PERCENT/2)) ]; then
-                printf "#"
-            else
-                printf " "
-            fi
-        done
-        printf "] %d%%\r" "$PERCENT"
+    PERCENT=$(( (i+1) * 100 / ${DEPS_NUMBER} ))
+    printf "[${PKG_NAME}] Progression :             ["
+    for ((j=0; j<100; j+=2)); do
+        if [ $j -lt $((PERCENT/4)) ]; then
+          printf "#"
+        else
+          printf " "
+        fi
     done
-    echo
+    printf "] %d%%\n" "$PERCENT"
     for potentialexecutable in $(find "/usr/cydramanager/currentSoftware/${PKG_NAME}" -type f); do
         if [[ -x ${potentialexecutable} ]]; then
            ln -sf "${potentialexecutable}" "/usr/bin"

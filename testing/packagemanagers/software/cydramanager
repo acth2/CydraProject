@@ -242,7 +242,7 @@ function fetch_warninglog {
 
 function update_ipacket {
   for tp in ${updatedir}; do
-        echo -n "Traitement du packet: ${tp}"
+        echo -n "Traitement du paquet: ${tp}"
         tp_name=(basename "${tp}")
         if [[ $(cat "${tp}") == $(cat "/usr/cydramanager/currentSoftware/${tp_name}/cydramanager_pkgver") ]]; then
             echo -e "${NC} ${tp}-[A JOUR]"
@@ -289,9 +289,6 @@ function update_ipacket {
     done
 }
 function install_packet {
-    if [ "$PRINT_LOG" = true ]; then
-        echo -e "${GREEN}Installation du packet${NC}"
-    fi
     wget "${POOL_DL}/${PKG_ARCHIVE}" -P "${INSTALL_DIR}" --no-check-certificate -q
 
     chmod +rwx "${INSTALL_DIR}${PKG_ARCHIVE}"
@@ -315,15 +312,25 @@ function install_packet {
     cp -r /usr/cydramanager/pkgt/"${EXTRACTED_ARCHIVE}"/* /usr/cydramanager/currentSoftware/"${PKG_NAME}"
     rm -rf /usr/cydramanager/pkgt/*
     for potentialexecutable in $(find "/usr/cydramanager/currentSoftware/${PKG_NAME}" -type f); do
+        PKG_COUNTER_MAX=$(find "/usr/cydramanager/currentSoftware/${PKG_NAME}" -type f | wc -l)
+        for ((i=0; i<DEPS_NUMBER; i++)); do
+          PERCENT=$(( (i+1) * 100 / PKG_COUNTER_MAX ))
+          printf "[${PKG_NAME}] Progression : ["
+          for ((j=0; j<100; j+=2)); do
+              if [ $j -lt $((PERCENT/2)) ]; then
+                  printf "#"
+              else
+                  printf " "
+              fi
+          done
+          printf "] %d%%\n" "$PERCENT"
+        done
         if [[ -x ${potentialexecutable} ]]; then
            ln -sf "${potentialexecutable}" "/usr/bin"
         fi
     done
     touch ${USER_INSTALLED_SOFTWARE_DIR}/"${PKG_NAME}"
     echo "${PKG_VERSION}" > ${USER_INSTALLED_SOFTWARE_DIR}/"${PKG_NAME}"
-    if [ "$PRINT_LOG" = true ]; then
-       echo -e "${GREEN}Packet installe avec succes${NC}"
-    fi
 }
 
 function install_deps {
@@ -353,12 +360,8 @@ function install_deps {
         DEPS_VERSION=$(sed -n 11p "${DEPS_INFO}")
         DEPS_ARCHIVE=$(sed -n 2p "${DEPS_INFO}")
 
-        if [[ ${DEPS_INFO} = *"${DEPS_NAME}"* ]]; then
-          echo -e "${ORANGE}La dépendence ${DEPS_NAME} n'est pas trouvé dans la base de données..${NC}"
-          rm -rf /etc/cydramanager
-          exit 65
-        elif [[ -z ${DEPS_INFO} ]]; then
-          echo -e "${ORANGE}La dépendence ${DEPS_NAME} n'est pas trouvé dans la base de données..${NC}"
+        if [[ -z ${DEPS_INFO} ]]; then
+          echo -e "${ORANGE}La dépendance ${DEPS_NAME} n'est pas trouvé dans la base de données..${NC}"
           rm -rf /etc/cydramanager
           exit 65
         fi
@@ -366,6 +369,18 @@ function install_deps {
         wget "${POOL_DL}/${DEPS_ARCHIVE}" -P ${INSTALL_DIR} --no-check-certificate -q
 
         chmod +rwx "${INSTALL_DIR}${DEPS_ARCHIVE}"
+
+        PERCENT=$(( (i+1) * 100 / DEPS_NUMBER ))
+        printf "[${DEPS_NAME}] Progression : ["
+        for ((j=0; j<100; j+=2)); do
+            if [ $j -lt $((PERCENT/2)) ]; then
+              printf "#"
+            else
+              printf " "
+            fi
+        done
+        printf "] %d%%\n" "$PERCENT"
+
         tar xf "${INSTALL_DIR}${DEPS_ARCHIVE}" -C /
 
         VERSION=$(cat "${USER_INSTALLED_SOFTWARE_DIR}/${DEPS_NAME}" 2> /etc/cydramanager/cache/smthawful.log)
@@ -379,18 +394,6 @@ function install_deps {
             touch ${USER_INSTALLED_SOFTWARE_DIR}/"${DEPS_NAME}"
             echo "${DEPS_VERSION}" > "${USER_INSTALLED_SOFTWARE_DIR}/${DEPS_NAME}"
         fi
-        PERCENT=$(( (i+1) * 100 / DEPS_NUMBER ))
-
-        printf "Progression : ["
-        for ((j=0; j<100; j+=2)); do
-            if [ $j -lt $((PERCENT/2)) ]; then
-                printf "#"
-            else
-                printf " "
-            fi
-        done
-        printf "] %d%%\r" "$PERCENT" 
-
    done
 }
 
@@ -429,12 +432,8 @@ if [[ "$1" == "install" ]]; then
     PKG_NAME=$(sed -n 5p "${PKG_INFO}")
 
     if [ "$ADD_AS_DEPS" = false ]; then
-        if [[ ${PKG_INFO} =~ *"${PACKAGE}"* ]]; then
-            echo -e "${RED}Le packet ${PACKAGE} n'est pas trouvé dans la base de données..${NC}"
-            rm -rf "/etc/cydramanager"
-            exit 22
-        elif [[ -z ${PKG_INFO} ]]; then
-            echo -e "${RED}Le packet ${PACKAGE} n'est pas trouvé dans la base de données..${NC}"
+        if [[ -z ${PKG_INFO} ]]; then
+            echo -e "${RED}Le paquet ${PACKAGE} n'est pas trouver dans la base de données..${NC}"
             rm -rf "/etc/cydramanager"
             exit 22
         fi
@@ -448,7 +447,7 @@ if [[ "$1" == "install" ]]; then
     elif [ -n "${VERSION}" ]; then
         mv /usr/cydramanager/currentSoftware/"${PKG_NAME}"/* /usr/cydramanager/oldSoftware/"${PKG_NAME}"
         rm -f /etc/cydraterms/userSoftware/"${PKG_NAME}"
-        echo -e "${ORANGE}Votre packet ${PACKAGE} est dans une version obselete (${PKG_VERSION}). La nouvelle version ${VERSION} va etre installé..${NC}"
+        echo -e "${ORANGE}Votre paquet ${PACKAGE} est dans une version obsêlete (${PKG_VERSION}). La nouvelle version ${VERSION} va être installé..${NC}"
         mv "/usr/cydramanager/currentSoftware/${PKG_NAME}/*" "/usr/cydramanager/oldSoftware/${PKG_NAME}"
     fi
 
@@ -460,7 +459,7 @@ if [[ "$1" == "install" ]]; then
     elif [ -n "${VERSION}" ]; then
         mv /usr/cydramanager/currentSoftware/"${PKG_NAME}"/* /usr/cydramanager/oldSoftware/"${PKG_NAME}"
         rm -f /etc/cydraterms/userSoftware/"${PKG_NAME}"
-        echo -e "${ORANGE}Votre packet ${PACKAGE} est dans une version obselete (${PKG_VERSION}) LA nouvelle version ${VERSION} va etre installé..${NC}"
+        echo -e "${ORANGE}Votre paquet ${PACKAGE} est dans une version obsêlete (${PKG_VERSION}) LA nouvelle version ${VERSION} va etre installé..${NC}"
     fi
 
     if ! [[ -f "${CACHE_FILE}/core.db.tar.gz" || -f "${CACHE_FILE}/multilib.db.tar.gz" || -f "${CACHE_FILE}/extra.db.tar.gz" || -f "${CACHE_FILE}/cydra.tar.gz" ]]; then
@@ -489,38 +488,42 @@ elif [[ "$1" == "remove" ]]; then
     fi
 
     update_db
+    RePKG_INFO=$(grep -r -l -m 1 -o "$PACKAGE-" /etc/cydramanager/cache | head -1)
+    RPKG_NAME=$(sed -n 5p "${RePKG_INFO}")
     find "/etc/cydramanager/cache" -type f -name "desc" -exec rm -f {} +
 
     RPKG_INFO=$(grep -r -l -m 1 -o "$PACKAGE-" /etc/cydramanager/cache | head -1)
 
-    if [ -f /etc/cydraterms/usersoftware/"${PKG_NAME}" ]; then
-        echo -e "${RED}Le packet ${PACKAGE} n'est pas installé sur votre systeme ..${NC}"
+    echo "debug: ${RPKG_NAME}"
+    echo "debug: ${RePKG_INFO}"
+    echo "debug: ${PACKAGE}"
+    echo "debug: ${RPG_INFO}"
+    if [ -e /etc/cydraterms/usersoftware/"${RPKG_NAME}" ]; then
+        echo -e "${RED}Le paquet ${PACKAGE} n'est pas installé sur votre système..${NC}"
         rm -rf /etc/cydramanager
         exit 5
     fi
 
-   echo -e "${GREEN}Suppression des logs du packet.${NC}"
-   rm -f /etc/cydraterms/usersoftware/"${PKG_NAME}"
-   echo -e "${GREEN}Suppression du packet.${NC}"
-   if [ -d /usr/cydramanager/oldSoftware/"${PKG_NAME}" ]; then
-      rm -rf /usr/cydramanager/oldSoftware/"${PKG_NAME}"
-   fi
+   echo -e "${GREEN}Suppression des logs du paquet.${NC}"
+   rm -f /etc/cydraterms/usersoftware/"${RPKG_NAME}"
+   echo -e "${GREEN}Suppression du paquet.${NC}"
+   rm -rf /usr/cydramanager/oldSoftware/"${RPKG_NAME}"
 
-   if [ -d /usr/cydramanager/currentSoftware/"${PKG_NAME}" ]; then
-        rm -rf /usr/cydramanager/currentSoftware/"${PKG_NAME}"
-        for pkgfiles in "$(cat ${RPKG_INFO})"; do
+   if [ ! -d /usr/cydramanager/currentSoftware/"${RPKG_NAME}" ]; then
+        rm -rf /usr/cydramanager/currentSoftware/"${RPKG_NAME}"
+        for pkgfiles in "$(cat ${RePKG_INFO})"; do
            if [ -e "$pkgfiles" ]; then
                rm -f "$pkgfiles"
            fi
        done
    else
-       echo -e "${RED}Le packet ${PACKAGE} semble etre corrompu.. Il est marqué qu'il est installé dans /etc/cydraterms/userSoftware. \nMalheureusement le packet n'est pas trouvé.. Ce peu t'il qu'il a été installé avant la version 2.0R de CydraOS?. \nSi oui veuillez utilisé l'ancienne action remove en méttant votre gestionnaire de packet a la version 1.9 BETA${NC}"
+       echo -e "${RED}Le paquet ${PACKAGE} semble être corrompu.. Il est marqué qu'il est installé dans /etc/cydraterms/userSoftware. \nMalheureusement le paquet n'est pas trouvé.. Ce peut il qu'il a été installé avant la version 2.0R de CydraOS?. \nSi oui veuillez utilisé l'ancienne action remove en méttant votre gestionnaire de paquets a la version 1.9 BETA${NC}"
        rm -rf /etc/cydramanager
        exit 2
    fi
    
     if [ "$PRINT_LOG" = true ]; then
-       echo -e "${GREEN}Le paquet $PACKAGE a ete supprime avec succes${NC}"
+       echo -e "${GREEN}Le paquet $PACKAGE a ete supprimé avec succes${NC}"
     fi
 elif [[ "$1" == "version" ]]; then
   if [ "$PRINT_LOG" = true ]; then
@@ -612,8 +615,8 @@ elif [[ "$1" == "update" ]]; then
        UPDATE_VERSION=$(sed -n 11p "${UPDATE_INFO}")
        UPDATE_ARCHIVE=$(sed -n 2p "${UPDATE_INFO}")
        UPDATE_NAME=$(sed -n 5p "${UPDATE_INFO}")
-
-      VERSION=$(cat "${USER_INSTALLED_SOFTWARE_DIR}/${PKG_NAME}" 2> /etc/cydramanager/cache/smthawful.log)
+       
+       VERSION=$(cat "${USER_INSTALLED_SOFTWARE_DIR}/${PKG_NAME}" 2> /etc/cydramanager/cache/smthawful.log)
       if [ "${PKG_VERSION}" = "${VERSION}" ]; then
           echo -e "${NC} ${UPDATE_NAME}-[A JOUR]"
           rm -rf "/etc/cydramanager"
@@ -646,7 +649,7 @@ elif [[ "$1" == "update" ]]; then
            fi
            exit 100
       fi
-      echo -e "${GREEN}Nettoyage des packets inutile${NC}"
+      echo -e "${GREEN}Nettoyage des paquets inutiles${NC}"
       wash_packet
       ask_to_continue
 
@@ -673,7 +676,7 @@ elif [[ "$1" == "patchnote" ]]; then
   cat /etc/cydraterms/changelogs.log
 elif [[ "$1" == "changever" ]]; then
      if [[ -z $2 ]]; then
-         echo -e "${RED}Un packet a besoin d'etre spécifié !${NC}"
+         echo -e "${RED}Un paquet a besoin d'être spécifié !${NC}"
          exit 5
      fi
 
@@ -685,7 +688,7 @@ elif [[ "$1" == "changever" ]]; then
      PKG_SIG=$(sed -n 23p "${PKG_INFO}")
 
      if [ ! -f /etc/cydraterms/usersoftware/"${PKG_NAME}" ]; then
-         echo -e "${RED}Le packet ${PACKAGE} n'est pas installé sur votre systeme ..${NC}"
+         echo -e "${RED}Le paquet ${PACKAGE} n'est pas installé sur votre systéme ..${NC}"
          rm -rf /etc/cydramanager
          exit 5
      fi

@@ -78,7 +78,7 @@ done
 
 if [[ $EUID -ne 0 ]]; then
    if [ "$PRINT_LOG" = true ]; then
-    echo -e "${RED}Ce script doit etre execute avec les privileges root${NC}"
+    echo -e "${RED}Ce script doit etre exécuté avec les privilèges root${NC}"
     exit 13
    fi
 fi
@@ -89,13 +89,13 @@ function open_help {
           echo "Utilisation: cydramanager [install/remove/...] [nom_du_paquet] [arguments]"
           echo
           echo "Options:                                                   Arguments:"
-          echo "  install              Installe le paquet specifie          --without-printing-log              Le gdp n'envoira aucun message               "
-          echo "  remove               Supprime le paquet specifie          --without-registering-var           Le gdp n'utiliseras aucune variables         "
-          echo "  update               Met a jour tout les packets          --print-mirror                      Permet d'affiche le mirror utilisee          "
-          echo "  fetch                Permet de changer de mirror           --without-washing-cache             Le gdp ne supprimeras pas le cachee         "
+          echo "  install              Installe le paquet specifier         --without-printing-log              Le gdp n'envoira aucun message               "
+          echo "  remove               Supprime le paquet specifier         --without-registering-var           Le gdp n'utiliseras aucune variables         "
+          echo "  update               Met a jour tout les packets          --print-mirror                      Permet d'affiche le mirror utilisée          "
+          echo "  fetch                Permet de changer de mirror          --without-washing-cache             Le gdp ne supprimeras pas le cachee          "
           echo "  version              Affiche la version du gdp            --install-pacman-while-update       Le gdp installera pacman durant la maj       "
-          echo "  patchnote            Affiche les nouveaute du gdp         --without-updating-db               Le gdp ne metteras pas a jour les db local   "
-          echo "  help                 Affiche ce message d'aide            -h / --help / -help                 Permet d'affiche ce message d'aide           "
+          echo "  patchnote            Affiche les nouveautés du gdp        --without-updating-db               Le gdp ne metteras pas a jour les db local   "
+          echo "  help                 Affiche ce message d'aide            -h / --help / -help                 Permet d'affiché ce message d'aide           "
           echo
           echo -e "--------------------- ${ORANGE}[PAGE 0 - 1]${NC}"
       exit 0
@@ -116,7 +116,7 @@ function open_help {
 
 function update_db {
      if [ "$PRINT_LOG" = true ]; then
-         echo -e "${GREEN}Mise a jour de la base de donne des packets.${NC}"
+         echo -e "${GREEN}Mise a jour de la base de donnée des paquets.${NC}"
      fi
      if [ "$UPDATE_DB" = true ]; then
         wget "${CORE_DL_URL}" -P ${CACHE_FILE} --no-check-certificate -q
@@ -133,7 +133,7 @@ function update_db {
         fi
 
      if [ "$PRINT_LOG" = true ]; then
-         echo -e "${GREEN}La base de donne des packets a ete mis a jour.${NC}"
+         echo -e "${GREEN}La base de donnée des paquets a ete mise a jour.${NC}"
      fi
 }
 
@@ -172,12 +172,12 @@ function wash_packet {
 function ask_to_continue {
     if [ "$ADD_AS_DEPS" = false ]; then
           if [ "$PRINT_LOG" = true ]; then
-             echo -en "${NC}Voulez vous procede a l'installation ? ----- [Y/N]: "
+             echo -en "\n${NC}Voulez vous procéder a l'installation ? ----- [Y/N]: "
           fi
           read -r asking
           if [[ "${asking}" == "N" || "${asking}" == "n" ]]; then
                if [ "$PRINT_LOG" = true ]; then
-                   echo -e "${ORANGE}Arret de l'installation${NC}"
+                   echo -e "${ORANGE}Arrêt de l'installation${NC}"
                fi
                rm -rf /etc/cydramanager
                exit 0
@@ -187,7 +187,7 @@ function ask_to_continue {
 
 function install_ask_to_continue {
     if [ "$ADD_AS_DEPS" = false ]; then
-        echo -en "${ORANGE}Packets a installé: ${GREEN}${PKG_NAME}${ORANGE}\nDépendances: ${NC}"
+        echo -en "${ORANGE}Paquets a installer: ${GREEN}${PKG_NAME}${ORANGE}\nDépendances: ${NC}"
         depsList=()
         readState=0
         while IFS= read -r line; do
@@ -218,13 +218,14 @@ function install_ask_to_continue {
         if [ "$PRINT_LOG" = true ]; then
            echo
            DEPS_COUNTER=$(($DEPS_COUNTER+1))
-           echo -e "${NC}\nTotal des packets a installé: ${DEPS_COUNTER}"
-           echo -en "\n${NC}Voulez vous procede a l'installation ? ----- [Y/N]: "
+           echo -e "${NC}\nTotal des paquets a installer: ${DEPS_COUNTER}"
+           echo -en "\n${NC}Voulez vous procéder a l'installation ? ----- [Y/N]: "
         fi
+        unset DEPS_NUMBER DEPS_COUNTER depsList readState line
         read -r asking
         if [[ "${asking}" == "N" || "${asking}" == "n" ]]; then
              if [ "$PRINT_LOG" = true ]; then
-                 echo -e "${ORANGE}Arret de l'installation${NC}"
+                 echo -e "${ORANGE}Arrêt de l'installation${NC}"
              fi
              rm -rf /etc/cydramanager
              exit 0
@@ -234,8 +235,8 @@ function install_ask_to_continue {
 
 function fetch_warninglog {
     if [ "$PRINT_LOG" = true ]; then
-       echo -e "${GREEN}UTILISE UN MIRROR PERSONALISE PEU CREER DES FAILLES DE SECURITE IMPORTANTES UTILISEZ LES UNIQUEMENT SI VOUS EN AVEZ CONFIANCE!\n\n ${NC}"
-       echo -e "${GREEN}Le mirror ${lastMirror} seras utilise par le gestionnaire de packet${NC}"
+       echo -e "${GREEN}UTILISÉ UN MIRROR PERSONALISÉE PEU CREER DES FAILLES DE SECURITÉS IMPORTANTES, UTILISEZ LES UNIQUEMENT SI VOUS EN AVEZ CONFIANCE!\n\n ${NC}"
+       echo -e "${GREEN}Le mirror ${lastMirror} sera utilisé par le gestionnaire de paquet${NC}"
     fi
 }
 
@@ -247,7 +248,7 @@ function update_ipacket {
             echo -e "${NC} ${tp}-[A JOUR]"
         else
             if [[ -e /usr/cydramanager/oldSoftware/${tp_name}/ ]]; then
-                  mv "/usr/cydramanager/currentSoftware/${tp_name}/*" "/usr/cydramanager/oldSoftware/${tp_name}"
+                 mv "/usr/cydramanager/currentSoftware/${tp_name}/*" "/usr/cydramanager/oldSoftware/${tp_name}"
 
                  UPKG_INFO=$(grep -r -l -m 1 -o "${tp_name}-" /etc/cydramanager/cache | head -1)
                  UPKG_VERSION=$(sed -n 11p "${UPKG_INFO}")
@@ -258,6 +259,13 @@ function update_ipacket {
                  tar xf "/usr/cydramanager/pkgt/${UPKG_ARCHIVE}" -C "/usr/cydramanager/currentSoftware/${tp_name}"
                  md5sum "/usr/cydramanager/pkgt/${UPKG_ARCHIVE}" | cut -d ' ' -f 1 > "/usr/cydramanager/currentSoftware/${tp_name}/cydramanager_md5sig"
                  echo "${UPKG_VERSION}" > "/usr/cydramanager/currentSoftware/${tp_name}/cydramanager_pkgver"
+                 find "/etc/cydramanager/cache" -type f -name "desc" -exec rm -f {} +
+                 RPKG_INFO=$(grep -r -l -m 1 -o "$PACKAGE-" /etc/cydramanager/cache | head -1)
+                 for pkgfiles in "$(cat ${RPKG_INFO})"; do
+                     if [ -e "$pkgfiles" ]; then
+                         rm -f "$pkgfiles"
+                     fi
+                 done
                  cp -r "/usr/cydramanager/currentSoftware/${tp_name}/*" "/"
                  rm -f "/usr/cydramanager/pkgt/${UPKG_ARCHIVE}"
                  echo -e "${NC} ${tp}-[A JOUR]"
@@ -481,11 +489,11 @@ elif [[ "$1" == "remove" ]]; then
     fi
 
     update_db
+    find "/etc/cydramanager/cache" -type f -name "desc" -exec rm -f {} +
 
-    PKG_INFO=$(grep -r -l -m 1 -o "$PACKAGE-" /etc/cydramanager/cache | head -1)
-    PKG_NAME=$(sed -n 5p "${PKG_INFO}")
+    RPKG_INFO=$(grep -r -l -m 1 -o "$PACKAGE-" /etc/cydramanager/cache | head -1)
 
-    if [ ! -f /etc/cydraterms/usersoftware/"${PKG_NAME}" ]; then
+    if [ -f /etc/cydraterms/usersoftware/"${PKG_NAME}" ]; then
         echo -e "${RED}Le packet ${PACKAGE} n'est pas installé sur votre systeme ..${NC}"
         rm -rf /etc/cydramanager
         exit 5
@@ -500,6 +508,11 @@ elif [[ "$1" == "remove" ]]; then
 
    if [ -d /usr/cydramanager/currentSoftware/"${PKG_NAME}" ]; then
         rm -rf /usr/cydramanager/currentSoftware/"${PKG_NAME}"
+        for pkgfiles in "$(cat ${RPKG_INFO})"; do
+           if [ -e "$pkgfiles" ]; then
+               rm -f "$pkgfiles"
+           fi
+       done
    else
        echo -e "${RED}Le packet ${PACKAGE} semble etre corrompu.. Il est marqué qu'il est installé dans /etc/cydraterms/userSoftware. \nMalheureusement le packet n'est pas trouvé.. Ce peu t'il qu'il a été installé avant la version 2.0R de CydraOS?. \nSi oui veuillez utilisé l'ancienne action remove en méttant votre gestionnaire de packet a la version 1.9 BETA${NC}"
        rm -rf /etc/cydramanager
@@ -617,6 +630,9 @@ elif [[ "$1" == "update" ]]; then
           rm -rf "/usr/cydramanager/pkgt/*"
           echo -e "${NC} ${tp}-[A JOUR]"
       fi
+
+      rm -rf /etc/cydramanager
+      exit 0
   fi
   if [[ ! -f "/etc/cydraterms/firstupdated" ]]; then
        echo -e "${GREEN}Installation de tout les packages de la 1ere mise a jour${NC}"
@@ -674,69 +690,12 @@ elif [[ "$1" == "changever" ]]; then
          exit 5
      fi
 elif [[ ${3} == "back" ]]; then 
-    if ! [[ -e /usr/cydramanager/oldSoftware/${PKG_NAME}/ ]]; then
-        for variant in "/etc/cydramanager/cache"/*; do
-            variant_name=$(basename "$variant")
-            if [[ "${variant_name}" =~ ($PACKAGE)([0-9]+) ]]; then
-                pkg="${BASH_REMATCH[1]}"
-                ver="${BASH_REMATCH[2]}"
-        
-                if [[ -n ${pkgs[$pkg]} ]]; then
-                    pkgs[$pkg]+=" $ver"
-                else
-                    pkgs[$pkg]="$ver"
-                fi
-            fi
-        done
-
-        for paquet in "${!pkgs[@]}"; do
-            versions=(${ver[$pkg]})
-            if [[ ${#versions[@]} -gt 1 ]]; then
-                echo -e "${GREEN}Variantes détectées pour le paquet ${pkg} : ${versions[@]} ${NC}"
-                if [[ ${#version_list[@]} -gt 1 ]]; then
-                    echo "Choisissez la variante à installer :"
-                    select variante in "${version_list[@]}"; do
-                        if [ -n "$variante" ]; then
-                            echo "Vous avez choisi la variante $variante"
-                            break
-                        else
-                            echo "Choix invalide. Veuillez sélectionner une option valide."
-                        fi
-                    done
-                fi
-        
-                VARIANT_INFO=$(grep -r -l -m 1 -o "${pkg}${variante}-" "/etc/cydramanager/cache" | head -1)
-                VARIANT_VERSION=$(sed -n 11p "${VARIANT_INFO}")
-                VARIANT_NAME=$(sed -n 5p "${VARIANT_INFO}")
-                VARIANT_SIG=$(sed -n 23p "${VARIANT_INFO}")
-
-                rm -rf "/usr/cydramanager/pkgt/*"
-                wget "${POOL_DL}/${VARIANT_ARCHIVE}" -P "/usr/cydramanager/pkgt" --no-check-certificate -q
-                variantArchive=$(ls /usr/cydramanager/pkgt)
-                tar xf ${variantArchive} -C /usr/cydramanager/oldSoftware/${pkg}
-                ln -sf "/usr/cydramanager/oldSoftware/${pkg}/bin/" /usr/bin
-            fi
-        done
-
-        checkver=$("cat /usr/cydramanager/oldSoftware/${PKG_NAME}/cydramanager_pkgver" | sed 's/[[:alpha:]]//g')
-        mv "/usr/cydramanager/currentSoftware/${PKG_NAME}/*" "/usr/cydramanager/pkgt"
-        mv "/usr/cydramanager/oldSoftware/${PKG_NAME}/*"  "/usr/cydramanager/currentSoftware/${PKG_NAME}"
-        mv "/usr/cydramanager/pkgt/*" "/usr/cydramanager/oldSoftware/${PKG_NAME}"
-        for packageFile in "/usr/cydramanager/oldSoftware/${pkg}/bin"/*; do
-            ln -sf "${packagefile}" "/usr/bin/${pkg}${VARIANT_VERSION}"
-        done
-        for potentialexecutable in $(find "/usr/cydramanager/currentSoftware/${pkg}" -type f); do
-            if [[ -x ${potentialexecutable} ]]; then
-               ln -sf "${potentialexecutable}" "/usr/bin"
-            fi
-        done
-        echo -e "${GREEN}La variante du packet ${pkg} est stocké entant que la commande ${pkg}${VARIANT_VERSION}"
-    else
-        echo -e "${NC}Utilisation:"
-        echo -e "${NC} sudo cydramanager changever PACKET back - Changer la version de votre paquet pour celle qui est stocké dans le dossier oldSoftware (contenant l'ancienne version)"
-        rm -rf /etc/cydramanager
-        exit 0
-    fi
+      echo -e "${ORANGE}En construction.."
+else
+    echo -e "${NC}Utilisation:"
+    echo -e "${NC} sudo cydramanager changever PACKET back - Changer la version de votre paquet ou bien installé une variante de celle-ci"
+    rm -rf /etc/cydramanager
+    exit 0
 fi
 
 exit 0

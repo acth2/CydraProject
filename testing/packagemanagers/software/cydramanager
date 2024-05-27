@@ -380,12 +380,13 @@ function install_deps {
         printf "Progression : ["
         for ((j=0; j<100; j+=2)); do
             if [ $j -lt $((PERCENT/2)) ]; then
-                printf "#"
+              printf "#"
             else
-                printf " "
+              printf " "
             fi
         done
-        printf "] %d%%\r" "$PERCENT" 
+        printf "] %d%%\n" "$PERCENT"
+
 
    done
 }

@@ -314,7 +314,7 @@ function install_packet {
     cp -r /usr/cydramanager/pkgt/"${EXTRACTED_ARCHIVE}"/* /usr/cydramanager/currentSoftware/"${PKG_NAME}"
     rm -rf /usr/cydramanager/pkgt/*
     PKG_COUNTER_MAX=$(find "/usr/cydramanager/currentSoftware/${PKG_NAME}" -type f | wc -l)
-    PERCENT=$(( (i+1) * 100 / ${DEPS_NUMBER} ))
+    PERCENT=$(( (i+1) * 100 / ${PKG_COUNTER_MAX} ))
     printf "[${PKG_NAME}] Progression :             ["
     for ((j=0; j<100; j+=2)); do
         if [ $j -lt $((PERCENT/4)) ]; then

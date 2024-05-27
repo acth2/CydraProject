@@ -536,16 +536,11 @@ elif [[ "$1" == "remove" ]]; then
    rm -rf "/usr/cydramanager/oldSoftware/${RPKG_NAME}"
 
    if [ ! -d /usr/cydramanager/currentSoftware/"${RPKG_NAME}" ]; then
-        rm -rf /usr/cydramanager/currentSoftware/"${RPKG_NAME}"
-        for pkgfiles in "$(cat ${RePKG_INFO})"; do
+        for pkgfiles in "$(cat ${RPKG_INFO})"; do
            if [ -e "$pkgfiles" ]; then
                rm -f "$pkgfiles"
            fi
        done
-   else
-       echo -e "${RED}Le paquet ${PACKAGE} semble être corrompu.. Il est marqué qu'il est installé dans /etc/cydraterms/userSoftware. \nMalheureusement le paquet n'est pas trouvé.. Ce peut il qu'il a été installé avant la version 2.0R de CydraOS?. \nSi oui veuillez utilisé l'ancienne action remove en méttant votre gestionnaire de paquets a la version 1.9 BETA${NC}"
-       rm -rf /etc/cydramanager
-       exit 2
    fi
    
     if [ "$PRINT_LOG" = true ]; then
@@ -717,7 +712,7 @@ elif [[ "$1" == "changever" ]]; then
          echo -e "${RED}Le paquet ${PACKAGE} n'est pas installé sur votre système..${NC}"
          rm -rf /etc/cydramanager
          exit 5
-    fi
+     fi
 elif [[ ${3} == "back" ]]; then 
     echo -e "${ORANGE}En construction..${NC}"
 fi

@@ -1,4 +1,4 @@
-#!/bin/bash
++#!/bin/bash
 # shellcheck disable=SC2034
 # shellcheck disable=SC2016
 # shellcheck disable=SC2140
@@ -315,9 +315,9 @@ function install_packet {
     rm -rf /usr/cydramanager/pkgt/*
     PKG_COUNTER_MAX=$(find "/usr/cydramanager/currentSoftware/${PKG_NAME}" -type f | wc -l)
     PERCENT=$(( (i+1) * 100 / ${PKG_COUNTER_MAX} ))
-    printf "[${PKG_NAME}] Progression :             ["
+    printf "[${PKG_NAME}] Progression: ["
     for ((j=0; j<100; j+=2)); do
-        if [ $j -lt $((PERCENT/4)) ]; then
+        if [ $j -lt $((PERCENT/1)) ]; then
           printf "#"
         else
           printf " "
@@ -372,7 +372,7 @@ function install_deps {
         chmod +rwx "${INSTALL_DIR}${DEPS_ARCHIVE}"
 
         PERCENT=$(( (i+1) * 100 / ${DEPS_NUMBER} ))
-        printf "[${DEPS_NAME}] Progression :             ["
+        printf "[${DEPS_NAME}] Progression: ["
         for ((j=0; j<100; j+=2)); do
             if [ $j -lt $((PERCENT/2)) ]; then
               printf "#"

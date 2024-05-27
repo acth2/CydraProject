@@ -316,7 +316,12 @@ function install_packet {
     PKG_COUNTER_MAX=$(find "/usr/cydramanager/currentSoftware/${PKG_NAME}" -type f | wc -l)
     for ((i=0; i<PKG_COUNTER_MAX; i++)); do
         PERCENT=$(( (i+1) * 100 / PKG_COUNTER_MAX ))
+        FILLED=$(( PERCENT / 2 )) # Calcule le nombre de caractères "#" à afficher
+        EMPTY=$(( 50 - FILLED ))  # Calcule le nombre de caractères " " à afficher
         printf "[${PKG_NAME}] Progression : ["
+        printf "%0.s#" $(seq 1 $FILLED)
+        printf "%0.s " $(seq 1 $EMPTY)
+        printf "] %d%%\r" "$PERCENT"
         for ((j=0; j<100; j+=2)); do
             if [ $j -lt $((PERCENT/2)) ]; then
                 printf "#"

@@ -414,7 +414,7 @@ fi
 
 if [[ "$1" != "install" && "$1" != "remove" && "$1" != "update" && "$1" != "fetch" && "$1" != "help" && "$1" != "version" && "$1" != "patchnote" && "changever" != "$1" ]]; then
     if [ "$PRINT_LOG" = true ]; then
-      echo -e "${RED²L'action est invalide. Etes vous perdu? \n cydramanager -h pour ouvrir la liste des commandes / arguments disponibles !${NC}"
+      echo -e "${RED}L'action est invalide. Etes vous perdu? \n cydramanager -h pour ouvrir la liste des commandes / arguments disponibles !${NC}"
       exit 5
     fi
 fi
@@ -696,13 +696,8 @@ elif [[ "$1" == "changever" ]]; then
          rm -rf /etc/cydramanager
          exit 5
     fi
-if [[ ${3} == "back" ]]; then 
-    echo -e "${ORANGE}En construction.."
-else
-    echo -e "${NC}Utilisation:"
-    echo -e "${NC} sudo cydramanager changever PACKET back - Changer la version de votre paquet ou bien installer une variante de celle-ci"
-    rm -rf /etc/cydramanager
-    exit 0
+elif [[ ${3} == "back" ]]; then 
+    echo -e "${ORANGE}En construction..${NC}"
 fi
 
 exit 0

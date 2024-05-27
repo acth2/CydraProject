@@ -288,6 +288,7 @@ function update_ipacket {
         fi
     done
 }
+
 function install_packet {
     wget "${POOL_DL}/${PKG_ARCHIVE}" -P "${INSTALL_DIR}" --no-check-certificate -q
 
@@ -305,30 +306,33 @@ function install_packet {
     mkdir /usr/cydramanager/currentSoftware/"${PKG_NAME}"
     mkdir "/usr/cydramanager/oldSoftware/${PKG_NAME}"
     touch "/usr/cydramanager/currentSoftware/${PKG_NAME}/cydramanager_md5sig"
-    md5sum "${INSTALL_DIR}${PKG_ARCHIVE}" | cut -d ' ' -f 1 > "/usr/cydramanager/currentSoftware/${PKG_NAME}/cydramanager_md5sig"   
+    md5sum "${INSTALL_DIR}${PKG_ARCHIVE}" | cut -d ' ' -f 1 > "/usr/cydramanager/currentSoftware/${PKG_NAME}/cydramanager_md5sig"
     touch "/usr/cydramanager/currentSoftware/${PKG_NAME}/cydramanager_pkgver"
     echo "${PKG_VERSION}" > "/usr/cydramanager/currentSoftware/${PKG_NAME}/cydramanager_pkgver"
     softwareListed=("$(ls "/usr/cydramanager/pkgt/$EXTRACTED_ARCHIVE")")
     cp -r /usr/cydramanager/pkgt/"${EXTRACTED_ARCHIVE}"/* /usr/cydramanager/currentSoftware/"${PKG_NAME}"
     rm -rf /usr/cydramanager/pkgt/*
-    for potentialexecutable in $(find "/usr/cydramanager/currentSoftware/${PKG_NAME}" -type f); do
-        PKG_COUNTER_MAX=$(find "/usr/cydramanager/currentSoftware/${PKG_NAME}" -type f | wc -l)
-        for ((i=0; i<DEPS_NUMBER; i++)); do
-          PERCENT=$(( (i+1) * 100 / PKG_COUNTER_MAX ))
-          printf "[${PKG_NAME}] Progression : ["
-          for ((j=0; j<100; j+=2)); do
-              if [ $j -lt $((PERCENT/2)) ]; then
-                  printf "#"
-              else
-                  printf " "
-              fi
-          done
-          printf "] %d%%\n" "$PERCENT"
+    
+    PKG_COUNTER_MAX=$(find "/usr/cydramanager/currentSoftware/${PKG_NAME}" -type f | wc -l)
+    for ((i=0; i<PKG_COUNTER_MAX; i++)); do
+        PERCENT=$(( (i+1) * 100 / PKG_COUNTER_MAX ))
+        printf "[${PKG_NAME}] Progression : ["
+        for ((j=0; j<100; j+=2)); do
+            if [ $j -lt $((PERCENT/2)) ]; then
+                printf "#"
+            else
+                printf " "
+            fi
         done
+        printf "] %d%%\n" "$PERCENT"
+    done
+    
+    for potentialexecutable in $(find "/usr/cydramanager/currentSoftware/${PKG_NAME}" -type f); do
         if [[ -x ${potentialexecutable} ]]; then
            ln -sf "${potentialexecutable}" "/usr/bin"
         fi
     done
+    
     touch ${USER_INSTALLED_SOFTWARE_DIR}/"${PKG_NAME}"
     echo "${PKG_VERSION}" > ${USER_INSTALLED_SOFTWARE_DIR}/"${PKG_NAME}"
 }
@@ -370,7 +374,7 @@ function install_deps {
 
         chmod +rwx "${INSTALL_DIR}${DEPS_ARCHIVE}"
 
-        PERCENT=$(( (i+1) * 100 / DEPS_NUMBER ))
+        PERCENT=$(( (i+1) * 100 / ${DEPS_NUMBER} ))
         printf "[${DEPS_NAME}] Progression : ["
         for ((j=0; j<100; j+=2)); do
             if [ $j -lt $((PERCENT/2)) ]; then
@@ -410,7 +414,7 @@ fi
 
 if [[ "$1" != "install" && "$1" != "remove" && "$1" != "update" && "$1" != "fetch" && "$1" != "help" && "$1" != "version" && "$1" != "patchnote" && "changever" != "$1" ]]; then
     if [ "$PRINT_LOG" = true ]; then
-      echo -e "${RED}L'action est invalide. Etes vous perdu? \n cydramanager -h pour ouvrir la liste des commandes / arguments disponibles !${NC}"
+      echo -e "${RED²L'action est invalide. Etes vous perdu? \n cydramanager -h pour ouvrir la liste des commandes / arguments disponibles !${NC}"
       exit 5
     fi
 fi

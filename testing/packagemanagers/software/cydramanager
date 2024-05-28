@@ -203,6 +203,24 @@ function ask_to_continue {
     fi
 }
 
+
+function ask_to_remove {
+    if [ "$ADD_AS_DEPS" = false ]; then
+          if [ "$PRINT_LOG" = true ]; then
+             echo -e  "${ORANGE}Paquet a déinstaller: ${GREEN}${RPKG_NAME}${NC}"
+             echo -en "\n${NC}Voulez vous procéder a la déinstallation ? ----- [Y/N]: "
+          fi
+          read -r asking
+          if [[ "${asking}" == "N" || "${asking}" == "n" ]]; then
+               if [ "$PRINT_LOG" = true ]; then
+                   echo -e "${ORANGE}Arrêt de l'installation${NC}"
+               fi
+               rm -rf /etc/cydramanager
+               exit 0
+          fi
+    fi
+}
+
 function install_ask_to_continue {
     if [ "$ADD_AS_DEPS" = false ]; then
         echo -en "${ORANGE}Paquets a installer: ${GREEN}${PKG_NAME}${ORANGE}\nDépendances: ${NC}"
@@ -396,7 +414,7 @@ function install_deps {
 
         unset PERCENT
         PERCENT=$(( (i+1) * 100 / ${DEPS_NUMBER} ))
-        printf "[${DEPS_NAME}] Progression: ["
+        printf "[${DEPS_NAME}] Progression : ["
         for ((j=0; j<50; j+=2)); do
             if [ $j -lt $((PERCENT/2)) ]; then
               printf "#"
@@ -440,6 +458,8 @@ if [[ "$1" != "install" && "$1" != "remove" && "$1" != "update" && "$1" != "fetc
     fi
 fi
 
+
+rm -rf /etc/cydramanager 2> /dev/null
 if [[ "$1" == "install" ]]; then
     if ! [[ -d ${CACHE_FILE} ]]; then
        mkdir -p ${CACHE_FILE}
@@ -520,32 +540,42 @@ elif [[ "$1" == "remove" ]]; then
     find "/etc/cydramanager/cache" -type f -name "desc" -exec rm -f {} +
 
     RPKG_INFO="${RePKG_INFO:0:-4}files"
-    echo "debug: ${RPKG_NAME}"
-    echo "debug: ${RePKG_INFO}"
-    echo "debug: ${PACKAGE}"
-    echo "debug: ${RPKG_INFO}"
+    RPKG_INFO_FULL=$(sed 's|^|/|' "${RPKG_INFO}")
+    RPKG_NMB=$(wc -l < "${RPKG_INFO}")
+    sed -i 1d "${RPKG_INFO}"
     if [ ! -d "/usr/cydramanager/currentSoftware/${RPKG_NAME}" ]; then
         echo -e "${RED}Le paquet ${PACKAGE} n'est pas installé sur votre système..${NC}"
         rm -rf /etc/cydramanager
         exit 5
     fi
 
-   echo -e "${GREEN}Suppression des logs du paquet.${NC}"
-   rm -f "/etc/cydraterms/usersoftware/${RPKG_NAME}"
-   echo -e "${GREEN}Suppression du paquet.${NC}"
-   rm -rf "/usr/cydramanager/oldSoftware/${RPKG_NAME}"
+    ask_to_remove
 
-   if [ ! -d /usr/cydramanager/currentSoftware/"${RPKG_NAME}" ]; then
-        for pkgfiles in "$(cat ${RPKG_INFO})"; do
-           if [ -e "$pkgfiles" ]; then
-               rm -f "$pkgfiles"
-           fi
-       done
-   fi
-   
-    if [ "$PRINT_LOG" = true ]; then
-       echo -e "${GREEN}Le paquet $PACKAGE a ete supprimé avec succes${NC}"
-    fi
+    rm -f "/etc/cydraterms/usersoftware/${RPKG_NAME}"
+    rm -rf "/usr/cydramanager/oldSoftware/${RPKG_NAME}"
+    rm -rf "/usr/cydramanager/currentSoftware/${RPKG_NAME}"
+
+    echo "${RPKG_INFO_FULL}" | grep -vE '/$' | while read -r pkgfile; do
+         if [ -f "${pkgfile}" ]; then
+             unlink "${pkgfile}"
+         fi
+    done
+
+    for ((i=0; i<RPKG_NMB; i++)); do
+          PERCENT=$(( (i+1) * 100 / RPKG_NMB ))
+          printf "[${RPKG_NAME}] Suppression : ["
+          for ((j=0; j<50; j+=2)); do
+              if [ $j -lt $((PERCENT/2)) ]; then
+                  printf "#"
+              else
+                  printf " "
+              fi
+          done
+          printf "] %d%%\r" "$PERCENT"
+      done
+      echo
+
+      rm -rf /etc/cydramanager
 elif [[ "$1" == "version" ]]; then
   if [ "$PRINT_LOG" = true ]; then
      wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/version" -P /etc/cydrafetch/version --no-check-certificate -q

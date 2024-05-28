@@ -521,6 +521,7 @@ elif [[ "$1" == "remove" ]]; then
 
     RPKG_INFO="${RePKG_INFO:0:-4}files"
     RPKG_INFO_FULL=$(sed 's|^|/|' "${RPKG_INFO}")
+    RPKG_NMB=$(wc -l < "${RPKG_INFO}")
     sed -i 1d "${RPKG_INFO}"
     if [ ! -d "/usr/cydramanager/currentSoftware/${RPKG_NAME}" ]; then
         echo -e "${RED}Le paquet ${PACKAGE} n'est pas installé sur votre système..${NC}"
@@ -537,6 +538,20 @@ elif [[ "$1" == "remove" ]]; then
         if [ -f "${pkgfile}" ]; then
             unlink "${pkgfile}"
         fi
+
+        for ((i=0; i<RPKG_NMB; i++)); do
+            PERCENT=$(( (i+1) * 100 / RPKG_NMB ))
+            printf "[${RPKG_NAME}] Progression : ["
+            for ((j=0; j<50; j+=2)); do
+                if [ $j -lt $((PERCENT/2)) ]; then
+                    printf "#"
+                else
+                    printf " "
+                fi
+            done
+            printf "] %d%%\r" "$PERCENT"
+        done
+        echo
    done
 
    if [ "$PRINT_LOG" = true ]; then

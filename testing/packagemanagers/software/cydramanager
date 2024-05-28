@@ -533,6 +533,7 @@ elif [[ "$1" == "remove" ]]; then
     rm -f "/etc/cydraterms/usersoftware/${RPKG_NAME}"
     echo -e "${GREEN}Suppression du paquet.${NC}"
     rm -rf "/usr/cydramanager/oldSoftware/${RPKG_NAME}"
+    rm -rf "/usr/cydramanager/currentSoftware/${RPKG_NAME}"
 
     echo "${RPKG_INFO_FULL}" | grep -vE '/$' | while read -r pkgfile; do
          if [ -f "${pkgfile}" ]; then

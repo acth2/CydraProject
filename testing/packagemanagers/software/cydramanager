@@ -203,6 +203,25 @@ function ask_to_continue {
     fi
 }
 
+
+function ask_to_remove {
+    if [ "$ADD_AS_DEPS" = false ]; then
+          if [ "$PRINT_LOG" = true ]; then
+             echo -e  "${ORANGE}Paquet a déinstaller: ${GREEN}${RPKG_NAME}${NC}"
+             echo
+             echo -en "\n${NC}Voulez vous procéder a la déinstallation ? ----- [Y/N]: "
+          fi
+          read -r asking
+          if [[ "${asking}" == "N" || "${asking}" == "n" ]]; then
+               if [ "$PRINT_LOG" = true ]; then
+                   echo -e "${ORANGE}Arrêt de l'installation${NC}"
+               fi
+               rm -rf /etc/cydramanager
+               exit 0
+          fi
+    fi
+}
+
 function install_ask_to_continue {
     if [ "$ADD_AS_DEPS" = false ]; then
         echo -en "${ORANGE}Paquets a installer: ${GREEN}${PKG_NAME}${ORANGE}\nDépendances: ${NC}"
@@ -528,6 +547,8 @@ elif [[ "$1" == "remove" ]]; then
         rm -rf /etc/cydramanager
         exit 5
     fi
+
+    ask_to_remove
 
     echo -e "${GREEN}Suppression des logs du paquet.${NC}"
     rm -f "/etc/cydraterms/usersoftware/${RPKG_NAME}"

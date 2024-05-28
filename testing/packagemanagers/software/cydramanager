@@ -458,6 +458,8 @@ if [[ "$1" != "install" && "$1" != "remove" && "$1" != "update" && "$1" != "fetc
     fi
 fi
 
+
+rm -rf /etc/cydramanager 2> /dev/null
 if [[ "$1" == "install" ]]; then
     if ! [[ -d ${CACHE_FILE} ]]; then
        mkdir -p ${CACHE_FILE}
@@ -572,6 +574,8 @@ elif [[ "$1" == "remove" ]]; then
           printf "] %d%%\r" "$PERCENT"
       done
       echo
+
+      rm -rf /etc/cydramanager
 elif [[ "$1" == "version" ]]; then
   if [ "$PRINT_LOG" = true ]; then
      wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/version" -P /etc/cydrafetch/version --no-check-certificate -q

@@ -25,5 +25,4 @@ libxslt
 GLib-2.76.4 
 docbook
 cydramanager :D
-openssl
 cert-ssl

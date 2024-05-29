@@ -21,3 +21,5 @@ GnuPG-2.3.7
 NetworkManager-1.44.0
 Jansson-2.14
 libndp-1.8
+libxslt
+GLib-2.76.4 

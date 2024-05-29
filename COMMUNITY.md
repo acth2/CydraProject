@@ -24,4 +24,3 @@ libndp-1.8
 libxslt
 GLib-2.76.4 
 docbook
-gobject-introspection-1.70.0 

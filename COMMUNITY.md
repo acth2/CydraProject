@@ -23,3 +23,4 @@ Jansson-2.14
 libndp-1.8
 libxslt
 GLib-2.76.4 
+docbook

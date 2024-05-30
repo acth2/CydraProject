@@ -17,4 +17,13 @@ make-ca-1.10
 CrackLib-2.9.7
 cryptsetup-2.4.3
 Cyrus SASL-2.1.28
-GnuPG-2.3.7 
+GnuPG-2.3.7
+NetworkManager-1.44.0
+Jansson-2.14
+libndp-1.8
+libxslt
+GLib-2.76.4 
+docbook
+cydramanager :D
+cert-ssl
++Internet

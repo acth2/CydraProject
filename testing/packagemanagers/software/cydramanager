@@ -689,8 +689,9 @@ elif [[ "$1" == "update" ]]; then
       exit 0
   fi
   if [[ ! -f "/etc/cydraterms/firstupdated" ]]; then
+       update_db
        echo -e "${GREEN}Installation de tout les packages de la 1ere mise a jour${NC}"
-       echo -e "${NC}Cette mise a jour est probablement la plus importante car elle installe tout les packets importants non installé sur le systeme\nLes autres consisteronts a mettre a jour les packets installés avec le gestionnaire de packet"
+       echo -e "${NC}Initialisation de la 1ere mise a jour.."
   
        wget -r "${CORE_DL}" -P ${CACHE_FILE} -q
        wget "${CYDRA_DL}"/cm_latest -P ${CACHE_FILE} -q

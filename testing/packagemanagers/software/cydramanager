@@ -724,6 +724,13 @@ elif [[ "$1" == "update" ]]; then
       echo -e "${GREEN}Nettoyage des paquets inutiles${NC}"
       wash_packet
 
+      for updatepkg in "/etc/cydramanager/cache/*.pkg.tar.zst"; do
+          pkgcounter=$((pkgcounter + 1))
+          if [[ -f "${updatepkg}" ]]; then
+              sudo tar xf "${updatepkg}" -C /
+              echo -e "$${ORANGE}[${pkgcounter} / ${UPKG_NMB}]:${NC} [#########################] 100%"
+          fi
+      done
       tar xf ${CACHE_FILE}/*.pkg.tar.zst -C /
       touch /etc/cydraterms/firstupdated
       printf "Oui tu l'as fait.. Bravo!\nYes you did it.. Congrats!\n" > /etc/cydraterms/firstupdated

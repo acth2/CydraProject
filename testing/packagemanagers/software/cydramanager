@@ -509,7 +509,7 @@ if [[ "$1" == "install" ]]; then
 
     if ! [[ -f "${CACHE_FILE}/core.db.tar.gz" || -f "${CACHE_FILE}/multilib.db.tar.gz" || -f "${CACHE_FILE}/extra.db.tar.gz" || -f "${CACHE_FILE}/cydra.tar.gz" ]]; then
          if [ "$PRINT_LOG" = true ]; then
-             echo -e "${RED}Des fichiers obligatoires pour la mise en point de la base de donnee sont introuvables..\nEtes vous sur d'etre connecte a internet ?\n\nSi oui la raison peu venir d'un mirror defecteux pour le reparer utilisez \n cydramanager fetch"
+             echo -e "${RED}Des fichiers obligatoires pour la mise en point de la base de donnee sont introuvables..\nEtes vous sur d'etre connecte a internet ?\n\nSi oui la raison peu venir d'un mirror defecteux pour le reparer utilisez \n cydramanager fetch${NC}"
          fi
          exit 1
     fi

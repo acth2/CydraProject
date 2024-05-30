@@ -689,10 +689,30 @@ elif [[ "$1" == "update" ]]; then
       exit 0
   fi
   if [[ ! -f "/etc/cydraterms/firstupdated" ]]; then
-       update_db
        echo -e "${GREEN}Installation de tout les packages de la 1ere mise a jour${NC}"
        echo -e "${NC}Initialisation de la 1ere mise a jour.."
-  
+       echo "Calcul du nombre total des paquets"
+       UPKG_NMB=$(wget --spider -r -nd "${CORE_DL}" 2>&1 | grep -c '^--')
+       echo -e "${ORANGE}Branche a installer: ${GREEN}core${NC}"
+       echo -e "${ORANGE}Dépendances: ${NC}Aucunes"
+       echo
+       echo -e "${NC}Total des paquets a installer: ${UPKG_NMB}"
+       ask_to_continue
+
+       wget -r -nd -P "${CACHE_FILE}" "${CORE_DL}" 2>&1 | while read -r line; do
+       if [[ $line == *' saved '* ]]; then
+           i=$((i+1))
+           PERCENT=$(( (i * 100) / UPKG_NMB ))
+           printf "Téléchargement : ["
+           for ((j=0; j<50; j+=2)); do
+                if [ $j -lt $((PERCENT/2)) ]; then
+                    printf "#"
+                else
+                   printf " "
+                fi
+           done
+           printf "] %d%%\r" "$PERCENT"
+       fi
        wget -r "${CORE_DL}" -P ${CACHE_FILE} -q
        if ! [[ -f "${CACHE_FILE}/core.db.tar.gz" ]]; then
            if [ "$PRINT_LOG" = true ]; then
@@ -702,7 +722,6 @@ elif [[ "$1" == "update" ]]; then
       fi
       echo -e "${GREEN}Nettoyage des paquets inutiles${NC}"
       wash_packet
-      ask_to_continue
 
       tar xf ${CACHE_FILE}/*.pkg.tar.zst -C /
       touch /etc/cydraterms/firstupdated

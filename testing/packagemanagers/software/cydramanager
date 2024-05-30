@@ -195,7 +195,7 @@ function ask_to_continue {
           read -r asking
           if [[ "${asking}" == "N" || "${asking}" == "n" ]]; then
                if [ "$PRINT_LOG" = true ]; then
-                   echo -e "${ORANGE}Arrêt de l'installation${NC}"
+                   echo -e "${ORANGE}Arret de l'installation${NC}"
                fi
                rm -rf /etc/cydramanager
                exit 0

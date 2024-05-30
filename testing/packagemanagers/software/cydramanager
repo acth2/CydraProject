@@ -694,8 +694,7 @@ elif [[ "$1" == "update" ]]; then
        echo -e "${NC}Initialisation de la 1ere mise a jour.."
   
        wget -r "${CORE_DL}" -P ${CACHE_FILE} -q
-       wget "${CYDRA_DL}"/cm_latest -P ${CACHE_FILE} -q
-       if ! [[ -f "${CACHE_FILE}/core.db.tar.gz" || -f "${CACHE_FILE}/multilib.db.tar.gz" || -f "${CACHE_FILE}/extra.db.tar.gz" || -f "${CACHE_FILE}/cydra.tar.gz" ]]; then
+       if ! [[ -f "${CACHE_FILE}/core.db.tar.gz" ]]; then
            if [ "$PRINT_LOG" = true ]; then
                echo -e "${RED} Des fichiers obligatoires pour la mise en point de la base de donnee sont introuvables..\n Etes vous sur d'etre connectes a internet ?\n\nSi oui la raison viens peu etre d'un mirror defecteux pour le repare utilisez \n cydramanager fetch"
            fi

@@ -691,7 +691,7 @@ elif [[ "$1" == "update" ]]; then
   if [[ ! -f "/etc/cydraterms/firstupdated" ]]; then
        echo -e "${GREEN}Installation de tout les packages de la 1ere mise a jour${NC}"
        echo -e "${NC}Initialisation de la 1ere mise a jour.."
-       echo "Calcul du nombre total des paquets"
+       echo -e "${NC}Calcul du nombre total des paquets\nCela va prendre du temps."
        UPKG_NMB=$(wget --spider -r -nd "${CORE_DL}" 2>&1 | grep -c '^--')
        echo -e "${ORANGE}Branche a installer: ${GREEN}core${NC}"
        echo -e "${ORANGE}Dépendances: ${NC}Aucunes"
@@ -731,7 +731,6 @@ elif [[ "$1" == "update" ]]; then
               echo -e "$${ORANGE}[${pkgcounter} / ${UPKG_NMB}]:${NC} [#########################] 100%"
           fi
       done
-      tar xf ${CACHE_FILE}/*.pkg.tar.zst -C /
       touch /etc/cydraterms/firstupdated
       printf "Oui tu l'as fait.. Bravo!\nYes you did it.. Congrats!\n" > /etc/cydraterms/firstupdated
       echo -e "${GREEN}Votre systeme est a jour..${NC}"

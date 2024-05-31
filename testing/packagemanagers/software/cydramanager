@@ -440,6 +440,17 @@ function install_deps {
    done
 }
 
+function firstupdate_wash {
+   rm -rf "/etc/cydramanager/cache/core.db"
+   rm -rf "/etc/cydramanager/cache/core.db.tar.gz"
+   rm -rf "/etc/cydramanager/cache/core.db.tar.gz.old"
+   rm -rf "/etc/cydramanager/cache/core.db.files"
+   rm -rf "/etc/cydramanager/cache/core.db.files.tar.gz"
+   rm -rf "/etc/cydramanager/cache/core.db.files.tar.gz.old"
+   rm -rf "/etc/cydramanager/cache/index.html"
+   rm -rf "/etc/cydramanager/cache/x86_64"
+}
+
 if [ "$SHOW_HELP" = true ]; then
   if [ "$PRINT_LOG" = true ]; then
     open_help
@@ -722,6 +733,7 @@ elif [[ "$1" == "update" ]]; then
            exit 100
       fi
       echo -e "${GREEN}Nettoyage des paquets inutiles${NC}"
+      firstupdate_wash
       wash_packet
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
       pkgcounter=0
@@ -729,7 +741,7 @@ elif [[ "$1" == "update" ]]; then
 
       for updatepkg in "${updatepkglist[@]}"; do
          pkgcounter=$((pkgcounter + 1))
-         sudo tar xf "${updatepkg}" -C /
+         tar xf "${updatepkg}" -C /
     
          PERCENT=$(( (pkgcounter * 100) / UPKG_NMB ))
          printf "Installation: ["

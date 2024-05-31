@@ -724,14 +724,28 @@ elif [[ "$1" == "update" ]]; then
       echo -e "${GREEN}Nettoyage des paquets inutiles${NC}"
       wash_packet
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
+      pkgcounter=0
+      UPKG_NMB=${#updatepkglist[@]}
+
       for updatepkg in "${updatepkglist[@]}"; do
-          pkgcounter=$((pkgcounter + 1))
-            sudo tar xf "${updatepkg}" -C /
-            echo -e "${ORANGE}[${pkgcounter} / ${UPKG_NMB}]:${NC} [#########################] 100%"
-      done
-      touch /etc/cydraterms/firstupdated
-      printf "Oui tu l'as fait.. Bravo!\nYes you did it.. Congrats!\n" > /etc/cydraterms/firstupdated
-      echo -e "${GREEN}Votre systeme est a jour..${NC}"
+         pkgcounter=$((pkgcounter + 1))
+         sudo tar xf "${updatepkg}" -C /
+    
+         PERCENT=$(( (pkgcounter * 100) / UPKG_NMB ))
+         printf "Installation: ["
+         for ((j=0; j<50; j+=2)); do
+           if [ $j -lt $((PERCENT/2)) ]; then
+               printf "#"
+           else
+               printf " "
+           fi
+         done
+         printf "] %d%%\r" "$PERCENT"
+       done
+       echo
+       touch /etc/cydraterms/firstupdated
+       printf "Oui tu l'as fait.. Bravo!\nYes you did it.. Congrats!\n" > /etc/cydraterms/firstupdated
+       echo -e "${GREEN}Votre systeme est a jour..${NC}"
   else
     update_db
 

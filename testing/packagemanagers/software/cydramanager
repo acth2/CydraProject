@@ -304,7 +304,7 @@ function update_ipacket {
                  done
                  cp -r "/usr/cydramanager/currentSoftware/${tp_name}/*" "/"
                  rm -f "/usr/cydramanager/pkgt/${UPKG_ARCHIVE}"
-                 echo -e "${NC} ${tp}-[A JOUR]"
+                 echo -e "${NC} ${tp} ${GREEN}[A JOUR]"
             else
                  rm -rf "/usr/cydramanager/oldSoftware/${tp_name}/*"
                  mv "/usr/cydramanager/currentSoftware/${tp_name}/*" "/usr/cydramanager/oldSoftware/${tp_name}"
@@ -319,7 +319,7 @@ function update_ipacket {
                  echo "${UPKG_VERSION}" > "/usr/cydramanager/currentSoftware/${tp_name}/cydramanager_pkgver"
                  cp -r "/usr/cydramanager/currentSoftware/${tp_name}/*" "/"
                  rm -f "/usr/cydramanager/pkgt/${UPKG_ARCHIVE}"
-                 echo -e "${NC} ${tp}-[A JOUR]"
+                 echo -e "${NC} ${tp} ${GREEN}[A JOUR]"
             fi
         fi
     done
@@ -680,7 +680,7 @@ elif [[ "$1" == "update" ]]; then
        
        VERSION=$(cat "${USER_INSTALLED_SOFTWARE_DIR}/${PKG_NAME}" 2> /etc/cydramanager/cache/smthawful.log)
       if [ "${PKG_VERSION}" = "${VERSION}" ]; then
-          echo -e "${NC} ${UPDATE_NAME}-[A JOUR]"
+          echo -e "${NC} ${UPDATE_NAME} ${GREEN}[A JOUR]${NC}"
           rm -rf "/etc/cydramanager"
           exit 5
       elif [ -n "${VERSION}" ]; then
@@ -693,7 +693,7 @@ elif [[ "$1" == "update" ]]; then
           tar xf "/usr/cydramanager/pkgt/${updated_archive}" -C "/usr/cydramanager/currentSoftware/${UPDATE_NAME}"
           tar xf "/usr/cydramanager/pkgt/${updated_archive}" -C "/"
           rm -rf "/usr/cydramanager/pkgt/*"
-          echo -e "${NC} ${tp}-[A JOUR]"
+          echo -e "${NC} ${tp} ${GREEN}[A JOUR]${NC}"
       fi
 
       rm -rf /etc/cydramanager
@@ -732,7 +732,6 @@ elif [[ "$1" == "update" ]]; then
            fi
            exit 100
       fi
-      echo -e "${GREEN}Nettoyage des paquets inutiles${NC}"
       firstupdate_wash
       wash_packet
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
@@ -741,7 +740,7 @@ elif [[ "$1" == "update" ]]; then
 
       for updatepkg in "${updatepkglist[@]}"; do
          pkgcounter=$((pkgcounter + 1))
-         tar xf "${updatepkg}" -C /
+         tar xf "${updatepkg}" -C / > /dev/null 2>&1;
     
          PERCENT=$(( (pkgcounter * 100) / UPKG_NMB ))
          printf "Installation: ["

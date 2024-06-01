@@ -725,7 +725,7 @@ elif [[ "$1" == "update" ]]; then
   if [[ ! -f "/etc/cydraterms/firstupdated" ]]; then
        echo -e "${GREEN}Installation de tout les packages de la 1ere mise a jour${NC}"
        echo -e "${NC}Initialisation de la 1ere mise a jour.."
-       echo -e "${NC}Calcul total des paquets\nCela va prendre du temps."
+       echo -e "${NC}Calcul total des paquets.\nCela va prendre du temps."
        UPKG_NMB=$(wget --spider -r -nd "${CORE_DL}" 2>&1 | grep -c '^--')
        echo -e "${ORANGE}Branche a installer: ${GREEN}core${NC}"
        echo -e "${ORANGE}Dépendances: ${NC}Aucunes"

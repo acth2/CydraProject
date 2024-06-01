@@ -757,8 +757,8 @@ elif [[ "$1" == "update" ]]; then
       fi
       firstupdate_wash
       wash_packet
-      echo -e "${ORANGE}Forcer l'arrêt de la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Veuillez agir avec précautions${NC}"
-      chattr +R +i /etc/shadow /etc/gshadow /etc/systemd /sbin/init
+      echo -e "${ORANGE}Arrêter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Veuillez agir avec précautions${NC}"
+      chattr +R +i "/etc/shadow" "/etc/gshadow" "/etc/systemd" "/sbin/init"
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
       pkgcounter=0
       UPKG_NMB=${#updatepkglist[@]}

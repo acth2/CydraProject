@@ -778,7 +778,7 @@ elif [[ "$1" == "update" ]]; then
          printf "] %d%%\r" "$PERCENT"
        done
        echo
-       chattr -R -i /etc/shadow /etc/gshadow /etc/systemd /sbin/init
+       chattr -R -i "/etc/shadow" "/etc/gshadow" "/etc/systemd" "/sbin/init"
        touch /etc/cydraterms/firstupdated
        printf "Oui tu l'as fait.. Bravo!\nYes you did it.. Congrats!\n" > /etc/cydraterms/firstupdated
        echo -e "${GREEN}Votre systeme est a jour.. Veuillez le redémarrer votre PC${NC}"

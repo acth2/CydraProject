@@ -3,7 +3,7 @@ Gestionnaire de packet cydramanager V1.9 BETA (Shellcheck best friend forever :D
 lancez le gestionnaire de packet avec la commande 
 
 sudo ./install.sh --install
-pour lancé la command sans sch utilisez l'argument --without-encrypt-pm
+pour lancé la commande sans sch utilisez l'argument --without-encrypt-pm
 
 pour supprimé le gestionnaire de packet de votre systeme (ainsi que les fichiers de configurations) éxécutés
 

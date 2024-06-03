@@ -24,8 +24,9 @@ libndp-1.8
 libxslt
 GLib-2.76.4 
 docbook
-cydramanager :D
+cydramanager 2.0B
 cert-ssl
+Which-2.21
+pciutils-3.7.0
 
-
-Mise +Internet
+Mise+Internet

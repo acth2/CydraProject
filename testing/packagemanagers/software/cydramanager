@@ -177,14 +177,14 @@ function wash_packet {
   rm -rf "${CACHE_FILE}/glibc-2.38-7-x86_64.pkg.tar.zst"
   rm -rf "${CACHE_FILE}/glibc-locales-2.38-7-x86_64.pkg.tar.zst"
   if [[ "$INSTALL_PACMAN" == true ]]; then
-    rm -rf "${CACHE_FILE}/pacman-6.0.2-8-x86_64.pkg.tar.zst
-    rm -rf "${CACHE_FILE}/pacman-mirrorlist-20231001-1-any.pkg.tar.zst
+    rm -rf "${CACHE_FILE}/pacman-6.0.2-8-x86_64.pkg.tar.zst"
+    rm -rf "${CACHE_FILE}/pacman-mirrorlist-20231001-1-any.pkg.tar.zst"
   fi
-  rm -rf "${CACHE_FILE}/shadow-4.14.2-1-x86_64.pkg.tar.zst
-  rm -rf "${CACHE_FILE}/util-linux-2.39.2-1-x86_64.pkg.tar.zst
-  rm -rf "${CACHE_FILE}/util-linux-libs-2.39.2-1-x86_64.pkg.tar.zst
-  rm -rf "${CACHE_FILE}/linux-*
-  rm -rf "${CACHE_FILE}/arch64-linux-*
+  rm -rf "${CACHE_FILE}/shadow-4.14.2-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/util-linux-2.39.2-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/util-linux-libs-2.39.2-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/linux-*"
+  rm -rf "${CACHE_FILE}/arch64-linux-*"
   rm -rf "${CACHE_FILE}/dbus-1.14.10-2-x86_64.pkg.tar.zst"
   rm -rf "${CACHE_FILE}/dbus-broker-36-2-x86_64.pkg.tar.zst"
   rm -rf "${CACHE_FILE}/dbus-broker-units-36-2-x86_64.pkg.tar.zst"

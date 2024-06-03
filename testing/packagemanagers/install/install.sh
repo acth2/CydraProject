@@ -40,7 +40,7 @@ function deps_check {
         exit 1
     fi
 
-    if [ ! -f "/usr/bin/lspci" ]; then
+    if [ ! -f "/usr/sbin/lspci" ]; then
         echo -e "${RED}Le logiciel PCIUTILS n est pas installer sur votre systeme!\nCe logiciel est obligatoire au bon fonctionnement du gestionnaire de packet, veuillez l installe${NC}"
         exit 1
     fi

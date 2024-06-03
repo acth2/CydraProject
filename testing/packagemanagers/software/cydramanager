@@ -159,32 +159,48 @@ function wash_packet {
   rm -rf ${CACHE_FILE}/core.*
   rm -rf ${CACHE_FILE}/*.pkg.tar.zst.sig
 
-  rm -rf ${CACHE_FILE}/coreutils-9.4-2-x86_64.pkg.tar.zst
-  rm -rf ${CACHE_FILE}/coreutils-9.4-2-x86_64.pkg.tar.zst
-  rm -rf ${CACHE_FILE}/archlinux-keyring-20231026-1-any.pkg.tar.zst
-  rm -rf ${CACHE_FILE}/bash-5.2.015-5-x86_64.pkg.tar.zst
-  rm -rf ${CACHE_FILE}/efibootmgr-18-2-x86_64.pkg.tar.zst
-  rm -rf ${CACHE_FILE}/efivar-38-3-x86_64.pkg.tar.zst.sig
-  rm -rf ${CACHE_FILE}/gc-8.2.4-1-x86_64.pkg.tar.zst
-  rm -rf ${CACHE_FILE}/gcc-13.2.1-3-x86_64.pkg.tar.zst
-  rm -rf ${CACHE_FILE}/gcc-ada-13.2.1-3-x86_64.pkg.tar.zst
-  rm -rf ${CACHE_FILE}/gcc-d-13.2.1-3-x86_64.pkg.tar.zst
-  rm -rf ${CACHE_FILE}/gcc-fortran-13.2.1-3-x86_64.pkg.tar.zst
-  rm -rf ${CACHE_FILE}/gcc-go-13.2.1-3-x86_64.pkg.tar.zst
-  rm -rf ${CACHE_FILE}/gcc-libs-13.2.1-3-x86_64.pkg.tar.zst
-  rm -rf ${CACHE_FILE}/glib2-2.78.1-1-x86_64.pkg.tar.zst
-  rm -rf ${CACHE_FILE}/glib2-docs-2.78.1-1-x86_64.pkg.tar.zst
-  rm -rf ${CACHE_FILE}/glibc-2.38-7-x86_64.pkg.tar.zst
-  rm -rf ${CACHE_FILE}/glibc-locales-2.38-7-x86_64.pkg.tar.zst
+  rm -rf "${CACHE_FILE}/coreutils-9.4-2-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/coreutils-9.4-2-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/archlinux-keyring-20231026-1-any.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/bash-5.2.015-5-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/efibootmgr-18-2-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/efivar-38-3-x86_64.pkg.tar.zst.sig"
+  rm -rf "${CACHE_FILE}/gc-8.2.4-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/gcc-13.2.1-3-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/gcc-ada-13.2.1-3-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/gcc-d-13.2.1-3-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/gcc-fortran-13.2.1-3-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/gcc-go-13.2.1-3-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/gcc-libs-13.2.1-3-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/glib2-2.78.1-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/glib2-docs-2.78.1-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/glibc-2.38-7-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/glibc-locales-2.38-7-x86_64.pkg.tar.zst"
   if [[ "$INSTALL_PACMAN" == true ]]; then
-    rm -rf ${CACHE_FILE}/pacman-6.0.2-8-x86_64.pkg.tar.zst
-    rm -rf ${CACHE_FILE}/pacman-mirrorlist-20231001-1-any.pkg.tar.zst
+    rm -rf "${CACHE_FILE}/pacman-6.0.2-8-x86_64.pkg.tar.zst
+    rm -rf "${CACHE_FILE}/pacman-mirrorlist-20231001-1-any.pkg.tar.zst
   fi
-  rm -rf ${CACHE_FILE}/shadow-4.14.2-1-x86_64.pkg.tar.zst
-  rm -rf ${CACHE_FILE}/util-linux-2.39.2-1-x86_64.pkg.tar.zst
-  rm -rf ${CACHE_FILE}/util-linux-libs-2.39.2-1-x86_64.pkg.tar.zst
-  rm -rf ${CACHE_FILE}/linux-*
-  rm -rf ${CACHE_FILE}/aarch64-linux-*
+  rm -rf "${CACHE_FILE}/shadow-4.14.2-1-x86_64.pkg.tar.zst
+  rm -rf "${CACHE_FILE}/util-linux-2.39.2-1-x86_64.pkg.tar.zst
+  rm -rf "${CACHE_FILE}/util-linux-libs-2.39.2-1-x86_64.pkg.tar.zst
+  rm -rf "${CACHE_FILE}/linux-*
+  rm -rf "${CACHE_FILE}/arch64-linux-*
+  rm -rf "${CACHE_FILE}/dbus-1.14.10-2-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/dbus-broker-36-2-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/dbus-broker-units-36-2-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/dbus-daemon-units-1.14.10-2-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/dbus-docs-1.14.10-2-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/inetutils-2.5-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/iproute2-6.9.0-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/iptables-1:1.8.10-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/iptables-nft-1:1.8.10-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/iputils-20240117-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/iw-6.9-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/systemd-255.7-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/systemd-libs-255.7-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/systemd-resolvconf-255.7-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/systemd-sysvcompat-255.7-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/systemd-ukify-255.7-1-x86_64.pkg.tar.zst"
 }
 
 function ask_to_continue {
@@ -495,6 +511,10 @@ fi
 
 rm -rf /etc/cydramanager 2> /dev/null
 if [[ "$1" == "install" ]]; then
+    if [ ! -f "/etc/cydraterms/firstupdated" ]; then
+        echo -e "${RED}Le gestionnaire de paquets ne fonctionnera pas si la 1ere mise a jour n'a pas été effectuée..:\n${ORANGE}cydramanager update${NC}"
+    fi
+
     if ! [[ -d ${CACHE_FILE} ]]; then
        mkdir -p ${CACHE_FILE}
        mkdir -p ${INSTALL_DIR}
@@ -558,6 +578,10 @@ if [[ "$1" == "install" ]]; then
        rm -rf "/etc/cydramanager"
     fi
 elif [[ "$1" == "remove" ]]; then
+    if [ ! -f "/etc/cydraterms/firstupdated" ]; then
+        echo -e "${RED}Le gestionnaire de paquets ne fonctionnera pas si la 1ere mise a jour n'a pas été effectuée..:\n${ORANGE}cydramanager update${NC}"
+    fi
+
     if ! [[ -d ${CACHE_FILE} ]]; then
        mkdir -p ${CACHE_FILE}
        mkdir -p ${INSTALL_DIR}
@@ -684,7 +708,10 @@ elif [[ "$1" == "fetch" ]]; then
       fi
 
 elif [[ "$1" == "help" ]]; then
-   open_help
+    if [ ! -f "/etc/cydraterms/firstupdated" ]; then
+        echo -e "${ORANGE}/!\\ La 1ere mise a jour n'a pas été effectuée /!\\${NC}"
+    fi
+    open_help
 elif [[ "$1" == "update" ]]; then
     if ! [[ -d ${CACHE_FILE} ]]; then
        mkdir -p ${CACHE_FILE}
@@ -758,7 +785,7 @@ elif [[ "$1" == "update" ]]; then
       firstupdate_wash
       wash_packet
       echo -e "${ORANGE}Arrêter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Veuillez agir avec précautions${NC}"
-      chattr +i "/etc/shadow" "/etc/gshadow" "/etc/systemd" "/sbin/init" "/etc/fstab"
+      chattr +i "/etc/shadow" "/etc/gshadow" "/etc/systemd" "/sbin/init" "/etc/fstab" "/etc/issue"
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
       pkgcounter=0
       UPKG_NMB=${#updatepkglist[@]}
@@ -778,9 +805,10 @@ elif [[ "$1" == "update" ]]; then
          printf "] %d%%\r" "$PERCENT"
        done
        echo
-       chattr -i "/etc/shadow" "/etc/gshadow" "/etc/systemd" "/sbin/init" "/etc/fstab"
+       chattr -i "/etc/shadow" "/etc/gshadow" "/etc/systemd" "/sbin/init" "/etc/fstab" "/etc/issue"
        touch /etc/cydraterms/firstupdated
        printf "Oui tu l'as fait.. Bravo!\nYes you did it.. Congrats!\n" > /etc/cydraterms/firstupdated
+       chattr +i "/etc/cydraterms/firstupdated"
        echo -e "${GREEN}Votre systeme est a jour.. Veuillez le redémarrer votre PC${NC}"
   else
     update_db

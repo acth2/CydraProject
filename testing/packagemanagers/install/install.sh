@@ -39,6 +39,11 @@ function deps_check {
         echo -e "${RED}Le logiciel WGET n est pas installer sur votre systeme!\nCe logiciel est obligatoire au bon fonctionnement du gestionnaire de packet, veuillez l installe${NC}"
         exit 1
     fi
+
+    if [ ! -f "/usr/bin/lspci" ]; then
+        echo -e "${RED}Le logiciel PCIUTILS n est pas installer sur votre systeme!\nCe logiciel est obligatoire au bon fonctionnement du gestionnaire de packet, veuillez l installe${NC}"
+        exit 1
+    fi
 }
 
 function install_files {

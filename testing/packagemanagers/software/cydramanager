@@ -177,14 +177,14 @@ function wash_packet {
   rm -rf "${CACHE_FILE}/glibc-2.38-7-x86_64.pkg.tar.zst"
   rm -rf "${CACHE_FILE}/glibc-locales-2.38-7-x86_64.pkg.tar.zst"
   if [[ "$INSTALL_PACMAN" == true ]]; then
-    rm -rf "${CACHE_FILE}/pacman-6.0.2-8-x86_64.pkg.tar.zst
-    rm -rf "${CACHE_FILE}/pacman-mirrorlist-20231001-1-any.pkg.tar.zst
+    rm -rf "${CACHE_FILE}/pacman-6.0.2-8-x86_64.pkg.tar.zst"
+    rm -rf "${CACHE_FILE}/pacman-mirrorlist-20231001-1-any.pkg.tar.zst"
   fi
-  rm -rf "${CACHE_FILE}/shadow-4.14.2-1-x86_64.pkg.tar.zst
-  rm -rf "${CACHE_FILE}/util-linux-2.39.2-1-x86_64.pkg.tar.zst
-  rm -rf "${CACHE_FILE}/util-linux-libs-2.39.2-1-x86_64.pkg.tar.zst
-  rm -rf "${CACHE_FILE}/linux-*
-  rm -rf "${CACHE_FILE}/arch64-linux-*
+  rm -rf "${CACHE_FILE}/shadow-4.14.2-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/util-linux-2.39.2-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/util-linux-libs-2.39.2-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/linux-*"
+  rm -rf "${CACHE_FILE}/arch64-linux-*"
   rm -rf "${CACHE_FILE}/dbus-1.14.10-2-x86_64.pkg.tar.zst"
   rm -rf "${CACHE_FILE}/dbus-broker-36-2-x86_64.pkg.tar.zst"
   rm -rf "${CACHE_FILE}/dbus-broker-units-36-2-x86_64.pkg.tar.zst"
@@ -269,7 +269,7 @@ function install_ask_to_continue {
         done
         if [ "$PRINT_LOG" = true ]; then
            echo
-           DEPS_COUNTER=$(($DEPS_COUNTER+1))
+           DEPS_COUNTER=$((DEPS_COUNTER + 1))
            echo -e "${NC}\nTotal des paquets a installer: ${DEPS_COUNTER}"
            echo -en "\n${NC}Voulez vous procéder a l'installation ? ----- [Y/N]: "
         fi
@@ -313,7 +313,7 @@ function update_ipacket {
                  echo "${UPKG_VERSION}" > "/usr/cydramanager/currentSoftware/${tp_name}/cydramanager_pkgver"
                  find "/etc/cydramanager/cache" -type f -name "desc" -exec rm -f {} +
                  RPKG_INFO=$(grep -r -l -m 1 -o "$PACKAGE-" /etc/cydramanager/cache | head -1)
-                 for pkgfiles in "$(cat ${RPKG_INFO})"; do
+                 for pkgfiles in $(cat ${RPKG_INFO}); do
                      if [ -e "$pkgfiles" ]; then
                          rm -f "$pkgfiles"
                      fi
@@ -366,7 +366,7 @@ function install_packet {
     cp -r /usr/cydramanager/pkgt/"${EXTRACTED_ARCHIVE}"/* /usr/cydramanager/currentSoftware/"${PKG_NAME}"
     rm -rf /usr/cydramanager/pkgt/*
     PKG_COUNTER_MAX=$(find "/usr/cydramanager/currentSoftware/${PKG_NAME}" -type f | wc -l)
-    PERCENT=$(( (i+1) * 100 / ${PKG_COUNTER_MAX} ))
+    PERCENT=$(( (i+1) * 100 / PKG_COUNTER_MAX ))
     PKG_COUNTER_MAX=$(find "/usr/cydramanager/currentSoftware/${PKG_NAME}" -type f | wc -l)
     for ((i=0; i<PKG_COUNTER_MAX; i++)); do
         PERCENT=$(( (i+1) * 100 / PKG_COUNTER_MAX ))
@@ -429,7 +429,7 @@ function install_deps {
         chmod +rwx "${INSTALL_DIR}${DEPS_ARCHIVE}"
 
         unset PERCENT
-        PERCENT=$(( (i+1) * 100 / ${DEPS_NUMBER} ))
+        PERCENT=$(( (i+1) * 100 / DEPS_NUMBER ))
         printf "[${DEPS_NAME}] Progression : ["
         for ((j=0; j<50; j+=2)); do
             if [ $j -lt $((PERCENT/2)) ]; then
@@ -465,29 +465,27 @@ function firstupdate_wash {
    rm -rf "/etc/cydramanager/cache/core.db.files.tar.gz.old"
    rm -rf "/etc/cydramanager/cache/index.html"
    rm -rf "/etc/cydramanager/cache/x86_64"
-   if lspci | grep -i nvidia > /dev/null; then
-            if lsmod | grep nvidia > /dev/null; then
-               rm -f /etc/cydramanager/cache/amdvlk-*.pkg.tar.zst
-               rm -f /etc/cydramanager/cache/hip-runtime-amd-*.pkg.tar.zst
-               rm -f /etc/cydramanager/cache/hsa-amd-aqlprofile-bin-*.pkg.tar.zst
-               rm -f /etc/cydramanager/cache/xf86-video-amdgpu-*.pkg.tar.zst
-            fi
-       elif lspci | grep -i amd > /dev/null; then
-           if lsmod | grep amdgpu > /dev/null; then
-               rm -f /etc/cydramanager/cache/libnvidia-container-*.pkg.tar.zst
-               rm -f /etc/cydramanager/cache/libva-nvidia-driver-*.pkg.tar.zst
-               rm -f /etc/cydramanager/cache/nvidia-*-x86_64.pkg.tar.zst
-               rm -f /etc/cydramanager/cache/nvidia-cg-toolkit-*.pkg.tar.zst
-               rm -f /etc/cydramanager/cache/nvidia-container-toolkit-*.pkg.tar.zst
-               rm -f /etc/cydramanager/cache/nvidia-dkms-*-x86_64.pkg.tar.zst
-               rm -f /etc/cydramanager/cache/nvidia-*-x86_64.pkg.tar.zst
-               rm -f /etc/cydramanager/cache/nvidia-open-*-x86_64.pkg.tar.zst    
-               rm -f /etc/cydramanager/cache/nvidia-prime-*-any.pkg.tar.zst
-               rm -f /etc/cydramanager/cache/nvidia-settings-*-x86_64.pkg.tar.zst
-               rm -f /etc/cydramanager/cache/nvidia-utils-*-x86_64.pkg.tar.zst
-               rm -f /etc/cydramanager/cache/opencl-nvidia-*-x86_64.pkg.tar.zst
-          fi
-    fi
+   if dmesg | grep -iq nvidia; then
+      rm -f /etc/cydramanager/cache/amdvlk-*.pkg.tar.zst
+      rm -f /etc/cydramanager/cache/hip-runtime-amd-*.pkg.tar.zst
+      rm -f /etc/cydramanager/cache/hsa-amd-aqlprofile-bin-*.pkg.tar.zst
+      rm -f /etc/cydramanager/cache/xf86-video-amdgpu-*.pkg.tar.zst
+   elif dmesg | grep -iq amd; then
+      rm -f /etc/cydramanager/cache/libnvidia-container-*.pkg.tar.zst
+      rm -f /etc/cydramanager/cache/libva-nvidia-driver-*.pkg.tar.zst
+      rm -f /etc/cydramanager/cache/nvidia-*-x86_64.pkg.tar.zst
+      rm -f /etc/cydramanager/cache/nvidia-cg-toolkit-*.pkg.tar.zst
+      rm -f /etc/cydramanager/cache/nvidia-container-toolkit-*.pkg.tar.zst
+      rm -f /etc/cydramanager/cache/nvidia-dkms-*-x86_64.pkg.tar.zst
+      rm -f /etc/cydramanager/cache/nvidia-*-x86_64.pkg.tar.zst
+      rm -f /etc/cydramanager/cache/nvidia-open-*-x86_64.pkg.tar.zst    
+      rm -f /etc/cydramanager/cache/nvidia-prime-*-any.pkg.tar.zst
+      rm -f /etc/cydramanager/cache/nvidia-settings-*-x86_64.pkg.tar.zst
+      rm -f /etc/cydramanager/cache/nvidia-utils-*-x86_64.pkg.tar.zst
+      rm -f /etc/cydramanager/cache/opencl-nvidia-*-x86_64.pkg.tar.zst
+   else
+      echo -e "${ORANGE}GPU non pris en charge..${NC}"
+   fi
 }
 
 if [ "$SHOW_HELP" = true ]; then
@@ -709,7 +707,7 @@ elif [[ "$1" == "fetch" ]]; then
 
 elif [[ "$1" == "help" ]]; then
     if [ ! -f "/etc/cydraterms/firstupdated" ]; then
-        echo -e "${ORANGE}/!\\ La 1ere mise a jour n'a pas été effectuée /!\\${NC}"
+        echo -e "${ORANGE}/!\\ La 1ere mise a jour n'a pas été effectuée /!\\ ${NC}"
     fi
     open_help
 elif [[ "$1" == "update" ]]; then
@@ -721,7 +719,7 @@ elif [[ "$1" == "update" ]]; then
          rm -rf ${INSTALL_DIR:?}*
     fi
   echo -e "${GREEN}Lancement de la mise a jour${NC}"
-  if [[ ! -z ${3} ]]; then
+  if [[ -n ${3} ]]; then
        update_db
        UPDATE_INFO=$(grep -r -l -m 1 -o "${3}-" /etc/cydramanager/cache | head -1)
        UPDATE_VERSION=$(sed -n 11p "${UPDATE_INFO}")
@@ -785,7 +783,8 @@ elif [[ "$1" == "update" ]]; then
       firstupdate_wash
       wash_packet
       echo -e "${ORANGE}Arrêter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Veuillez agir avec précautions${NC}"
-      chattr +i "/etc/shadow" "/etc/gshadow" "/etc/systemd" "/sbin/init" "/etc/fstab" "/etc/issue" "/usr/lib/systemd"
+      chattr -R +i "/usr/lib/systemd" "/etc/" "/sbin/" "/lib/systemd/"
+      cp -r "/sbin/init" "/sbin/init.bak"
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
       pkgcounter=0
       UPKG_NMB=${#updatepkglist[@]}
@@ -805,7 +804,8 @@ elif [[ "$1" == "update" ]]; then
          printf "] %d%%\r" "$PERCENT"
        done
        echo
-       chattr -i "/etc/shadow" "/etc/gshadow" "/etc/systemd" "/sbin/init" "/etc/fstab" "/etc/issue" "/usr/lib/systemd"
+       chattr -R -i "/usr/lib/systemd" "/etc/" "/sbin/" "/lib/systemd/"
+       mv "/sbin/init.bak" "/sbin/init"
        touch "/etc/cydraterms/firstupdated"
        printf "Oui tu l'as fait.. Bravo!\nYes you did it.. Congrats!\n" > /etc/cydraterms/firstupdated
        chattr +i "/etc/cydraterms/firstupdated"

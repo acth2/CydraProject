@@ -465,28 +465,26 @@ function firstupdate_wash {
    rm -rf "/etc/cydramanager/cache/core.db.files.tar.gz.old"
    rm -rf "/etc/cydramanager/cache/index.html"
    rm -rf "/etc/cydramanager/cache/x86_64"
-   if lspci | grep -i nvidia > /dev/null; then
-            if lsmod | grep nvidia > /dev/null; then
-               rm -f /etc/cydramanager/cache/amdvlk-*.pkg.tar.zst
-               rm -f /etc/cydramanager/cache/hip-runtime-amd-*.pkg.tar.zst
-               rm -f /etc/cydramanager/cache/hsa-amd-aqlprofile-bin-*.pkg.tar.zst
-               rm -f /etc/cydramanager/cache/xf86-video-amdgpu-*.pkg.tar.zst
-            fi
-       elif lspci | grep -i amd > /dev/null; then
-           if lsmod | grep amdgpu > /dev/null; then
-               rm -f /etc/cydramanager/cache/libnvidia-container-*.pkg.tar.zst
-               rm -f /etc/cydramanager/cache/libva-nvidia-driver-*.pkg.tar.zst
-               rm -f /etc/cydramanager/cache/nvidia-*-x86_64.pkg.tar.zst
-               rm -f /etc/cydramanager/cache/nvidia-cg-toolkit-*.pkg.tar.zst
-               rm -f /etc/cydramanager/cache/nvidia-container-toolkit-*.pkg.tar.zst
-               rm -f /etc/cydramanager/cache/nvidia-dkms-*-x86_64.pkg.tar.zst
-               rm -f /etc/cydramanager/cache/nvidia-*-x86_64.pkg.tar.zst
-               rm -f /etc/cydramanager/cache/nvidia-open-*-x86_64.pkg.tar.zst    
-               rm -f /etc/cydramanager/cache/nvidia-prime-*-any.pkg.tar.zst
-               rm -f /etc/cydramanager/cache/nvidia-settings-*-x86_64.pkg.tar.zst
-               rm -f /etc/cydramanager/cache/nvidia-utils-*-x86_64.pkg.tar.zst
-               rm -f /etc/cydramanager/cache/opencl-nvidia-*-x86_64.pkg.tar.zst
-          fi
+   if [ -f "/proc/driver/nvidia/version" ]; then
+       rm -f /etc/cydramanager/cache/amdvlk-*.pkg.tar.zst
+       rm -f /etc/cydramanager/cache/hip-runtime-amd-*.pkg.tar.zst
+       rm -f /etc/cydramanager/cache/hsa-amd-aqlprofile-bin-*.pkg.tar.zst
+       rm -f /etc/cydramanager/cache/xf86-video-amdgpu-*.pkg.tar.zst
+   elif [ -f "/sys/module/amdgpu/initstate" ]; then
+       rm -f /etc/cydramanager/cache/libnvidia-container-*.pkg.tar.zst
+       rm -f /etc/cydramanager/cache/libva-nvidia-driver-*.pkg.tar.zst
+       rm -f /etc/cydramanager/cache/nvidia-*-x86_64.pkg.tar.zst
+       rm -f /etc/cydramanager/cache/nvidia-cg-toolkit-*.pkg.tar.zst
+       rm -f /etc/cydramanager/cache/nvidia-container-toolkit-*.pkg.tar.zst
+       rm -f /etc/cydramanager/cache/nvidia-dkms-*-x86_64.pkg.tar.zst
+       rm -f /etc/cydramanager/cache/nvidia-*-x86_64.pkg.tar.zst
+       rm -f /etc/cydramanager/cache/nvidia-open-*-x86_64.pkg.tar.zst    
+       rm -f /etc/cydramanager/cache/nvidia-prime-*-any.pkg.tar.zst
+       rm -f /etc/cydramanager/cache/nvidia-settings-*-x86_64.pkg.tar.zst
+       rm -f /etc/cydramanager/cache/nvidia-utils-*-x86_64.pkg.tar.zst
+       rm -f /etc/cydramanager/cache/opencl-nvidia-*-x86_64.pkg.tar.zst
+    else
+        echo  -e "${ORANGE}GPU non pris en charge..${NC}"
     fi
 }
 

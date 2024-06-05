@@ -790,7 +790,7 @@ elif [[ "$1" == "update" ]]; then
                i=$((i+1))
                PERCENT=$(( (i * 100) / UPKG_NMB ))
                printf "CORE Téléchargement : ["
-               for ((j=0; j<50; j+=2)); do
+               for ((j=0; j<25; j+=2)); do
                     if [ $j -lt $((PERCENT/2)) ]; then
                         printf "#"
                     else
@@ -807,7 +807,7 @@ elif [[ "$1" == "update" ]]; then
                i=$((i+1))
                PERCENT=$(( (i * 100) / UPKG_NMB ))
                printf "MULTILIB Téléchargement : ["
-               for ((j=0; j<50; j+=2)); do
+               for ((j=0; j<25; j+=2)); do
                     if [ $j -lt $((PERCENT/2)) ]; then
                         printf "#"
                     else

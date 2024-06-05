@@ -7,10 +7,10 @@
 # shellcheck disable=SC2049
 
 rm -rf "/etc/cydraterms/tempVerFile" 2> /dev/null
-wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/version" -P "/etc/cydraterms/tempVerFile/version" --no-check-certificate -q
+wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/version" -P "/etc/cydraterms/tempVerFile" --no-check-certificate -q
 
 CURRENT_GDP_VERSION=$(cat /etc/cydraterms/tempVerFile/version)
-GDP_VERSION="1.95 Beta"
+GDP_VERSION="1.951 Beta"
 MIRROR_URL=$(cat /etc/cydrafetch/currentMirror)
 PM_URL=$(cat /etc/cydraterms/mainserver.list/mainserver.list)
 CORE_BRANCH="core"
@@ -775,11 +775,26 @@ elif [[ "$1" == "update" ]]; then
        ask_to_continue
        echo -e "${ORANGE}Arreter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Agisez avec précautions${NC}"
        wget -r -nd -P "${CACHE_FILE}" "${CORE_DL}" 2>&1 | while read -r line; do
-       wget -r -nd -P "${CACHE_FILE}" "${CORE_DL}" 2>&1 | while read -r line; do
        if [[ $line == *' saved '* ]]; then
                i=$((i+1))
                PERCENT=$(( (i * 100) / UPKG_NMB ))
-               printf "Téléchargement : ["
+               printf "CORE Téléchargement : ["
+               for ((j=0; j<50; j+=2)); do
+                    if [ $j -lt $((PERCENT/2)) ]; then
+                        printf "#"
+                    else
+                       printf " "
+                    fi
+               done
+               printf "] %d%%\r" "$PERCENT"
+           fi
+       done
+       
+       wget -r -nd -P "${CACHE_FILE}" "${MULTILIB_DL}" 2>&1 | while read -r line; do
+       if [[ $line == *' saved '* ]]; then
+               i=$((i+1))
+               PERCENT=$(( (i * 100) / UPKG_NMB ))
+               printf "MULTILIB Téléchargement : ["
                for ((j=0; j<50; j+=2)); do
                     if [ $j -lt $((PERCENT/2)) ]; then
                         printf "#"

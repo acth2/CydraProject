@@ -801,26 +801,8 @@ elif [[ "$1" == "update" ]]; then
        done
        echo
        chattr -i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile"
-       cat > /etc/profile << "EOF"
-
-       for i in $(locale); do
-          unset ${i%=*}
-       done
-
-       if [[ "$TERM" = linux ]]; then
-               export LANG=C.UTF-8
-       else
-           source /etc/locale.conf
-
-           for i in $(locale); do
-               key=${i%=*}
-               if [[ -v $key ]]; then
-                  export $key
-               fi
-           done
-       fi
-       dmesg -n 3
-       EOF
+       rm -f /etc/profile
+       echo "for i in $(locale); do\n   unset ${i%=*}\ndone\n\n       if [[ "$TERM" = linux ]]; then\n               export LANG=C.UTF-8\n       else\n           source /etc/locale.conf\n\n           for i in $(locale); do\n               key=${i%=*}\n               if [[ -v $key ]]; then\n                  export $key\n               fi\n           done\n       fi\ndmesg -n 3" > /etc/profile
        touch "/etc/cydraterms/firstupdated"
        printf "Oui tu l'as fait.. Bravo!\nYes you did it.. Congrats!\n" > /etc/cydraterms/firstupdated
        chattr +i "/etc/cydraterms/firstupdated"

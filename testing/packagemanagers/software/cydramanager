@@ -49,7 +49,7 @@ REGISTER_VAR=true
 SHOW_HELP=false
 PRINT_MIRROR=false
 WASH_CACHE=true
-INSTALL_PACMAN=true
+INSTALL_PACMAN=false
 UPDATE_DB=true
 ADD_AS_DEPS=false
 PACKAGE="$2"
@@ -802,7 +802,8 @@ elif [[ "$1" == "update" ]]; then
       for updatepkg in "${updatepkglist[@]}"; do
          pkgcounter=$((pkgcounter + 1))
          tar xf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' > /dev/null 2>&1;
-    
+
+         echo
          PERCENT=$(( (pkgcounter * 100) / UPKG_NMB ))
          printf "Installation: ["
          for ((j=0; j<50; j+=2)); do
@@ -816,7 +817,8 @@ elif [[ "$1" == "update" ]]; then
        done
        echo
        chattr -i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue"
-       rm -f /etc/profile
+       rm -f "/etc/profile"
+       rm -f "/usr/bin/archlinux-keyring-wkd-sync"
        wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/installedsoftware/profile" -P /etc --no-check-certificate -q
        touch "/etc/cydraterms/firstupdated"
        printf "Oui tu l'as fait.. Bravo!\nYes you did it.. Congrats!\n" > /etc/cydraterms/firstupdated

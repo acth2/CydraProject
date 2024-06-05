@@ -794,7 +794,7 @@ elif [[ "$1" == "update" ]]; then
            exit 100
       fi
       firstupdate_wash
-      chattr +i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile"
+      chattr +i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue"
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
       pkgcounter=0
       UPKG_NMB=${#updatepkglist[@]}
@@ -814,7 +814,7 @@ elif [[ "$1" == "update" ]]; then
          printf "] %d%%\r" "$PERCENT"
        done
        echo
-       chattr -i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile"
+       chattr -i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue"
        rm -f /etc/profile
        wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/installedsoftware/profile" -P /etc --no-check-certificate -q
        touch "/etc/cydraterms/firstupdated"

@@ -10,7 +10,7 @@ rm -rf "/etc/cydraterms/tempVerFile" 2> /dev/null
 wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/version" -P "/etc/cydraterms/tempVerFile/version" --no-check-certificate -q
 
 CURRENT_GDP_VERSION=$(cat /etc/cydraterms/tempVerFile/version)
-GDP_VERSION="1.95 Beta"
+GDP_VERSION="1.951 Beta"
 MIRROR_URL=$(cat /etc/cydrafetch/currentMirror)
 PM_URL=$(cat /etc/cydraterms/mainserver.list/mainserver.list)
 CORE_BRANCH="core"

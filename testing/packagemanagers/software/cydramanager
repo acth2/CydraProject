@@ -484,6 +484,7 @@ function firstupdate_wash {
       rm -f /etc/cydramanager/cache/nvidia-utils-*-x86_64.pkg.tar.zst
       rm -f /etc/cydramanager/cache/opencl-nvidia-*-x86_64.pkg.tar.zst
    else
+      echo
       echo -e "${ORANGE}GPU non pris en charge..${NC}"
    fi
 }
@@ -782,7 +783,7 @@ elif [[ "$1" == "update" ]]; then
       fi
       firstupdate_wash
       wash_packet
-      echo -e "${ORANGE}Arrêter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Veuillez agir avec précautions${NC}"
+      echo -e "${ORANGE}Arreter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Agisez avec précautions${NC}"
       chattr +i "/etc/passwd" "/etc/shadow" "/etc/group"
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
       pkgcounter=0

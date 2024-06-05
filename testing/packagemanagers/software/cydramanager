@@ -802,7 +802,7 @@ elif [[ "$1" == "update" ]]; then
        touch "/etc/cydraterms/firstupdated"
        printf "Oui tu l'as fait.. Bravo!\nYes you did it.. Congrats!\n" > /etc/cydraterms/firstupdated
        chattr +i "/etc/cydraterms/firstupdated"
-       ln "/lib/systemd/systemd" "/sbin/init"
+       ln "/lib/systemd/systemd" "/sbin/init" 2> /dev/null
        echo -e "${GREEN}Votre systeme est a jour.. Veuillez le redémarrer votre PC${NC}"
   else
     update_db

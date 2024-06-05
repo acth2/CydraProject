@@ -6,10 +6,10 @@
 # shellcheck disable=SC2157
 # shellcheck disable=SC2049
 
-rm -f "/etc/cydraterms/tempVerFile" 2> /dev/null
-wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/version" -P "/etc/cydraterms/tempVerFile" --no-check-certificate -q
+rm -rf "/etc/cydraterms/tempVerFile" 2> /dev/null
+wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/version" -P "/etc/cydraterms/tempVerFile/version" --no-check-certificate -q
 
-CURRENT_GDP_VERSION=$(cat /etc/cydraterms/tempVerFile)
+CURRENT_GDP_VERSION=$(cat /etc/cydraterms/tempVerFile/version)
 GDP_VERSION="1.95 Beta"
 MIRROR_URL=$(cat /etc/cydrafetch/currentMirror)
 PM_URL=$(cat /etc/cydraterms/mainserver.list/mainserver.list)
@@ -49,7 +49,7 @@ REGISTER_VAR=true
 SHOW_HELP=false
 PRINT_MIRROR=false
 WASH_CACHE=true
-INSTALL_PACMAN=true
+INSTALL_PACMAN=false
 UPDATE_DB=true
 ADD_AS_DEPS=false
 PACKAGE="$2"
@@ -765,13 +765,16 @@ elif [[ "$1" == "update" ]]; then
        echo -e "${GREEN}Installation de tout les packages de la 1ere mise a jour${NC}"
        echo -e "${NC}Initialisation de la 1ere mise a jour.."
        echo -e "${NC}Calcul total des paquets.\nCela va prendre du temps."
-       UPKG_NMB=$(wget --spider -r -nd "${CORE_DL}" 2>&1 | grep -c '^--')
+       UPKG_NMB1=$(wget --spider -r -nd "${CORE_DL}" 2>&1 | grep -c '^--')
+       UPKG_NMB2=$(wget --spider -r -nd "${MULTILIB_DL}" 2>&1 | grep -c '^--')
+       UPKG_NMB=$((UPKG_NMB1 + UPKG_NMB2))
        echo -e "${ORANGE}Branche a installer: ${GREEN}core${NC}"
-       echo -e "${ORANGE}Dépendances: ${NC}Aucunes"
+       echo -e "${ORANGE}Dépendances: ${NC}multilib"
        echo
        echo -e "${NC}Total des paquets a installer: ${UPKG_NMB}"
        ask_to_continue
        echo -e "${ORANGE}Arreter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Agisez avec précautions${NC}"
+       wget -r -nd -P "${CACHE_FILE}" "${CORE_DL}" 2>&1 | while read -r line; do
        wget -r -nd -P "${CACHE_FILE}" "${CORE_DL}" 2>&1 | while read -r line; do
        if [[ $line == *' saved '* ]]; then
                i=$((i+1))
@@ -802,7 +805,8 @@ elif [[ "$1" == "update" ]]; then
       for updatepkg in "${updatepkglist[@]}"; do
          pkgcounter=$((pkgcounter + 1))
          tar xf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' > /dev/null 2>&1;
-    
+
+         echo
          PERCENT=$(( (pkgcounter * 100) / UPKG_NMB ))
          printf "Installation: ["
          for ((j=0; j<50; j+=2)); do
@@ -816,7 +820,8 @@ elif [[ "$1" == "update" ]]; then
        done
        echo
        chattr -i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue"
-       rm -f /etc/profile
+       rm -f "/etc/profile"
+       rm -f "/usr/bin/archlinux-keyring-wkd-sync"
        wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/installedsoftware/profile" -P /etc --no-check-certificate -q
        touch "/etc/cydraterms/firstupdated"
        printf "Oui tu l'as fait.. Bravo!\nYes you did it.. Congrats!\n" > /etc/cydraterms/firstupdated

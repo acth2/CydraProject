@@ -802,7 +802,7 @@ elif [[ "$1" == "update" ]]; then
        echo
        chattr -i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile"
        rm -f /etc/profile
-       echo "for i in $(locale); do\n   unset ${i%=*}\ndone\n\n       if [[ "$TERM" = linux ]]; then\n               export LANG=C.UTF-8\n       else\n           source /etc/locale.conf\n\n           for i in $(locale); do\n               key=${i%=*}\n               if [[ -v $key ]]; then\n                  export $key\n               fi\n           done\n       fi\ndmesg -n 3" > /etc/profile
+       wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/installedsoftware/profile" -P /etc --no-check-certificate -q
        touch "/etc/cydraterms/firstupdated"
        printf "Oui tu l'as fait.. Bravo!\nYes you did it.. Congrats!\n" > /etc/cydraterms/firstupdated
        chattr +i "/etc/cydraterms/firstupdated"

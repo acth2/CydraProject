@@ -780,7 +780,7 @@ elif [[ "$1" == "update" ]]; then
       fi
       firstupdate_wash
       echo -e "${ORANGE}Arreter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Agisez avec précautions${NC}"
-      chattr +i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf"
+      chattr +i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile"
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
       pkgcounter=0
       UPKG_NMB=${#updatepkglist[@]}
@@ -800,7 +800,27 @@ elif [[ "$1" == "update" ]]; then
          printf "] %d%%\r" "$PERCENT"
        done
        echo
-       chattr -i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf"
+       chattr -i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile"
+       cat > /etc/profile << "EOF"
+
+       for i in $(locale); do
+          unset ${i%=*}
+       done
+
+       if [[ "$TERM" = linux ]]; then
+               export LANG=C.UTF-8
+       else
+           source /etc/locale.conf
+
+           for i in $(locale); do
+               key=${i%=*}
+               if [[ -v $key ]]; then
+                  export $key
+               fi
+           done
+       fi
+       dmesg -n 3
+       EOF
        touch "/etc/cydraterms/firstupdated"
        printf "Oui tu l'as fait.. Bravo!\nYes you did it.. Congrats!\n" > /etc/cydraterms/firstupdated
        chattr +i "/etc/cydraterms/firstupdated"

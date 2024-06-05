@@ -6,10 +6,10 @@
 # shellcheck disable=SC2157
 # shellcheck disable=SC2049
 
-rm -f "/etc/cydraterms/tempVerFile" 2> /dev/null
-wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/version" -P "/etc/cydraterms/tempVerFile" --no-check-certificate -q
+rm -rf "/etc/cydraterms/tempVerFile" 2> /dev/null
+wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/version" -P "/etc/cydraterms/tempVerFile/version" --no-check-certificate -q
 
-CURRENT_GDP_VERSION=$(cat /etc/cydraterms/tempVerFile)
+CURRENT_GDP_VERSION=$(cat /etc/cydraterms/tempVerFile/version)
 GDP_VERSION="1.95 Beta"
 MIRROR_URL=$(cat /etc/cydrafetch/currentMirror)
 PM_URL=$(cat /etc/cydraterms/mainserver.list/mainserver.list)

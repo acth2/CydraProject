@@ -6,7 +6,7 @@
 # shellcheck disable=SC2157
 # shellcheck disable=SC2049
 
-
+rm -f "/etc/cydraterms/tempVerFile" 2> /dev/null
 wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/version" -P "/etc/cydraterms/tempVerFile" --no-check-certificate -q
 
 CURRENT_PKG_VERSION=$(cat /etc/cydraterms/tempVerFile)

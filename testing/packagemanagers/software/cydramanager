@@ -155,54 +155,6 @@ function update_db_files {
       fi
 }
 
-function wash_packet {
-  rm -rf ${CACHE_FILE}/core.*
-  rm -rf ${CACHE_FILE}/*.pkg.tar.zst.sig
-
-  rm -rf "${CACHE_FILE}/coreutils-9.4-2-x86_64.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/coreutils-9.4-2-x86_64.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/archlinux-keyring-20231026-1-any.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/bash-5.2.015-5-x86_64.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/efibootmgr-18-2-x86_64.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/efivar-38-3-x86_64.pkg.tar.zst.sig"
-  rm -rf "${CACHE_FILE}/gc-8.2.4-1-x86_64.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/gcc-13.2.1-3-x86_64.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/gcc-ada-13.2.1-3-x86_64.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/gcc-d-13.2.1-3-x86_64.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/gcc-fortran-13.2.1-3-x86_64.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/gcc-go-13.2.1-3-x86_64.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/gcc-libs-13.2.1-3-x86_64.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/glib2-2.78.1-1-x86_64.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/glib2-docs-2.78.1-1-x86_64.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/glibc-2.38-7-x86_64.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/glibc-locales-2.38-7-x86_64.pkg.tar.zst"
-  if [[ "$INSTALL_PACMAN" == true ]]; then
-    rm -rf "${CACHE_FILE}/pacman-6.0.2-8-x86_64.pkg.tar.zst"
-    rm -rf "${CACHE_FILE}/pacman-mirrorlist-20231001-1-any.pkg.tar.zst"
-  fi
-  rm -rf "${CACHE_FILE}/shadow-4.14.2-1-x86_64.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/util-linux-2.39.2-1-x86_64.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/util-linux-libs-2.39.2-1-x86_64.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/linux-*"
-  rm -rf "${CACHE_FILE}/arch64-linux-*"
-  rm -rf "${CACHE_FILE}/dbus-1.14.10-2-x86_64.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/dbus-broker-36-2-x86_64.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/dbus-broker-units-36-2-x86_64.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/dbus-daemon-units-1.14.10-2-x86_64.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/dbus-docs-1.14.10-2-x86_64.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/inetutils-2.5-1-x86_64.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/iproute2-6.9.0-1-x86_64.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/iptables-1:1.8.10-1-x86_64.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/iptables-nft-1:1.8.10-1-x86_64.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/iputils-20240117-1-x86_64.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/iw-6.9-1-x86_64.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/systemd-255.7-1-x86_64.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/systemd-libs-255.7-1-x86_64.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/systemd-resolvconf-255.7-1-x86_64.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/systemd-sysvcompat-255.7-1-x86_64.pkg.tar.zst"
-  rm -rf "${CACHE_FILE}/systemd-ukify-255.7-1-x86_64.pkg.tar.zst"
-}
-
 function ask_to_continue {
     if [ "$ADD_AS_DEPS" = false ]; then
           if [ "$PRINT_LOG" = true ]; then
@@ -457,34 +409,80 @@ function install_deps {
 }
 
 function firstupdate_wash {
-   rm -rf "/etc/cydramanager/cache/core.db"
-   rm -rf "/etc/cydramanager/cache/core.db.tar.gz"
-   rm -rf "/etc/cydramanager/cache/core.db.tar.gz.old"
-   rm -rf "/etc/cydramanager/cache/core.db.files"
-   rm -rf "/etc/cydramanager/cache/core.db.files.tar.gz"
-   rm -rf "/etc/cydramanager/cache/core.db.files.tar.gz.old"
-   rm -rf "/etc/cydramanager/cache/index.html"
-   rm -rf "/etc/cydramanager/cache/x86_64"
-   if dmesg | grep -iq nvidia; then
-      rm -f /etc/cydramanager/cache/amdvlk-*.pkg.tar.zst
-      rm -f /etc/cydramanager/cache/hip-runtime-amd-*.pkg.tar.zst
-      rm -f /etc/cydramanager/cache/hsa-amd-aqlprofile-bin-*.pkg.tar.zst
-      rm -f /etc/cydramanager/cache/xf86-video-amdgpu-*.pkg.tar.zst
-   elif dmesg | grep -iq amd; then
-      rm -f /etc/cydramanager/cache/libnvidia-container-*.pkg.tar.zst
-      rm -f /etc/cydramanager/cache/libva-nvidia-driver-*.pkg.tar.zst
-      rm -f /etc/cydramanager/cache/nvidia-*-x86_64.pkg.tar.zst
-      rm -f /etc/cydramanager/cache/nvidia-cg-toolkit-*.pkg.tar.zst
-      rm -f /etc/cydramanager/cache/nvidia-container-toolkit-*.pkg.tar.zst
-      rm -f /etc/cydramanager/cache/nvidia-dkms-*-x86_64.pkg.tar.zst
-      rm -f /etc/cydramanager/cache/nvidia-*-x86_64.pkg.tar.zst
-      rm -f /etc/cydramanager/cache/nvidia-open-*-x86_64.pkg.tar.zst    
-      rm -f /etc/cydramanager/cache/nvidia-prime-*-any.pkg.tar.zst
-      rm -f /etc/cydramanager/cache/nvidia-settings-*-x86_64.pkg.tar.zst
-      rm -f /etc/cydramanager/cache/nvidia-utils-*-x86_64.pkg.tar.zst
-      rm -f /etc/cydramanager/cache/opencl-nvidia-*-x86_64.pkg.tar.zst
-   else
-      echo -e "${ORANGE}GPU non pris en charge..${NC}"
+  rm -rf ${CACHE_FILE}/core.*
+  rm -rf ${CACHE_FILE}/*.pkg.tar.zst.sig
+
+  rm -rf "${CACHE_FILE}/coreutils-9.4-2-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/coreutils-9.4-2-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/archlinux-keyring-20231026-1-any.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/bash-5.2.015-5-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/efibootmgr-18-2-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/efivar-38-3-x86_64.pkg.tar.zst.sig"
+  rm -rf "${CACHE_FILE}/gc-8.2.4-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/gcc-13.2.1-3-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/gcc-ada-13.2.1-3-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/gcc-d-13.2.1-3-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/gcc-fortran-13.2.1-3-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/gcc-go-13.2.1-3-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/gcc-libs-13.2.1-3-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/glib2-2.78.1-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/glib2-docs-2.78.1-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/glibc-2.38-7-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/glibc-locales-2.38-7-x86_64.pkg.tar.zst"
+  if [[ "$INSTALL_PACMAN" == true ]]; then
+    rm -rf "${CACHE_FILE}/pacman-6.0.2-8-x86_64.pkg.tar.zst"
+    rm -rf "${CACHE_FILE}/pacman-mirrorlist-20231001-1-any.pkg.tar.zst"
+  fi
+  rm -rf "${CACHE_FILE}/shadow-4.14.2-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/util-linux-2.39.2-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/util-linux-libs-2.39.2-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/linux-*"
+  rm -rf "${CACHE_FILE}/arch64-linux-*"
+  rm -rf "${CACHE_FILE}/dbus-1.14.10-2-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/dbus-broker-36-2-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/dbus-broker-units-36-2-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/dbus-daemon-units-1.14.10-2-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/dbus-docs-1.14.10-2-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/inetutils-2.5-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/iproute2-6.9.0-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/iptables-1:1.8.10-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/iptables-nft-1:1.8.10-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/iputils-20240117-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/iw-6.9-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/systemd-255.7-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/systemd-libs-255.7-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/systemd-resolvconf-255.7-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/systemd-sysvcompat-255.7-1-x86_64.pkg.tar.zst"
+  rm -rf "${CACHE_FILE}/systemd-ukify-255.7-1-x86_64.pkg.tar.zst"
+  rm -rf "/etc/cydramanager/cache/core.db"
+  rm -rf "/etc/cydramanager/cache/core.db.tar.gz"
+  rm -rf "/etc/cydramanager/cache/core.db.tar.gz.old"
+  rm -rf "/etc/cydramanager/cache/core.db.files"
+  rm -rf "/etc/cydramanager/cache/core.db.files.tar.gz"
+  rm -rf "/etc/cydramanager/cache/core.db.files.tar.gz.old"
+  rm -rf "/etc/cydramanager/cache/index.html"
+  rm -rf "/etc/cydramanager/cache/x86_64"
+  if dmesg | grep -iq nvidia; then
+     rm -f /etc/cydramanager/cache/amdvlk-*.pkg.tar.zst
+     rm -f /etc/cydramanager/cache/hip-runtime-amd-*.pkg.tar.zst
+     rm -f /etc/cydramanager/cache/hsa-amd-aqlprofile-bin-*.pkg.tar.zst
+     rm -f /etc/cydramanager/cache/xf86-video-amdgpu-*.pkg.tar.zst
+  elif dmesg | grep -iq amd; then
+     rm -f /etc/cydramanager/cache/libnvidia-container-*.pkg.tar.zst
+     rm -f /etc/cydramanager/cache/libva-nvidia-driver-*.pkg.tar.zst
+     rm -f /etc/cydramanager/cache/nvidia-*-x86_64.pkg.tar.zst
+     rm -f /etc/cydramanager/cache/nvidia-cg-toolkit-*.pkg.tar.zst
+     rm -f /etc/cydramanager/cache/nvidia-container-toolkit-*.pkg.tar.zst
+     rm -f /etc/cydramanager/cache/nvidia-dkms-*-x86_64.pkg.tar.zst
+     rm -f /etc/cydramanager/cache/nvidia-*-x86_64.pkg.tar.zst
+     rm -f /etc/cydramanager/cache/nvidia-open-*-x86_64.pkg.tar.zst    
+     rm -f /etc/cydramanager/cache/nvidia-prime-*-any.pkg.tar.zst
+     rm -f /etc/cydramanager/cache/nvidia-settings-*-x86_64.pkg.tar.zst
+     rm -f /etc/cydramanager/cache/nvidia-utils-*-x86_64.pkg.tar.zst
+     rm -f /etc/cydramanager/cache/opencl-nvidia-*-x86_64.pkg.tar.zst
+  else
+     echo
+     echo -e "${ORANGE}GPU non pris en charge..${NC}"
    fi
 }
 
@@ -781,9 +779,8 @@ elif [[ "$1" == "update" ]]; then
            exit 100
       fi
       firstupdate_wash
-      wash_packet
-      echo -e "${ORANGE}Arrêter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Veuillez agir avec précautions${NC}"
-      chattr +i "/etc/passwd" "/etc/shadow" "/etc/group"
+      echo -e "${ORANGE}Arreter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Agisez avec précautions${NC}"
+      chattr +i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile"
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
       pkgcounter=0
       UPKG_NMB=${#updatepkglist[@]}
@@ -803,7 +800,27 @@ elif [[ "$1" == "update" ]]; then
          printf "] %d%%\r" "$PERCENT"
        done
        echo
-       chattr -i "/etc/passwd" "/etc/shadow" "/etc/group"
+       chattr -i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile"
+       cat > /etc/profile << "EOF"
+
+       for i in $(locale); do
+          unset ${i%=*}
+       done
+
+       if [[ "$TERM" = linux ]]; then
+               export LANG=C.UTF-8
+       else
+           source /etc/locale.conf
+
+           for i in $(locale); do
+               key=${i%=*}
+               if [[ -v $key ]]; then
+                  export $key
+               fi
+           done
+       fi
+       dmesg -n 3
+       EOF
        touch "/etc/cydraterms/firstupdated"
        printf "Oui tu l'as fait.. Bravo!\nYes you did it.. Congrats!\n" > /etc/cydraterms/firstupdated
        chattr +i "/etc/cydraterms/firstupdated"

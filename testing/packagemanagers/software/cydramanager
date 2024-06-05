@@ -9,7 +9,8 @@
 rm -f "/etc/cydraterms/tempVerFile" 2> /dev/null
 wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/version" -P "/etc/cydraterms/tempVerFile" --no-check-certificate -q
 
-CURRENT_PKG_VERSION=$(cat /etc/cydraterms/tempVerFile)
+CURRENT_GDP_VERSION=$(cat /etc/cydraterms/tempVerFile)
+GDP_VERSION="1.95 Beta"
 MIRROR_URL=$(cat /etc/cydrafetch/currentMirror)
 PM_URL=$(cat /etc/cydraterms/mainserver.list/mainserver.list)
 CORE_BRANCH="core"
@@ -505,7 +506,7 @@ if [[ "$1" != "install" && "$1" != "remove" && "$1" != "update" && "$1" != "fetc
     fi
 fi
 
-if [[ ! "${CURRENT_PKG_VERSION}" == "1.95 Beta" ]]; then
+if [[ ! "${CURRENT_GDP_VERSION}" == "${GDP_VERSION}" ]]; then
     echo -e "${ORANGE}Une nouvelle version du gestionnaire de paquets est en ligne.${NC}"
 fi
 
@@ -724,7 +725,7 @@ elif [[ "$1" == "update" ]]; then
   if [[ -n ${3} ]]; then
        if [[ "$3" == "cydramanager" ]]; then
            echo -e "${GREEN}Lancement de la mise a jour du gestionnaire de paquets${NC}"
-           if [[ "${CURRENT_PKG_VERSION}" == "1.95 Beta" ]]; then
+           if [[ "${CURRENT_GDP_VERSION}" == "${GDP_VERSION}" ]]; then
                echo -e "${NC} cydramanager ${GREEN}[A JOUR]${NC}"
                exit 0
            fi

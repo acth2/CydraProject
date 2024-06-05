@@ -783,13 +783,13 @@ elif [[ "$1" == "update" ]]; then
       firstupdate_wash
       wash_packet
       echo -e "${ORANGE}Arrêter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Veuillez agir avec précautions${NC}"
-      chattr -R +i "/usr/lib/systemd" "/lib/systemd/" "/etc/systemd"
+      chattr +i "/etc/passwd" "/etc/shadow" "/etc/group"
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
       pkgcounter=0
       UPKG_NMB=${#updatepkglist[@]}
       for updatepkg in "${updatepkglist[@]}"; do
          pkgcounter=$((pkgcounter + 1))
-         tar xf "${updatepkg}" -C / > /dev/null 2>&1;
+         tar xf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' > /dev/null 2>&1;
     
          PERCENT=$(( (pkgcounter * 100) / UPKG_NMB ))
          printf "Installation: ["
@@ -803,7 +803,7 @@ elif [[ "$1" == "update" ]]; then
          printf "] %d%%\r" "$PERCENT"
        done
        echo
-       chattr -R -i "/usr/lib/systemd" "/lib/systemd/" "/etc/systemd"
+       chattr -i "/etc/passwd" "/etc/shadow" "/etc/group"
        touch "/etc/cydraterms/firstupdated"
        printf "Oui tu l'as fait.. Bravo!\nYes you did it.. Congrats!\n" > /etc/cydraterms/firstupdated
        chattr +i "/etc/cydraterms/firstupdated"

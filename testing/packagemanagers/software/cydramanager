@@ -6,6 +6,10 @@
 # shellcheck disable=SC2157
 # shellcheck disable=SC2049
 
+
+wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/version" -P "/etc/cydraterms/tempVerFile" --no-check-certificate -q
+
+CURRENT_PKG_VERSION=$(cat /etc/cydraterms/tempVerFile)
 MIRROR_URL=$(cat /etc/cydrafetch/currentMirror)
 PM_URL=$(cat /etc/cydraterms/mainserver.list/mainserver.list)
 CORE_BRANCH="core"
@@ -501,6 +505,9 @@ if [[ "$1" != "install" && "$1" != "remove" && "$1" != "update" && "$1" != "fetc
     fi
 fi
 
+if [[ ! "${CURRENT_PKG_VERSION}" == "1.95 Beta" ]]; then
+    echo -e "${ORANGE}Une nouvelle version du gestionnaire de paquets est en ligne.${NC}"
+fi
 
 rm -rf /etc/cydramanager 2> /dev/null
 if [[ "$1" == "install" ]]; then
@@ -715,6 +722,17 @@ elif [[ "$1" == "update" ]]; then
     fi
   echo -e "${GREEN}Lancement de la mise a jour${NC}"
   if [[ -n ${3} ]]; then
+       if [[ "$3" == "cydramanager" ]]; then
+           echo -e "${GREEN}Lancement de la mise a jour du gestionnaire de paquets${NC}"
+           if [[ "${CURRENT_PKG_VERSION}" == "1.95 Beta" ]]; then
+               echo -e "${NC} cydramanager ${GREEN}[A JOUR]${NC}"
+               exit 0
+           fi
+           rm -f /usr/bin/cydramanager
+           wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/packagemanagers/software/cydramanager" -P /usr/bin --no-check-certificate -q
+           echo -e "${NC} cydramanager ${GREEN}[A JOUR]${NC}"
+           exit 0
+       fi
        update_db
        UPDATE_INFO=$(grep -r -l -m 1 -o "${3}-" /etc/cydramanager/cache | head -1)
        UPDATE_VERSION=$(sed -n 11p "${UPDATE_INFO}")

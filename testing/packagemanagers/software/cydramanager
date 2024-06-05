@@ -480,9 +480,6 @@ function firstupdate_wash {
      rm -f /etc/cydramanager/cache/nvidia-settings-*-x86_64.pkg.tar.zst
      rm -f /etc/cydramanager/cache/nvidia-utils-*-x86_64.pkg.tar.zst
      rm -f /etc/cydramanager/cache/opencl-nvidia-*-x86_64.pkg.tar.zst
-  else
-     echo
-     echo -e "${ORANGE}GPU non pris en charge..${NC}"
    fi
 }
 
@@ -755,7 +752,7 @@ elif [[ "$1" == "update" ]]; then
        echo
        echo -e "${NC}Total des paquets a installer: ${UPKG_NMB}"
        ask_to_continue
-
+       echo -e "${ORANGE}Arreter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Agisez avec précautions${NC}"
        wget -r -nd -P "${CACHE_FILE}" "${CORE_DL}" 2>&1 | while read -r line; do
        if [[ $line == *' saved '* ]]; then
                i=$((i+1))
@@ -779,7 +776,6 @@ elif [[ "$1" == "update" ]]; then
            exit 100
       fi
       firstupdate_wash
-      echo -e "${ORANGE}Arreter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Agisez avec précautions${NC}"
       chattr +i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile"
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
       pkgcounter=0

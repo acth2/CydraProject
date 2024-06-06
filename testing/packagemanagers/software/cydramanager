@@ -34,6 +34,7 @@ EXTRA_DL="${MIRROR_URL}/${EXTRA_BRANCH}/os/x86_64"
 POOL_DL="${MIRROR_URL}/${POOL_BRANCH}/packages"
 CYDRA_DL="${PM_URL}/pm/${CYDRA_BRANCH}"
 DEPS_FILE="${CACHE_FILE}/depsfile.list"
+DEPS_FILE="${CACHE_FILE}/modulabledepsfile.list"
 PKG_INFO_ARG="desc"
 INSTALLED_SOFTWARE_DIR="/etc/cydraterms/installedsoftware"
 USER_INSTALLED_SOFTWARE_DIR="/etc/cydraterms/usersoftware"
@@ -370,6 +371,7 @@ function install_deps {
     done
     DEPS_NUMBER=$(wc -l ${DEPS_FILE} | awk '{print $1}')
     for ((i=1; i<=DEPS_NUMBER; i++)); do
+        MDEPS_NAME="${i}"
         DEPS_NAME=$(sed -n "${i}p" "${DEPS_FILE}")
         DEPS_INFO=$(grep -r -l -m 1 -o "$DEPS_NAME-" /etc/cydramanager/cache | head -1)
         DEPS_VERSION=$(sed -n 11p "${DEPS_INFO}")
@@ -409,6 +411,72 @@ function install_deps {
         if ! [ "$VERSION" = "$DEPS_VERSION" ]; then
             touch ${USER_INSTALLED_SOFTWARE_DIR}/"${DEPS_NAME}"
             echo "${DEPS_VERSION}" > "${USER_INSTALLED_SOFTWARE_DIR}/${DEPS_NAME}"
+        fi
+
+        modulable_deps
+   done
+}
+
+function modulable_deps {
+    depsList=()
+    readState=0
+    while IFS= read -r line; do
+
+        if [ $readState -eq 1 ]; then
+            if [ -z "$line" ]; then
+                break
+            fi
+            depsList+=("$line")
+        fi
+
+        if [[ "$line" == "%DEPENDS%" ]]; then
+            readState=1
+        fi
+    done < "${PKG_INFO}"
+
+    for element in "${depsList[@]}"; do
+          echo "${element}" > ${MDEPS_FILE}
+    done
+    MDEPS_NUMBER=$(wc -l ${MDEPS_FILE} | awk '{print $1}')
+    for ((i=1; i<=MDEPS_NUMBER; i++)); do
+        MDEPS_INFO=$(grep -r -l -m 1 -o "$MDEPS_NAME-" /etc/cydramanager/cache | head -1)
+        MDEPS_VERSION=$(sed -n 11p "${DEPS_INFO}")
+        MDEPS_ARCHIVE=$(sed -n 2p "${DEPS_INFO}")
+
+        if [[ -z ${MDEPS_INFO} ]]; then
+          echo -e "${ORANGE}La dépendance ${MDEPS_NAME} n'est pas trouvé dans la base de données..${NC}"
+          rm -rf /etc/cydramanager
+          exit 65
+        fi
+
+        wget "${POOL_DL}/${MDEPS_ARCHIVE}" -P ${INSTALL_DIR} --no-check-certificate -q
+
+        chmod +rwx "${INSTALL_DIR}${MDEPS_ARCHIVE}"
+
+        unset PERCENT
+        PERCENT=$(( (i+1) * 100 / MDEPS_NUMBER ))
+        printf "[${DEPS_NAME}] Progression : ["
+        for ((j=0; j<50; j+=2)); do
+            if [ $j -lt $((PERCENT/2)) ]; then
+              printf "#"
+            else
+              printf " "
+            fi
+        done
+        printf "] %d%%\n" "$PERCENT"
+
+        tar xf "${INSTALL_DIR}${MDEPS_ARCHIVE}" -C /
+
+        VERSION=$(cat "${USER_INSTALLED_SOFTWARE_DIR}/${MDEPS_NAME}" 2> /etc/cydramanager/cache/smthawful.log)
+        if ! [ "$VERSION" = "$MDEPS_VERSION" ]; then
+            touch ${USER_INSTALLED_SOFTWARE_DIR}/"${MDEPS_NAME}"
+            echo "${MDEPS_VERSION}" > "${USER_INSTALLED_SOFTWARE_DIR}/${MDEPS_NAME}"
+        fi
+
+        VERSION=$(cat "${INSTALLED_SOFTWARE_DIR}/${MDEPS_NAME}" 2> /etc/cydramanager/cache/smthawful.log)
+        if ! [ "$VERSION" = "$MDEPS_VERSION" ]; then
+            touch ${USER_INSTALLED_SOFTWARE_DIR}/"$M{DEPS_NAME}"
+            echo "${MDEPS_VERSION}" > "${USER_INSTALLED_SOFTWARE_DIR}/${MDEPS_NAME}"
         fi
    done
 }

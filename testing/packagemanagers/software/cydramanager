@@ -780,7 +780,7 @@ elif [[ "$1" == "update" ]]; then
        UPKG_NMB2=$(wget --spider -r -nd "${MULTILIB_DL}" 2>&1 | grep -c '^--')
        UPKG_NMB=$((UPKG_NMB1 + UPKG_NMB2))
        echo -e "${ORANGE}Branche a installer: ${GREEN}core${NC}"
-       echo -e "${ORANGE}Dépendances: ${NC}multilib"
+       echo -e "${ORANGE}Dépendances: ${NC}Aucunes"
        echo
        echo -e "${NC}Total des paquets a installer: ${UPKG_NMB}"
        ask_to_continue
@@ -789,7 +789,7 @@ elif [[ "$1" == "update" ]]; then
        if [[ $line == *' saved '* ]]; then
                i=$((i+1))
                PERCENT=$(( (i * 100) / UPKG_NMB ))
-               printf "CORE Téléchargement : ["
+               printf "Téléchargement : ["
                for ((j=0; j<25; j+=2)); do
                     if [ $j -lt $((PERCENT/2)) ]; then
                         printf "#"
@@ -801,22 +801,6 @@ elif [[ "$1" == "update" ]]; then
            fi
        done
        echo
-
-       wget -r -nd -P "${CACHE_FILE}" "${MULTILIB_DL}" 2>&1 | while read -r line; do
-       if [[ $line == *' saved '* ]]; then
-               i=$((i+1))
-               PERCENT=$(( (i * 100) / UPKG_NMB ))
-               printf "MULTILIB Téléchargement : ["
-               for ((j=0; j<25; j+=2)); do
-                    if [ $j -lt $((PERCENT/2)) ]; then
-                        printf "#"
-                    else
-                       printf " "
-                    fi
-               done
-               printf "] %d%%\r" "$PERCENT"
-           fi
-       done
        wget -r "${CORE_DL}" -P ${CACHE_FILE} -q
        if ! [[ -f "${CACHE_FILE}/core.db.tar.gz" ]]; then
            if [ "$PRINT_LOG" = true ]; then
@@ -832,7 +816,12 @@ elif [[ "$1" == "update" ]]; then
       for updatepkg in "${updatepkglist[@]}"; do
          pkgcounter=$((pkgcounter + 1))
          tar xf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' > /dev/null 2>&1;
-
+         wget "${MIRROR_URL}multilib/os/x86_64/lib32-${updatepkg}" -P ${CACHE_FILE} --no-check-certificate -q
+         echo "DEBUG1: ${MIRROR_URL}multilib/os/x86_64/lib32-${updatepkg}"
+         multilibpkg=$(basename ${updatepkg})
+         multilibpkg="${CACHE_FILE}/lib32-${multilibpkg}"
+         echo "DEBUG: ${multilibpkg}"
+         tar xf "${multilibpkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' > /dev/null 2>&1;
          echo
          PERCENT=$(( (pkgcounter * 100) / UPKG_NMB ))
          printf "Installation: ["

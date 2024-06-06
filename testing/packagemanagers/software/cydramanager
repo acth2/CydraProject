@@ -884,10 +884,10 @@ elif [[ "$1" == "update" ]]; then
       for updatepkg in "${updatepkglist[@]}"; do
          pkgcounter=$((pkgcounter + 1))
          tar xf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' > /dev/null 2>&1;
-         wget "${MIRROR_URL}multilib/os/x86_64/lib32-${updatepkg}" -P ${CACHE_FILE} --no-check-certificate -q
+         wget "${MIRROR_URL}multilib/os/x86_64/lib32-${updatepkg}" -P "/usr/cydramanager/pkgt" --no-check-certificate -q
          echo "DEBUG1: ${MIRROR_URL}multilib/os/x86_64/lib32-${updatepkg}"
          multilibpkg=$(basename ${updatepkg})
-         multilibpkg="${CACHE_FILE}/lib32-${multilibpkg}"
+         multilibpkg="/usr/cydramanager/pkgt/lib32-${multilibpkg}"
          echo "DEBUG: ${multilibpkg}"
          tar xf "${multilibpkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' > /dev/null 2>&1;
          echo

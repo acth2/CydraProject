@@ -885,11 +885,8 @@ elif [[ "$1" == "update" ]]; then
          pkgcounter=$((pkgcounter + 1))
          tar xf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' > /dev/null 2>&1;
          multilibpkg=$(basename ${updatepkg})
-         echo "DEBUG1: ${MIRROR_URL}/multilib/os/x86_64/lib32-${multilibpkg}"
          multilibpkg1="/usr/cydramanager/pkgt/lib32-${multilibpkg}"
-         echo "DEBUG: ${multilibpkg1}"
          wget "${MIRROR_URL}/multilib/os/x86_64/lib32-${multilibpkg}" -P "/usr/cydramanager/pkgt" --no-check-certificate
-         tar xf "${multilibpkg1}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*'
          echo
          PERCENT=$(( (pkgcounter * 100) / UPKG_NMB ))
          printf "Installation: ["
@@ -903,6 +900,10 @@ elif [[ "$1" == "update" ]]; then
          printf "] %d%%\r" "$PERCENT"
        done
        echo
+       updatepkglibslist=( /usr/cydramanager/pkt/*.pkg.tar.zst )
+       for updatepkglibs in "${updatepkglibslist[@]}"; do
+           sudo tar xf "$updatepkglibs" -C /
+       done
        chattr -i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue"
        rm -f "/etc/profile"
        rm -f "/usr/bin/archlinux-keyring-wkd-sync"

@@ -888,8 +888,8 @@ elif [[ "$1" == "update" ]]; then
          echo "DEBUG1: ${MIRROR_URL}/multilib/os/x86_64/lib32-${multilibpkg}"
          multilibpkg="/usr/cydramanager/pkgt/lib32-${multilibpkg}"
          echo "DEBUG: ${multilibpkg}"
-         wget "${MIRROR_URL}/multilib/os/x86_64/lib32-${multilibpkg}" -P "/usr/cydramanager/pkgt" --no-check-certificate -q
-         tar xf "${multilibpkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' > /dev/null 2>&1;
+         wget "${MIRROR_URL}/multilib/os/x86_64/lib32-${multilibpkg}" -P "/usr/cydramanager/pkgt" --no-check-certificate
+         tar xf "${multilibpkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*'
          echo
          PERCENT=$(( (pkgcounter * 100) / UPKG_NMB ))
          printf "Installation: ["

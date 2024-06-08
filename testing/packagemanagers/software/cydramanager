@@ -413,71 +413,6 @@ function install_deps {
             echo "${DEPS_VERSION}" > "${USER_INSTALLED_SOFTWARE_DIR}/${DEPS_NAME}"
         fi
 
-        modulable_deps
-   done
-}
-
-function modulable_deps {
-    depsList=()
-    readState=0
-    while IFS= read -r line; do
-
-        if [ $readState -eq 1 ]; then
-            if [ -z "$line" ]; then
-                break
-            fi
-            depsList+=("$line")
-        fi
-
-        if [[ "$line" == "%DEPENDS%" ]]; then
-            readState=1
-        fi
-    done < "${PKG_INFO}"
-
-    for element in "${depsList[@]}"; do
-          echo "${element}" > ${MDEPS_FILE}
-    done
-    MDEPS_NUMBER=$(wc -l ${MDEPS_FILE} | awk '{print $1}')
-    for ((i=1; i<=MDEPS_NUMBER; i++)); do
-        MDEPS_INFO=$(grep -r -l -m 1 -o "$MDEPS_NAME-" /etc/cydramanager/cache | head -1)
-        MDEPS_VERSION=$(sed -n 11p "${DEPS_INFO}")
-        MDEPS_ARCHIVE=$(sed -n 2p "${DEPS_INFO}")
-
-        if [[ -z ${MDEPS_INFO} ]]; then
-          echo -e "${ORANGE}La dépendance ${MDEPS_NAME} n'est pas trouvé dans la base de données..${NC}"
-          rm -rf /etc/cydramanager
-          exit 65
-        fi
-
-        wget "${POOL_DL}/${MDEPS_ARCHIVE}" -P ${INSTALL_DIR} --no-check-certificate -q
-
-        chmod +rwx "${INSTALL_DIR}${MDEPS_ARCHIVE}"
-
-        unset PERCENT
-        PERCENT=$(( (i+1) * 100 / MDEPS_NUMBER ))
-        printf "[${DEPS_NAME}] Progression : ["
-        for ((j=0; j<50; j+=2)); do
-            if [ $j -lt $((PERCENT/2)) ]; then
-              printf "#"
-            else
-              printf " "
-            fi
-        done
-        printf "] %d%%\n" "$PERCENT"
-
-        tar xf "${INSTALL_DIR}${MDEPS_ARCHIVE}" -C /
-
-        VERSION=$(cat "${USER_INSTALLED_SOFTWARE_DIR}/${MDEPS_NAME}" 2> /etc/cydramanager/cache/smthawful.log)
-        if ! [ "$VERSION" = "$MDEPS_VERSION" ]; then
-            touch ${USER_INSTALLED_SOFTWARE_DIR}/"${MDEPS_NAME}"
-            echo "${MDEPS_VERSION}" > "${USER_INSTALLED_SOFTWARE_DIR}/${MDEPS_NAME}"
-        fi
-
-        VERSION=$(cat "${INSTALLED_SOFTWARE_DIR}/${MDEPS_NAME}" 2> /etc/cydramanager/cache/smthawful.log)
-        if ! [ "$VERSION" = "$MDEPS_VERSION" ]; then
-            touch ${USER_INSTALLED_SOFTWARE_DIR}/"$M{DEPS_NAME}"
-            echo "${MDEPS_VERSION}" > "${USER_INSTALLED_SOFTWARE_DIR}/${MDEPS_NAME}"
-        fi
    done
 }
 
@@ -848,19 +783,16 @@ elif [[ "$1" == "update" ]]; then
        UPKG_NMB2=$(wget --spider -r -nd "${MULTILIB_DL}" 2>&1 | grep -c '^--')
        UPKG_NMB=$((UPKG_NMB1 + UPKG_NMB2))
        echo -e "${ORANGE}Branche a installer: ${GREEN}core${NC}"
-       echo -e "${ORANGE}Dépendances: ${NC}Aucunes"
+       echo -e "${ORANGE}Dépendances: ${NC}multilib"
        echo
        echo -e "${NC}Total des paquets a installer: ${UPKG_NMB}"
        ask_to_continue
        echo -e "${ORANGE}Arreter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Agisez avec précautions${NC}"
-       updatepkglist=(
-          "lib32-pcsclite-2.2.3-1-x86_64.pkg.tar.zst"
-       )
-       wget -r -nd -P "${CACHE_FILE}" "${CORE_DL}" 2>&1 | while read -r line; do
+       wget -r -nd -P "/etc/cydramanager/cache" "${CORE_DL}" 2>&1 | while read -r line; do
        if [[ $line == *' saved '* ]]; then
                i=$((i+1))
                PERCENT=$(( (i * 100) / UPKG_NMB ))
-               printf "Téléchargement : ["
+               printf "[1/2] Téléchargement : ["
                for ((j=0; j<50; j+=2)); do
                     if [ $j -lt $((PERCENT/2)) ]; then
                         printf "#"
@@ -872,6 +804,24 @@ elif [[ "$1" == "update" ]]; then
            fi
        done
        echo
+
+       wget -r -nd -P "/etc/cydramanager/cache/001cydraosmultilib" "${MULTILIB_DL}" 2>&1 | while read -r line; do
+       if [[ $line == *' saved '* ]]; then
+               i=$((i+1))
+               PERCENT=$(( (i * 100) / UPKG_NMB ))
+               printf "[2/2] Téléchargement : ["
+               for ((j=0; j<50; j+=2)); do
+                    if [ $j -lt $((PERCENT/2)) ]; then
+                        printf "#"
+                    else
+                       printf " "
+                    fi
+               done
+               printf "] %d%%\r" "$PERCENT"
+           fi
+       done
+       echo
+
        wget -r "${CORE_DL}" -P ${CACHE_FILE} -q
        if ! [[ -f "${CACHE_FILE}/core.db.tar.gz" ]]; then
            if [ "$PRINT_LOG" = true ]; then
@@ -884,11 +834,11 @@ elif [[ "$1" == "update" ]]; then
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
       pkgcounter=0
       UPKG_NMB=${#updatepkglist[@]}
-      for updatepkg in "${updatepkglist[@]}"; do
-         pkgcounter=$((pkgcounter + 1))
+      for mlupdatepkg in "${updatepkglist[@]}"; do
+         mlpkgcounter=$((mlpkgcounter + 1))
          
-         tar xf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' > /dev/null 2>&1;
-         PERCENT=$(( (pkgcounter * 100) / UPKG_NMB ))
+         tar xf "${mlupdatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' > /dev/null 2>&1;
+         PERCENT=$(( (mlpkgcounter * 100) / UPKG_NMB ))
          printf " [1/2] Installation: ["
          for ((j=0; j<50; j+=2)); do
            if [ $j -lt $((PERCENT/2)) ]; then
@@ -901,12 +851,14 @@ elif [[ "$1" == "update" ]]; then
       done
       echo
       mkdir /var/spool/mail/root
-      for libspkg in "${pkglibslist[@]}"; do
-         pkgcounter=$((pkgcounter + 1))
-         wget "${MIRROR_URL}/multilib/os/x86_64/${libspkg}" -P "/usr/cydramanager/pkgt" --no-check-certificate -q
-         tar xf "/usr/cydramanager/pkgt/${libspkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' > /dev/null 2>&1;
-         PERCENT=$(( (pkgcounter * 100) / UPKG_NMB ))
-         printf " [1/2] Installation: ["
+      mlpkgcounter=0
+      multilibupdatepkglist=( $(ls /etc/cydramanager/cache/001cydraosmultilib/*.pkg.tar.zst) )
+      for mlupdatepkg in "${multilibupdatepkglist[@]}"; do
+         mlpkgcounter=$((pkgcounter + 1))
+         
+         tar xf "${mlupdatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' > /dev/null 2>&1;
+         PERCENT=$(( (mlpkgcounter * 100) / UPKG_NMB ))
+         printf " [2/2] Installation: ["
          for ((j=0; j<50; j+=2)); do
            if [ $j -lt $((PERCENT/2)) ]; then
                printf "#"
@@ -915,18 +867,17 @@ elif [[ "$1" == "update" ]]; then
            fi
          done
          printf "] %d%%\r" "$PERCENT"
-       done
-       echo
-
-       chattr -i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue"
-       rm -f "/etc/profile"
-       rm -f "/usr/bin/archlinux-keyring-wkd-sync"
-       wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/installedsoftware/profile" -P /etc --no-check-certificate -q
-       touch "/etc/cydraterms/firstupdated"
-       printf "Oui tu l'as fait.. Bravo!\nYes you did it.. Congrats!\n" > /etc/cydraterms/firstupdated
-       chattr +i "/etc/cydraterms/firstupdated"
-       ln "/lib/systemd/systemd" "/sbin/init" 2> /dev/null
-       echo -e "${GREEN}Votre systeme est a jour.. Veuillez le redémarrer votre PC${NC}"
+      done
+      echo
+      chattr -i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue"
+      rm -f "/etc/profile"
+      rm -f "/usr/bin/archlinux-keyring-wkd-sync"
+      wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/installedsoftware/profile" -P /etc --no-check-certificate -q
+      touch "/etc/cydraterms/firstupdated"
+      printf "Oui tu l'as fait.. Bravo!\nYes you did it.. Congrats!\n" > /etc/cydraterms/firstupdated
+      chattr +i "/etc/cydraterms/firstupdated"
+      ln "/lib/systemd/systemd" "/sbin/init" 2> /dev/null
+      echo -e "${GREEN}Votre systeme est a jour.. Veuillez le redémarrer votre PC${NC}"
   else
     update_db
 

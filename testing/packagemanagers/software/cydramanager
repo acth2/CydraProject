@@ -853,6 +853,9 @@ elif [[ "$1" == "update" ]]; then
        echo -e "${NC}Total des paquets a installer: ${UPKG_NMB}"
        ask_to_continue
        echo -e "${ORANGE}Arreter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Agisez avec précautions${NC}"
+       updatepkglist=(
+          "lib32-pcsclite-2.2.3-1-x86_64.pkg.tar.zst"
+       )
        wget -r -nd -P "${CACHE_FILE}" "${CORE_DL}" 2>&1 | while read -r line; do
        if [[ $line == *' saved '* ]]; then
                i=$((i+1))
@@ -881,18 +884,29 @@ elif [[ "$1" == "update" ]]; then
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
       pkgcounter=0
       UPKG_NMB=${#updatepkglist[@]}
-      cd /usr/cydramanager/pkgt
       for updatepkg in "${updatepkglist[@]}"; do
          pkgcounter=$((pkgcounter + 1))
+         
          tar xf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' > /dev/null 2>&1;
-         multilibpkg=$(basename ${updatepkg})
-         multilibpkg1="/usr/cydramanager/pkgt/lib32-${multilibpkg}"
-         wget "${MIRROR_URL}/multilib/os/x86_64/lib32-${multilibpkg}" -O currentArchive.pkg.tar.zst --no-check-certificate
-         tar xf "/usr/cydramanager/pkgt/currentArchive.pkg.tar.zst" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*'
-         rm -f "/usr/cydramanager/pkgt/currentArchive.pkg.tar.zst"
-         echo
          PERCENT=$(( (pkgcounter * 100) / UPKG_NMB ))
-         printf "Installation: ["
+         printf " [1/2] Installation: ["
+         for ((j=0; j<50; j+=2)); do
+           if [ $j -lt $((PERCENT/2)) ]; then
+               printf "#"
+           else
+               printf " "
+           fi
+         done
+         printf "] %d%%\r" "$PERCENT"
+      done
+      echo
+      mdkir /var/spool/mail/root
+      for libspkg in "${pkglibslist[@]}"; do
+         pkgcounter=$((pkgcounter + 1))
+         wget "${MIRROR_URL}/multilib/os/x86_64/${libspkg}" -P "/usr/cydramanager/pkgt" --no-check-certificate -q
+         tar xf "/usr/cydramanager/pkgt/${libspkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' > /dev/null 2>&1;
+         PERCENT=$(( (pkgcounter * 100) / UPKG_NMB ))
+         printf " [1/2] Installation: ["
          for ((j=0; j<50; j+=2)); do
            if [ $j -lt $((PERCENT/2)) ]; then
                printf "#"
@@ -903,7 +917,7 @@ elif [[ "$1" == "update" ]]; then
          printf "] %d%%\r" "$PERCENT"
        done
        echo
-       updatepkglibslist=( /usr/cydramanager/pkt/*.pkg.tar.zst )
+
        chattr -i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue"
        rm -f "/etc/profile"
        rm -f "/usr/bin/archlinux-keyring-wkd-sync"

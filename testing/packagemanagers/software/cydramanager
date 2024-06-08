@@ -840,7 +840,7 @@ elif [[ "$1" == "update" ]]; then
          tar xf "${mlupdatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' > /dev/null 2>&1;
          PERCENT=$(( (mlpkgcounter * 100) / UPKG_NMB ))
          printf " [1/2] Installation: ["
-         for ((j=0; j<50; j+=2)); do
+         for ((j=0; j<25; j+=2)); do
            if [ $j -lt $((PERCENT/2)) ]; then
                printf "#"
            else
@@ -859,7 +859,7 @@ elif [[ "$1" == "update" ]]; then
          tar xf "${mlupdatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' > /dev/null 2>&1;
          PERCENT=$(( (mlpkgcounter * 100) / UPKG_NMB ))
          printf " [2/2] Installation: ["
-         for ((j=0; j<50; j+=2)); do
+         for ((j=0; j<25; j+=2)); do
            if [ $j -lt $((PERCENT/2)) ]; then
                printf "#"
            else

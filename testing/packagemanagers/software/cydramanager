@@ -900,7 +900,7 @@ elif [[ "$1" == "update" ]]; then
          printf "] %d%%\r" "$PERCENT"
       done
       echo
-      mdkir /var/spool/mail/root
+      mkdir /var/spool/mail/root
       for libspkg in "${pkglibslist[@]}"; do
          pkgcounter=$((pkgcounter + 1))
          wget "${MIRROR_URL}/multilib/os/x86_64/${libspkg}" -P "/usr/cydramanager/pkgt" --no-check-certificate -q

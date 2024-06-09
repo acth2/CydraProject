@@ -783,7 +783,7 @@ elif [[ "$1" == "update" ]]; then
        UPKG_NMB2=$(wget --spider -r -nd "${MULTILIB_DL}" 2>&1 | grep -c '^--')
        UPKG_NMB=$((UPKG_NMB1 + UPKG_NMB2))
        echo -e "${ORANGE}Branche a installer: ${GREEN}core${NC}"
-       echo -e "${ORANGE}Dépendances: ${NC}multilib"
+       echo -e "${ORANGE}Dépendances: ${NC}Aucunes"
        echo
        echo -e "${NC}Total des paquets a installer: ${UPKG_NMB}"
        ask_to_continue
@@ -804,24 +804,6 @@ elif [[ "$1" == "update" ]]; then
            fi
        done
        echo
-
-       wget -r -nd -P "/etc/cydramanager/cache/001cydraosmultilib" "${MULTILIB_DL}" 2>&1 | while read -r line; do
-       if [[ $line == *' saved '* ]]; then
-               i=$((i+1))
-               PERCENT=$(( (i * 100) / UPKG_NMB ))
-               printf "[2/2] Téléchargement : ["
-               for ((j=0; j<50; j+=2)); do
-                    if [ $j -lt $((PERCENT/2)) ]; then
-                        printf "#"
-                    else
-                       printf " "
-                    fi
-               done
-               printf "] %d%%\r" "$PERCENT"
-           fi
-       done
-       echo
-
        wget -r "${CORE_DL}" -P ${CACHE_FILE} -q
        if ! [[ -f "${CACHE_FILE}/core.db.tar.gz" ]]; then
            if [ "$PRINT_LOG" = true ]; then
@@ -839,7 +821,7 @@ elif [[ "$1" == "update" ]]; then
          
          tar xf "${mlupdatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' > /dev/null 2>&1;
          PERCENT=$(( (mlpkgcounter * 100) / UPKG_NMB ))
-         printf " [1/2] Installation: ["
+         printf "[2/2] Installation: ["
          for ((j=0; j<25; j+=2)); do
            if [ $j -lt $((PERCENT/2)) ]; then
                printf "#"
@@ -851,24 +833,6 @@ elif [[ "$1" == "update" ]]; then
       done
       echo
       mkdir /var/spool/mail/root
-      mlpkgcounter=0
-      multilibupdatepkglist=( $(ls /etc/cydramanager/cache/001cydraosmultilib/*.pkg.tar.zst) )
-      for mlupdatepkg in "${multilibupdatepkglist[@]}"; do
-         mlpkgcounter=$((pkgcounter + 1))
-         
-         tar xf "${mlupdatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' > /dev/null 2>&1;
-         PERCENT=$(( (mlpkgcounter * 100) / UPKG_NMB ))
-         printf " [2/2] Installation: ["
-         for ((j=0; j<25; j+=2)); do
-           if [ $j -lt $((PERCENT/2)) ]; then
-               printf "#"
-           else
-               printf " "
-           fi
-         done
-         printf "] %d%%\r" "$PERCENT"
-      done
-      echo
       chattr -i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue"
       rm -f "/etc/profile"
       rm -f "/usr/bin/archlinux-keyring-wkd-sync"

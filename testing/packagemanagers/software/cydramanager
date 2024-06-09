@@ -810,7 +810,7 @@ elif [[ "$1" == "update" ]]; then
            exit 100
       fi
       firstupdate_wash
-      chattr +i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue"
+      chattr +i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue" "/sbin/init"
       find /usr/lib -type f -exec chattr +i {} \;
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
       pkgcounter=0
@@ -832,7 +832,7 @@ elif [[ "$1" == "update" ]]; then
       done
       echo
       mkdir /var/spool/mail/root
-      chattr -i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue"
+      chattr -i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue" "/sbin/init"
       rm -f "/etc/profile"
       rm -f "/usr/bin/archlinux-keyring-wkd-sync"
       if [[ "$INSTALL_PACMAN" == true ]]; then

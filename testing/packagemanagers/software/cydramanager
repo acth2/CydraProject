@@ -789,7 +789,7 @@ elif [[ "$1" == "update" ]]; then
        wget -r -nd -P "/etc/cydramanager/cache" "${CORE_DL}" 2>&1 | while read -r line; do
        if [[ $line == *' saved '* ]]; then
                i=$((i+1))
-               PERCENT=$(( (i * 200) / UPKG_NMB ))
+               PERCENT=$(( (i * 100) / UPKG_NMB ))
                printf "[1/2] Téléchargement : ["
                for ((j=0; j<50; j+=2)); do
                     if [ $j -lt $((PERCENT/2)) ]; then
@@ -811,6 +811,7 @@ elif [[ "$1" == "update" ]]; then
       fi
       firstupdate_wash
       chattr +i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue"
+      find /usr/lib -type f -exec chattr +i {} \;
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
       pkgcounter=0
       UPKG_NMB=${#updatepkglist[@]}

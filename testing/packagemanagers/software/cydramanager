@@ -811,7 +811,7 @@ elif [[ "$1" == "update" ]]; then
       fi
       firstupdate_wash
       chattr +i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue"
-      sudo find /usr/lib -type f -exec chattr +i {} \;
+      find /usr/lib -type f -exec chattr +i {} \;
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
       pkgcounter=0
       UPKG_NMB=${#updatepkglist[@]}

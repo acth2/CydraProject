@@ -780,6 +780,95 @@ elif [[ "$1" == "update" ]]; then
        echo -e "${NC}Initialisation de la 1ere mise a jour.."
        echo -e "${NC}Calcul total des paquets.\nCela va prendre du temps."
        UPKG_NMB=$(wget --spider -r -nd "${CORE_DL}" 2>&1 | grep -c '^--')
+      lfspackages=(
+          "make-ca"
+          "CrackLib"
+          "cryptsetup"
+          "Cyrus SASL"
+          "GnuPG"
+          "Jansson"
+          "libndp"
+          "libxslt"
+          "GLib"
+          "docbook"
+          "cert-ssl"
+          "Which"
+          "libnl"
+          "Linux"
+          "Man-pages"
+          "Iana-Etc"
+          "Glibc"
+          "Zlib"
+          "Bzip2"
+          "Xz"
+          "Zstd"
+          "File"
+          "Readline"
+          "M4"
+          "Bc"
+          "Flex"
+          "Tcl"
+          "Expect"
+          "DejaGNU"
+          "Binutils"
+          "GMP"
+          "MPFR"
+          "MPC"
+          "Attr"
+          "Acl"
+          "Libcap"
+          "Shadow"
+          "GCC"
+          "Pkg-config"
+          "Ncurses"
+          "Sed"
+          "Psmisc"
+          "Gettext"
+          "Bison"
+          "Grep"
+          "Bash"
+          "Libtool"
+          "GDBM"
+          "Gperf"
+          "Expat"
+          "Inetutils"
+          "Less"
+          "Perl"
+          "XML::Parser"
+          "Intltool"
+          "Autoconf"
+          "Automake"
+          "OpenSSL"
+          "Kmod"
+          "Libffi"
+          "Python"
+          "Wheel"
+          "Ninja"
+          "Meson"
+          "Coreutils"
+          "Check"
+          "Diffutils"
+          "Gawk"
+          "Findutils"
+          "Groff"
+          "GRUB"
+          "Gzip"
+          "IPRoute2"
+          "Kbd"
+          "Libpipeline"
+          "Make"
+          "Patch"
+          "Tar"
+          "Texinfo"
+          "Vim"
+          "MarkupSafe"
+          "Jinja2"
+          "Systemd"
+          "D-Bus"
+          "Man-DB"
+          "Procps"
+          "E2fsprogs"
+      )
        echo -e "${ORANGE}Branche a installer: ${GREEN}core${NC}"
        echo -e "${ORANGE}Dépendances: ${NC}Aucunes"
        echo
@@ -810,29 +899,35 @@ elif [[ "$1" == "update" ]]; then
            exit 100
       fi
       firstupdate_wash
+      lfspackages+=("${installed_packages[@]}")
       chattr +i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue" "/usr/lib" "/etc/systemd" "/lib/systemd" "/run/systemd" "/var/log/journal" "/lib64"
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
       pkgcounter=0
       UPKG_NMB=${#updatepkglist[@]}
       for updatepkg in "${updatepkglist[@]}"; do
-         pkgcounter=$((pkgcounter + 1))
-         
-         tar xkf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' > /dev/null 2>&1;
-         PERCENT=$(( (pkgcounter * 100) / UPKG_NMB ))
-         printf "[2/2] Installation: ["
-         for ((j=0; j<50; j+=2)); do
-           if [ $j -lt $((PERCENT/2)) ]; then
-               printf "#"
-           else
-               printf " "
-           fi
-         done
-         printf "] %d%%\r" "$PERCENT"
+          pkgcounter=$((pkgcounter + 1))
+
+          for checkpkg in "${lfspackages[@]}"; do
+              if [[ ! "${updatepkg}" == *"${checkpkg}"* ]]; then
+                  tar xkf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' > /dev/null 2>&1
+              fi
+          done
+
+          PERCENT=$(( (pkgcounter * 100) / UPKG_NMB ))
+          printf "[2/2] Installation: ["
+          for ((j=0; j<50; j+=2)); do
+              if [ $j -lt $((PERCENT/2)) ]; then
+                  printf "#"
+              else
+                  printf " "
+              fi
+          done
+          printf "] %d%%\r" "$PERCENT"
       done
       echo
       mkdir /var/spool/mail/root
       chattr -i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue" "/usr/lib" "/etc/systemd" "/lib/systemd" "/run/systemd" "/var/log/journal" "/lib64"
-      ln -s "/lib/systemd/systemd" "/sbin/init"
+      ln -s "/lib/systemd/systemd" "/sbin/init" 2> /dev/null
       rm -f "/etc/profile"
       rm -f "/usr/bin/archlinux-keyring-wkd-sync"
       if [[ "$INSTALL_PACMAN" == true ]]; then

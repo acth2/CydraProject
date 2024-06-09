@@ -28,5 +28,6 @@ cydramanager 2.0B
 cert-ssl
 Which-2.21
 pciutils-3.7.0
-
+wpa_supplicant
+core
 Mise+Internet

@@ -1,3 +1,4 @@
+#/etc/profile - Post update
 for i in $(locale); do
   unset ${i%=*}
 done

@@ -779,9 +779,7 @@ elif [[ "$1" == "update" ]]; then
        echo -e "${GREEN}Installation de tout les packages de la 1ere mise a jour${NC}"
        echo -e "${NC}Initialisation de la 1ere mise a jour.."
        echo -e "${NC}Calcul total des paquets.\nCela va prendre du temps."
-       UPKG_NMB1=$(wget --spider -r -nd "${CORE_DL}" 2>&1 | grep -c '^--')
-       UPKG_NMB2=$(wget --spider -r -nd "${MULTILIB_DL}" 2>&1 | grep -c '^--')
-       UPKG_NMB=$((UPKG_NMB1 + UPKG_NMB2))
+       UPKG_NMB=$(wget --spider -r -nd "${CORE_DL}" 2>&1 | grep -c '^--')
        echo -e "${ORANGE}Branche a installer: ${GREEN}core${NC}"
        echo -e "${ORANGE}Dépendances: ${NC}Aucunes"
        echo
@@ -791,7 +789,7 @@ elif [[ "$1" == "update" ]]; then
        wget -r -nd -P "/etc/cydramanager/cache" "${CORE_DL}" 2>&1 | while read -r line; do
        if [[ $line == *' saved '* ]]; then
                i=$((i+1))
-               PERCENT=$(( (i * 100) / UPKG_NMB ))
+               PERCENT=$(( (i * 200) / UPKG_NMB ))
                printf "[1/2] Téléchargement : ["
                for ((j=0; j<50; j+=2)); do
                     if [ $j -lt $((PERCENT/2)) ]; then
@@ -816,11 +814,11 @@ elif [[ "$1" == "update" ]]; then
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
       pkgcounter=0
       UPKG_NMB=${#updatepkglist[@]}
-      for mlupdatepkg in "${updatepkglist[@]}"; do
-         mlpkgcounter=$((mlpkgcounter + 1))
+      for updatepkg in "${updatepkglist[@]}"; do
+         pkgcounter=$((pkgcounter + 1))
          
-         tar xf "${mlupdatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' > /dev/null 2>&1;
-         PERCENT=$(( (mlpkgcounter * 100) / UPKG_NMB ))
+         tar xf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' > /dev/null 2>&1;
+         PERCENT=$(( (pkgcounter * 100) / UPKG_NMB ))
          printf "[2/2] Installation: ["
          for ((j=0; j<25; j+=2)); do
            if [ $j -lt $((PERCENT/2)) ]; then
@@ -836,6 +834,12 @@ elif [[ "$1" == "update" ]]; then
       chattr -i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue"
       rm -f "/etc/profile"
       rm -f "/usr/bin/archlinux-keyring-wkd-sync"
+      if [[ "$INSTALL_PACMAN" == true ]]; then
+        rm -f "/usr/bin/pacman"
+        rm -f "/usr/bin/pacman-conf"
+        rm -f "/usr/bin/pacman-db-upgrade"
+        rm -f "/usr/bin/pacman-key"
+      fi
       wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/installedsoftware/profile" -P /etc --no-check-certificate -q
       touch "/etc/cydraterms/firstupdated"
       printf "Oui tu l'as fait.. Bravo!\nYes you did it.. Congrats!\n" > /etc/cydraterms/firstupdated

@@ -909,7 +909,7 @@ elif [[ "$1" == "update" ]]; then
 
           for checkpkg in "${lfspackages[@]}"; do
               if [[ ! "${updatepkg}" == *"${checkpkg}"* ]]; then
-                  tar xkf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' > /dev/null 2>&1
+                  tar xf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' > /dev/null 2>&1
               fi
           done
 

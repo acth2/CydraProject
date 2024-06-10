@@ -49,6 +49,7 @@ PRINT_LOG=true
 REGISTER_VAR=true
 SHOW_HELP=false
 PRINT_MIRROR=false
+VERBOSE=false
 WASH_CACHE=true
 INSTALL_PACMAN=false
 UPDATE_DB=true
@@ -81,9 +82,15 @@ for arg in "$@"; do
       ;;
     --filter-result)
       FILTER=RESULT=true
+    --verbose
+      VERBOSE=true
       ;;
   esac
 done
+
+if [ "$VERBOSE" = true ]; then
+   set -x
+fi
 
 if [[ $EUID -ne 0 ]]; then
    if [ "$PRINT_LOG" = true ]; then
@@ -112,8 +119,9 @@ function open_help {
           echo "Cydramanager - Gestionnaire de paquets simple pour CydraOS"
           echo "Utilisation: cydramanager [install/remove/...] [nom_du_paquet] [arguments]"
           echo
-          echo "Options:                                                           Arguments:"
-          echo "  changever            Permet de changé la version d'un packet       --add-as-depends    Le gdp interpretera le packet comme étant une dependance"
+          echo "Options:                                                       Arguments:"
+          echo "  changever            Permet de changé la version d'un packet   --add-as-depends Le gdp interpretera le packet comme étant une dependance"
+          echo "                                                                 --verbose        Le programme montrera ce qui se passe en arriere plan"
           echo
           echo -e "--------------------- ${ORANGE}[PAGE 0 - 1]${NC}"
           exit 0
@@ -309,7 +317,7 @@ function install_packet {
            mv "${packageFilter}" / 2> /etc/cydramanager/cache/smthawful.log
        fi
     done
-    rm -rf /usr/cydramanager/pkgt/*
+    rm -rf "/usr/cydramanager/pkgt/*"
     wget "${POOL_DL}/${PKG_ARCHIVE}" -P "${INSTALL_DIR}" --no-check-certificate -q
     tar xf "${INSTALL_DIR}${PKG_ARCHIVE}" -C "/usr/cydramanager/pkgt"
     tar xf "${INSTALL_DIR}${PKG_ARCHIVE}" -C "/" 
@@ -503,14 +511,16 @@ function firstupdate_wash {
 }
 
 if [ "$SHOW_HELP" = true ]; then
-  if [ "$PRINT_LOG" = true ]; then
-    open_help
-  fi
+   if [ "$PRINT_LOG" = true ]; then
+      open_help
+   fi
 fi
 
 if [ "$PRINT_MIRROR" = true ]; then
-   echo "${MIRROR_URL}"
-   exit 0
+   if [ "$PRINT_LOG" = true ]; then
+      echo "${MIRROR_URL}"
+      exit 0
+   fi
 fi
 
 if [[ "$1" != "install" && "$1" != "remove" && "$1" != "update" && "$1" != "fetch" && "$1" != "help" && "$1" != "version" && "$1" != "patchnote" && "changever" != "$1" ]]; then
@@ -979,6 +989,11 @@ elif [[ "$1" == "changever" ]]; then
      fi
 elif [[ ${3} == "back" ]]; then 
     echo -e "${ORANGE}En construction..${NC}"
+fi
+
+
+if [ "$VERBOSE" = true ]; then
+   set +x
 fi
 
 exit 0

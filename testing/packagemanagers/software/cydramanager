@@ -54,6 +54,7 @@ WASH_CACHE=true
 INSTALL_PACMAN=false
 UPDATE_DB=true
 ADD_AS_DEPS=false
+VERBOSE=false
 PACKAGE="$2"
 PAGE="$2"
 
@@ -81,16 +82,14 @@ for arg in "$@"; do
       ADD_AS_DEPS=true
       ;;
     --filter-result)
-      FILTER=RESULT=true
-    --verbose
+      FILTER_RESULT=true
+      ;;
+    --verbose | --debug)
       VERBOSE=true
+      set -x
       ;;
   esac
 done
-
-if [ "$VERBOSE" = true ]; then
-   set -x
-fi
 
 if [[ $EUID -ne 0 ]]; then
    if [ "$PRINT_LOG" = true ]; then

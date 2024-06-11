@@ -818,7 +818,8 @@ elif [[ "$1" == "update" ]]; then
                   printf "] %d%%\r" "$PERCENT"
               echo
             fi
-       fi
+            fi
+        done
        wget -r "${CORE_DL}" -P ${CACHE_FILE} -q
        if ! [[ -f "${CACHE_FILE}/core.db.tar.gz" ]]; then
            if [ "$PRINT_LOG" = true ]; then
@@ -840,6 +841,7 @@ elif [[ "$1" == "update" ]]; then
                   tar xf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' > /dev/null 2>&1
               fi
           done
+      done
 
        if [ "$VERBOSE" = false ]; then
           PERCENT=$(( (pkgcounter * 100) / UPKG_NMB ))

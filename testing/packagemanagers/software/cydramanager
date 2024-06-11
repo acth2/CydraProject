@@ -54,6 +54,7 @@ WASH_CACHE=true
 INSTALL_PACMAN=false
 UPDATE_DB=true
 ADD_AS_DEPS=false
+VERBOSE=false
 PACKAGE="$2"
 PAGE="$2"
 
@@ -81,7 +82,7 @@ for arg in "$@"; do
       ADD_AS_DEPS=true
       ;;
     --filter-result)
-      FILTER=RESULT=true
+      FILTER_RESULT=true
     --verbose
       VERBOSE=true
       ;;

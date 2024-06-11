@@ -837,9 +837,15 @@ elif [[ "$1" == "update" ]]; then
           pkgcounter=$((pkgcounter + 1))
 
           for checkpkg in "${lfspackages[@]}"; do
-              if [[ ! "${updatepkg}" == *"${checkpkg}"* ]]; then
-                  tar xf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' > /dev/null 2>&1
+              if [[ "${updatepkg}" == *"${checkpkg}"* ]]; then
+                   skip=true
+                   break
               fi
+
+              if $skip; then
+                 continue
+              fi  
+              tar xf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' > /dev/null 2>&1
           done
       done
 

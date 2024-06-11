@@ -85,6 +85,7 @@ for arg in "$@"; do
       FILTER_RESULT=true
       ;;
     --verbose | --debug)
+      VERBOSE=true
       set -x
       ;;
   esac

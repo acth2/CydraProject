@@ -333,19 +333,21 @@ function install_packet {
     PKG_COUNTER_MAX=$(find "/usr/cydramanager/currentSoftware/${PKG_NAME}" -type f | wc -l)
     PERCENT=$(( (i+1) * 100 / PKG_COUNTER_MAX ))
     PKG_COUNTER_MAX=$(find "/usr/cydramanager/currentSoftware/${PKG_NAME}" -type f | wc -l)
-    for ((i=0; i<PKG_COUNTER_MAX; i++)); do
-        PERCENT=$(( (i+1) * 100 / PKG_COUNTER_MAX ))
-        printf "[${PKG_NAME}] Progression : ["
-        for ((j=0; j<50; j+=2)); do
-            if [ $j -lt $((PERCENT/2)) ]; then
-                printf "#"
-            else
-                printf " "
-            fi
+    if [ "$VERBOSE" = false ]; then
+        for ((i=0; i<PKG_COUNTER_MAX; i++)); do
+            PERCENT=$(( (i+1) * 100 / PKG_COUNTER_MAX ))
+            printf "[${PKG_NAME}] Progression : ["
+            for ((j=0; j<50; j+=2)); do
+                if [ $j -lt $((PERCENT/2)) ]; then
+                    printf "#"
+                else
+                    printf " "
+                fi
+            done
+            printf "] %d%%\r" "$PERCENT"
         done
-        printf "] %d%%\r" "$PERCENT"
-    done
-    echo
+        echo
+    fi
     for potentialexecutable in $(find "/usr/cydramanager/currentSoftware/${PKG_NAME}" -type f); do
         if [[ -x ${potentialexecutable} ]]; then
            ln -sf "${potentialexecutable}" "/usr/bin"
@@ -394,17 +396,19 @@ function install_deps {
 
         chmod +rwx "${INSTALL_DIR}${DEPS_ARCHIVE}"
 
-        unset PERCENT
-        PERCENT=$(( (i+1) * 100 / DEPS_NUMBER ))
-        printf "[${DEPS_NAME}] Progression : ["
-        for ((j=0; j<50; j+=2)); do
-            if [ $j -lt $((PERCENT/2)) ]; then
-              printf "#"
-            else
-              printf " "
-            fi
-        done
-        printf "] %d%%\n" "$PERCENT"
+        if [ "$VERBOSE" = false ]; then
+            unset PERCENT
+            PERCENT=$(( (i+1) * 100 / DEPS_NUMBER ))
+            printf "[${DEPS_NAME}] Progression : ["
+            for ((j=0; j<50; j+=2)); do
+                if [ $j -lt $((PERCENT/2)) ]; then
+                  printf "#"
+                else
+                  printf " "
+                fi
+            done
+            printf "] %d%%\n" "$PERCENT"
+        fi
 
         tar xf "${INSTALL_DIR}${DEPS_ARCHIVE}" -C /
 
@@ -643,19 +647,21 @@ elif [[ "$1" == "remove" ]]; then
          fi
     done
 
-    for ((i=0; i<RPKG_NMB; i++)); do
-          PERCENT=$(( (i+1) * 100 / RPKG_NMB ))
-          printf "[${RPKG_NAME}] Suppression : ["
-          for ((j=0; j<50; j+=2)); do
-              if [ $j -lt $((PERCENT/2)) ]; then
-                  printf "#"
-              else
-                  printf " "
-              fi
+    if [ "$VERBOSE" = false ]; then
+        for ((i=0; i<RPKG_NMB; i++)); do
+              PERCENT=$(( (i+1) * 100 / RPKG_NMB ))
+              printf "[${RPKG_NAME}] Suppression : ["
+              for ((j=0; j<50; j+=2)); do
+                  if [ $j -lt $((PERCENT/2)) ]; then
+                      printf "#"
+                  else
+                      printf " "
+                  fi
+              done
+              printf "] %d%%\r" "$PERCENT"
           done
-          printf "] %d%%\r" "$PERCENT"
-      done
-      echo
+          echo
+      fi
 
       rm -rf /etc/cydramanager
 elif [[ "$1" == "version" ]]; then
@@ -798,20 +804,22 @@ elif [[ "$1" == "update" ]]; then
        echo -e "${ORANGE}Arreter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Agisez avec précautions${NC}"
        wget -r -nd -P "/etc/cydramanager/cache" "${CORE_DL}" 2>&1 | while read -r line; do
        if [[ $line == *' saved '* ]]; then
-               i=$((i+1))
-               PERCENT=$(( (i * 100) / UPKG_NMB ))
-               printf "[1/2] Téléchargement : ["
-               for ((j=0; j<50; j+=2)); do
-                    if [ $j -lt $((PERCENT/2)) ]; then
-                        printf "#"
-                    else
-                       printf " "
-                    fi
-               done
-               printf "] %d%%\r" "$PERCENT"
-           fi
-       done
-       echo
+            i=$((i+1))
+            if [ "$VERBOSE" = false ]; then
+                  PERCENT=$(( (i * 100) / UPKG_NMB ))
+                  printf "[1/2] Téléchargement : ["
+                  for ((j=0; j<50; j+=2)); do
+                      if [ $j -lt $((PERCENT/2)) ]; then
+                          printf "#"
+                      else
+                          printf " "
+                      fi
+                  done
+                  printf "] %d%%\r" "$PERCENT"
+              echo
+            fi
+            fi
+        done
        wget -r "${CORE_DL}" -P ${CACHE_FILE} -q
        if ! [[ -f "${CACHE_FILE}/core.db.tar.gz" ]]; then
            if [ "$PRINT_LOG" = true ]; then
@@ -829,11 +837,19 @@ elif [[ "$1" == "update" ]]; then
           pkgcounter=$((pkgcounter + 1))
 
           for checkpkg in "${lfspackages[@]}"; do
-              if [[ ! "${updatepkg}" == *"${checkpkg}"* ]]; then
-                  tar xf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' > /dev/null 2>&1
+              if [[ "${updatepkg}" == *"${checkpkg}"* ]]; then
+                   skip=true
+                   break
               fi
-          done
 
+              if $skip; then
+                 continue
+              fi  
+              tar xf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' > /dev/null 2>&1
+          done
+      done
+
+       if [ "$VERBOSE" = false ]; then
           PERCENT=$(( (pkgcounter * 100) / UPKG_NMB ))
           printf "[2/2] Installation: ["
           for ((j=0; j<50; j+=2)); do
@@ -844,7 +860,7 @@ elif [[ "$1" == "update" ]]; then
               fi
           done
           printf "] %d%%\r" "$PERCENT"
-      done
+      fi
       echo
       mkdir /var/spool/mail/root
       chattr -i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue" "/usr/lib" "/etc/systemd" "/lib/systemd" "/run/systemd" "/var/log/journal" "/lib64"

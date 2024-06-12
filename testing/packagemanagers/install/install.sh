@@ -104,7 +104,7 @@ function start_operation {
             cp -r "./pm/cydramanager" "/usr/bin/cydramanagerns"   
 	    shc -f "/usr/bin/cydramanagerns" -o "/usr/bin/cydramanager"
             rm -f "/usr/bin/cydramanagerns*"
-	    echo -e "${GREEN} -3: Protection du gestionnaire de packets)${NC}"
+	    echo -e "${GREEN} -3: Protection du gestionnaire de packets${NC}"
 	else
             cp -r "./pm/cydramanager" /usr/bin/cydramanager
             echo -e "${ORANGE} -3: Protection du gestionnaire de packets (PASSE)${NC}"

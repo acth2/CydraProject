@@ -114,7 +114,7 @@ function start_operation {
         echo -e "${GREEN} --: Gestionnaire de packet installé${NC}"
         rm -rf ./pm/*
         echo -e "${ORANGE}USAGE: sudo cydramanager help${NC}"
-+    else
+    else
         echo -e "${ORANGE}Pour commencé l'installation veuillez utilisé l'argument --install !${NC}"
     fi
 }

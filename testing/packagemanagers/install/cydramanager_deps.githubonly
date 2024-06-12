@@ -6,4 +6,4 @@ SHC : |
       | Exécutez cette suite de commandes:
       ./configure
       make
-      sudo make install
+      make install

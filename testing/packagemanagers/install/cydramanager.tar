@@ -32,13 +32,13 @@ done
 function deps_check {
     echo "Recherche des dependances"
     if [ "$ENCRYPT" = true ]; then
-        if ! command -v "shc" &> /dev/null then
+        if ! command -v "shc" &> /dev/null; then
             echo -e "${RED}Le logiciel SHC n'est pas détecté sur votre systeme, veuillez utilisé l'argument --without-encrypt-pm pour passé ce check${NC}"
 	    exit 1
         fi
     fi
 
-    if ! command -v "wget" &> /dev/null then
+    if ! command -v "wget" &> /dev/null; then
         echo -e "${RED}Le logiciel WGET n'est pas détecté sur votre systeme, veuillez l'installé..${NC}"
         exit 1
     fi

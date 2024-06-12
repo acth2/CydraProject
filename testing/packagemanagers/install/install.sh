@@ -48,7 +48,7 @@ function install_files {
     wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/packagemanagers/software/cydramanager" -P ./pm/ --no-check-certificate -q
     mkdir -p /etc/cydrafetch
     mkdir -p /etc/cydradeps
-    mkdir -p /etc/cydraterms
+    mkdir -p /etc/cydraterms 2> /dev/null
 
     touch /etc/cydrafetch/currentMirror
     mkdir /etc/cydraterms/usersoftware
@@ -66,8 +66,6 @@ function install_files {
        mkdir /usr/cydramanager
        mkdir /usr/cydramanager/currentSoftware
        mkdir /usr/cydramanager/oldSoftware
-       mkdir /usr/cydramanager/currentSoftware/bin
-       mkdir /usr/cydramanager/oldSoftware/bin
        mkdir /usr/cydramanager/pkgt
        mkdir /usr/cydramanager/md5
     fi

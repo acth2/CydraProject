@@ -6,6 +6,7 @@ ORANGE='\033[0;33m'
 NC='\033[0m'
 
 ENCRYPT=true
+VERBOSE=false
 INSTALL=false
 HELP=false
 
@@ -13,11 +14,15 @@ CurrentDir=$(pwd)
 
 for arg in "$@"; do
   case "$arg" in
-    --install | -install | -i | --i)
+    --install | -install | -i | --i | install)
       INSTALL=true
       ;;
     --without-encrypt-pm)
       ENCRYPT=false
+      ;;
+    --verbose | --debug)
+      set -x
+      VERBOSE=true
       ;;
     help)
       HELP=true
@@ -26,17 +31,15 @@ done
 
 function deps_check {
     echo "Recherche des dependances"
-    #if [ "$ENCRYPT" = true ]; then
-    #    if [ "$HELP" = false ]; then
-    #        if [ ! -f "/usr/local/bin/shc" ]; then
-    #            echo -e "${RED}Le logiciel SHC n est pas installé sur votre systeme !\n${ORANGE}Utilisez l'argument --without-encrypt-pm${NC}"
-    #            exit 1
-    #        fi
-    #     fi
-    # fi
+    if [ "$ENCRYPT" = true ]; then
+        if ! command -v "shc" &> /dev/null then
+            echo -e "${RED}Le logiciel SHC n'est pas détecté sur votre systeme, veuillez utilisé l'argument --without-encrypt-pm pour passé ce check${NC}"
+	    exit 1
+        fi
+    fi
 
-    if [ ! -f "/usr/bin/wget" ]; then
-        echo -e "${RED}Le logiciel WGET n est pas installer sur votre systeme!\nCe logiciel est obligatoire au bon fonctionnement du gestionnaire de packet, veuillez l installe${NC}"
+    if ! command -v "wget" &> /dev/null then
+        echo -e "${RED}Le logiciel WGET n'est pas détecté sur votre systeme, veuillez l'installé..${NC}"
         exit 1
     fi
 }
@@ -82,16 +85,14 @@ function start_operation {
     if [ "$HELP" = true ]; then
         echo -e "Programme d'installation de cydramanager:"
         echo -e "      help:                 Ouvre cette commande"
-        echo -e "      --without-encrypt-pm: Le gdp pourra etre editer sans etre protegé"
+        echo -e "      --without-encrypt-pm: Le code du gdp sera disponnible avec cat /usr/bin/cydramanager"
         echo -e "      --install           : Le gdp s'installera "
+	echo -e "      --verbose           : l'installeur montrera le code éxécuté en temps réel"
         exit 0
     fi
 
 
     if [ "$INSTALL" = true ]; then
-        clear
-        echo -e "${GREEN}Installation du gestionnaire de packets ${NC}"
-        sleep 3
         clear
         echo -e "${GREEN} -1: Creations des fichiers principaux${NC}"
 
@@ -102,19 +103,20 @@ function start_operation {
         write_files
 
         if [ "$ENCRYPT" = true ]; then
-            echo -e "${ORANGE} -3: Protection du gestionnaire de packets (EN CONS)${NC}"
-            cp -r "./pm/cydramanager" /usr/bin/cydramanager        
+            cp -r "./pm/cydramanager" "/usr/bin/cydramanagerns"   
+	    shc -f "/usr/bin/cydramanagerns" -o "/usr/bin/cydramanager"
+            rm -f "/usr/bin/cydramanagerns*"
+	    echo -e "${GREEN} -3: Protection du gestionnaire de packets)${NC}"
 	else
             cp -r "./pm/cydramanager" /usr/bin/cydramanager
-            echo -e "${ORANGE} -3: Protection du gestionnaire de packets (EN CONS)${NC}"
+            echo -e "${ORANGE} -3: Protection du gestionnaire de packets (PASSE)${NC}"
         fi
         chmod +rwx /usr/bin/cydramanager
 
         echo -e "${GREEN} --: Gestionnaire de packet installé${NC}"
         rm -rf ./pm/*
         echo -e "${ORANGE}USAGE: sudo cydramanager help${NC}"
-        exit 0
-    else
++    else
         echo -e "${ORANGE}Pour commencé l'installation veuillez utilisé l'argument --install !${NC}"
     fi
 }
@@ -126,3 +128,9 @@ fi
 
 deps_check
 start_operation
+
+if [ "$VERBOSE" = true ]; then
+   set +x
+fi
+
+exit 0 

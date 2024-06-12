@@ -1,0 +1,9 @@
+Voici la liste des dépendances du gestionnaire de paquets ainsi que leurs guide d'installation:
+
+WGET: https://linuxfromscratch.org/blfs/view/svn/basicnet/wget.html
+SHC : |
+      | Téléchargez l'archive: https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/dep/shc-4.0.3.tar.gz
+      | Exécutez cette suite de commandes:
+      ./configure
+      make
+      make install

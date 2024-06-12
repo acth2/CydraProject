@@ -253,7 +253,7 @@ function install_ask_to_continue {
 function fetch_warninglog {
     if [ "$PRINT_LOG" = true ]; then
        echo -e "${ORANGE}UTILISÉ UN MIRROR PERSONALISÉE PEU CREER DES FAILLES DE SECURITÉS IMPORTANTES, UTILISEZ LES UNIQUEMENT SI VOUS EN AVEZ CONFIANCE!\n\n ${NC}"
-       echo -e "${GREEN}Le mirror ${lastMirror} sera utilisé par le gestionnaire de paquet${NC}"
+       echo -e "${GREEN}Le mirror $(cat /etc/cydrafetch/currentMirror) sera utilisé par le gestionnaire de paquet${NC}"
     fi
 }
 
@@ -705,33 +705,33 @@ elif [[ "$1" == "fetch" ]]; then
       fi
 
       if [ "${fetchRequest}" == "1" ]; then
-         fetch_warninglog
-
           rm -f /etc/cydrafetch/currentMirror
           touch currentMirror
           echo "${firstMirror}" > /etc/cydrafetch/currentMirror
           exit 0
-      elif [ "${fetchRequest}" == "2" ]; then
-          fetch_warninglog
 
+          fetch_warninglog
+      elif [ "${fetchRequest}" == "2" ]; then
           rm -f /etc/cydrafetch/currentMirror
           touch currentMirror
           echo "${secondMirror}" > /etc/cydrafetch/currentMirror
           exit 0
-      elif [ "${fetchRequest}" == "3" ]; then
-          fetch_warninglog
 
+          fetch_warninglog
+      elif [ "${fetchRequest}" == "3" ]; then
           rm -f /etc/cydrafetch/currentMirror
           touch currentMirror
           echo "${thirdMirror}" > /etc/cydrafetch/currentMirror
           exit 0
-      elif [ "${fetchRequest}" == "4" ]; then
-          fetch_warninglog
 
+          fetch_warninglog
+      elif [ "${fetchRequest}" == "4" ]; then
           rm -f /etc/cydrafetch/currentMirror
           touch currentMirror
           echo "${lastMirror}" > /etc/cydrafetch/currentMirror
           exit 0
+
+          fetch_warninglog
       else
           echo -e "${RED}Veuillez choisir l'un de ces 4 mirrors. Votre reponse: ${fetchRequest} est invalide${NC}"
           exit 5

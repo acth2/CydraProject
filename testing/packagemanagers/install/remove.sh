@@ -21,7 +21,7 @@ function remove {
    echo -e "${GREEN}Supression des fichiers principaux${NC}"
    rm -rf /etc/cydrafetch
    rm -rf /etc/cydradeps
-   rm -rf /etc/cydraterms 2> /dev/null
+   rm -rf /etc/cydraterms/* 2> /dev/null
    echo -e "${GREEN}Supression du gestionnaire de packet${NC}"
    rm -f /usr/bin/cydramanager
    remove_package

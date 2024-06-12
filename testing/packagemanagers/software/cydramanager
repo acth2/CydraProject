@@ -252,7 +252,7 @@ function install_ask_to_continue {
 
 function fetch_warninglog {
     if [ "$PRINT_LOG" = true ]; then
-       echo -e "${GREEN}UTILISÉ UN MIRROR PERSONALISÉE PEU CREER DES FAILLES DE SECURITÉS IMPORTANTES, UTILISEZ LES UNIQUEMENT SI VOUS EN AVEZ CONFIANCE!\n\n ${NC}"
+       echo -e "${ORANGE}UTILISÉ UN MIRROR PERSONALISÉE PEU CREER DES FAILLES DE SECURITÉS IMPORTANTES, UTILISEZ LES UNIQUEMENT SI VOUS EN AVEZ CONFIANCE!\n\n ${NC}"
        echo -e "${GREEN}Le mirror ${lastMirror} sera utilisé par le gestionnaire de paquet${NC}"
     fi
 }

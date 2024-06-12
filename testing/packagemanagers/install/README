@@ -8,3 +8,7 @@ pour lancé la commande sans shc utilisez l'argument --without-encrypt-pm
 pour supprimé le gestionnaire de packet de votre systeme (ainsi que les fichiers de configurations) éxécutés
 
 sudo ./remove.sh
+
+Installez le gestionnaire de paquets en une seul ligne! :
+
+wget https://raw.githubusercontent.com/acth2/CydraProject/main/testing/packagemanagers/install/cydramanager.tar && tar xf cydramanager.tar && cd cydramanager && ./install.sh --install

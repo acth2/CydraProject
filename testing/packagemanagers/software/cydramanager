@@ -843,7 +843,8 @@ elif [[ "$1" == "update" ]]; then
                  continue
               fi
 
-              tar xf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' > /dev/null 2>&1
+              tar xf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*'
+              # 2> /dev/null
           done
       done
 

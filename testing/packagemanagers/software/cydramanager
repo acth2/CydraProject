@@ -802,7 +802,7 @@ elif [[ "$1" == "update" ]]; then
        echo -e "${NC}Total des paquets a installer: ${UPKG_NMB}"
        ask_to_continue
        echo -e "${ORANGE}Arreter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Agisez avec précautions${NC}"
-       wget -r "${CORE_DL}" -P ${CACHE_FILE} -q
+       wget -r -R "*linux*" "${CORE_DL}" -P ${CACHE_FILE} -q
        if ! [[ -z "${CACHE_FILE}" ]]; then
            if [ "$PRINT_LOG" = true ]; then
                echo -e "${RED}Des fichiers obligatoires pour la mise en point de la base de donnee sont introuvables..\n Etes vous sur d'etre connectes a internet ?\n\nSi oui la raison viens peu etre d'un mirror defecteux pour le repare utilisez \n cydramanager fetch${NC}"

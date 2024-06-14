@@ -802,19 +802,31 @@ elif [[ "$1" == "update" ]]; then
       echo -e "${NC}Total des paquets a installer: ${UPKG_NMB}"
       ask_to_continue
       echo -e "${ORANGE}Arreter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Agisez avec précautions${NC}"
-      wget -r -np -R "*linux*" "${CORE_DL}" -P "${CACHE_FILE}" -q
-      if [ "$VERBOSE" = false ]; then
-          PERCENT=$(( (i * 100) / UPKG_NMB ))
-          printf "[1/2] Téléchargement : ["
-          for ((j=0; j<50; j+=2)); do
+      wget -r -np -R "*linux*" "${CORE_DL}" -P "${CACHE_FILE}" -q &
+      WGET_PID=$!
+      while kill -0 $WGET_PID 2>/dev/null; do
+          if [ "$VERBOSE" = false ]; then
+              PERCENT=$(( (i * 100) / UPKG_NMB ))
+              printf "[1/2] Téléchargement : ["
+              for ((j=0; j<50; j+=2)); do
                   if [ $j -lt $((PERCENT/2)) ]; then
-                    printf "#"
+                      printf "#"
                   else
-                    printf " "
+                      printf " "
                   fi
-          done
-          printf "] %d%%\r" "$PERCENT"
-          echo
+              done
+              printf "] %d%%\r" "$PERCENT"
+              echo
+              sleep 1
+          fi
+      done
+      wait $WGET_PID
+      WGET_STATUS=$?
+      if [ $WGET_STATUS -ne 0 ]; then
+          if [ "$PRINT_LOG" = true ]; then
+              echo -e "${RED}Des fichiers obligatoires pour la mise en point de la base de donnee sont introuvables..\nEtes vous sur d'etre connecte a internet ?\n\nSi oui la raison peu venir d'un mirror defecteux pour le reparer utilisez \n cydramanager fetch${NC}"
+          fi
+          exit 1
       fi
       firstupdate_wash
       lfspackages+=("${installed_packages[@]}")

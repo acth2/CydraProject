@@ -802,7 +802,9 @@ elif [[ "$1" == "update" ]]; then
       echo -e "${NC}Total des paquets a installer: ${UPKG_NMB}"
       ask_to_continue
       echo -e "${ORANGE}Arreter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Agisez avec précautions${NC}"
-      wget -r -np -R "*linux*" "${CORE_DL}" -P "${CACHE_FILE}" -q &
+      i = 0
+      
+      wget -r -np -R "*linux*" "${CORE_DL}" -P "${CACHE_FILE}" -q --progress=dot &
       WGET_PID=$!
       while kill -0 $WGET_PID 2>/dev/null; do
           if [ "$VERBOSE" = false ]; then
@@ -816,10 +818,16 @@ elif [[ "$1" == "update" ]]; then
                   fi
               done
               printf "] %d%%\r" "$PERCENT"
-              echo
               sleep 1
           fi
+
+          while read -r -t 1 -n 1 char; do
+              if [ "$char" = "." ]; then
+                  i=$((i + 1))
+              fi
+              done < <(tail -f "${CACHE_FILE}/wget-log" 2>/dev/null)
       done
+
       wait $WGET_PID
       WGET_STATUS=$?
       if [ $WGET_STATUS -ne 0 ]; then

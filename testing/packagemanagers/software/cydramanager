@@ -802,7 +802,7 @@ elif [[ "$1" == "update" ]]; then
       echo -e "${NC}Total des paquets a installer: ${UPKG_NMB}"
       ask_to_continue
       echo -e "${ORANGE}Arreter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Agisez avec précautions${NC}"
-      wget -r -R "*linux*" "${CORE_DL}" -P ${CACHE_FILE} -q
+      wget -r -np -R "*linux*" "${CORE_DL}" -P "${CACHE_FILE}" -q
       if [ "$VERBOSE" = false ]; then
           PERCENT=$(( (i * 100) / UPKG_NMB ))
           printf "[1/2] Téléchargement : ["

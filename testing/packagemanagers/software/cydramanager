@@ -791,25 +791,18 @@ elif [[ "$1" == "update" ]]; then
       exit 0
   fi
   if [[ ! -f "/etc/cydraterms/firstupdated" ]]; then
-       echo -e "${GREEN}Installation de tout les packages de la 1ere mise a jour${NC}"
-       echo -e "${NC}Initialisation de la 1ere mise a jour.."
-       echo -e "${NC}Calcul total des paquets.\nCela va prendre du temps."
-       UPKG_NMB=$(wget --spider -r -nd "${CORE_DL}" 2>&1 | grep -c '^--')
-       lfspackages=( $(ls "${INSTALLED_SOFTWARE_DIR}") )
-       echo -e "${ORANGE}Branche a installer: ${GREEN}core${NC}"
-       echo -e "${ORANGE}Dépendances: ${NC}Aucunes"
-       echo
-       echo -e "${NC}Total des paquets a installer: ${UPKG_NMB}"
-       ask_to_continue
-       echo -e "${ORANGE}Arreter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Agisez avec précautions${NC}"
-       wget -r -R "*linux*" "${CORE_DL}" -P ${CACHE_FILE} -q
-       if ! [[ -z "${CACHE_FILE}" ]]; then
-           if [ "$PRINT_LOG" = true ]; then
-               echo -e "${RED}Des fichiers obligatoires pour la mise en point de la base de donnee sont introuvables..\n Etes vous sur d'etre connectes a internet ?\n\nSi oui la raison viens peu etre d'un mirror defecteux pour le repare utilisez \n cydramanager fetch${NC}"
-               rm -rf /etc/cydramanager
-           fi
-           exit 100
-      fi
+      echo -e "${GREEN}Installation de tout les packages de la 1ere mise a jour${NC}"
+      echo -e "${NC}Initialisation de la 1ere mise a jour.."
+      echo -e "${NC}Calcul total des paquets.\nCela va prendre du temps."
+      UPKG_NMB=$(wget --spider -r -nd "${CORE_DL}" 2>&1 | grep -c '^--')
+      lfspackages=( $(ls "${INSTALLED_SOFTWARE_DIR}") )
+      echo -e "${ORANGE}Branche a installer: ${GREEN}core${NC}"
+      echo -e "${ORANGE}Dépendances: ${NC}Aucunes"
+      echo
+      echo -e "${NC}Total des paquets a installer: ${UPKG_NMB}"
+      ask_to_continue
+      echo -e "${ORANGE}Arreter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Agisez avec précautions${NC}"
+      wget -r -R "*linux*" "${CORE_DL}" -P ${CACHE_FILE} -q
       firstupdate_wash
       lfspackages+=("${installed_packages[@]}")
       chattr +i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue" "/usr/lib" "/etc/systemd" "/lib/systemd" "/run/systemd" "/var/log/journal" "/lib64"

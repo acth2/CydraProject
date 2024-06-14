@@ -803,8 +803,7 @@ elif [[ "$1" == "update" ]]; then
       ask_to_continue
       echo -e "${ORANGE}Arreter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Agisez avec précautions${NC}"
       i = 0
-      wget -r -np -nH --cut-dirs=4 -R "*linux*" "${CORE_DL}" -P "${CACHE_FILE}" --progress=dot &
-      rm -f ${CACHE_FILE}/wget-log
+      wget -r -np -nH --cut-dirs=4 -R "*linux*" "${CORE_DL}" -P "${CACHE_FILE}" -q --progress=dot &
       WGET_PID=$!
       while kill -0 $WGET_PID 2>/dev/null; do
           if [ "$VERBOSE" = false ]; then
@@ -850,8 +849,7 @@ elif [[ "$1" == "update" ]]; then
                  continue
               fi
 
-              tar xf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*'
-              # 2> /dev/null
+              tar xf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' --excldue='/usr/include/shadow' --exclude='/etc/default' 2> /dev/null
           done
       done
 

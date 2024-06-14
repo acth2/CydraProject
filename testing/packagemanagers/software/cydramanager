@@ -359,9 +359,9 @@ function install_packet {
 }
     depsList=()
     readState=0
-    while IFS= read -r line; do
 
 function install_deps {
+    while IFS= read -r line; do
 
         if [ $readState -eq 1 ]; then
             if [ -z "$line" ]; then

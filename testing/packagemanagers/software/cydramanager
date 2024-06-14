@@ -802,19 +802,6 @@ elif [[ "$1" == "update" ]]; then
        echo -e "${NC}Total des paquets a installer: ${UPKG_NMB}"
        ask_to_continue
        echo -e "${ORANGE}Arreter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Agisez avec précautions${NC}"
-       if [ "$VERBOSE" = false ]; then
-           PERCENT=$(( (i * 100) / UPKG_NMB ))
-           printf "[1/2] Téléchargement : ["
-           for ((j=0; j<50; j+=2)); do
-                  if [ $j -lt $((PERCENT/2)) ]; then
-                      printf "#"
-                  else
-                      printf " "
-                  fi
-          done
-          printf "] %d%%\r" "$PERCENT"
-          echo
-       fi
        wget -r "${CORE_DL}" -P ${CACHE_FILE} -q
        if ! [[ -f "${CACHE_FILE}/core.db.tar.gz" ]]; then
            if [ "$PRINT_LOG" = true ]; then
@@ -844,6 +831,19 @@ elif [[ "$1" == "update" ]]; then
               fi
 
               tar xf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*'
+              if [ "$VERBOSE" = false ]; then
+                  PERCENT=$(( (i * 100) / UPKG_NMB ))
+                  printf "[1/2] Téléchargement : ["
+                  for ((j=0; j<50; j+=2)); do
+                         if [ $j -lt $((PERCENT/2)) ]; then
+                            printf "#"
+                         else
+                            printf " "
+                         fi
+                  done
+                  printf "] %d%%\r" "$PERCENT"
+                  echo
+             fi
               # 2> /dev/null
           done
       done

@@ -540,7 +540,7 @@ fi
 rm -rf /etc/cydramanager 2> /dev/null
 if [[ "$1" == "install" ]]; then
     if [ ! -f "/etc/cydraterms/firstupdated" ]; then
-        echo -e "${RED}Le gestionnaire de paquets ne fonctionnera pas si la 1ere mise a jour n'a pas été effectuée..:\n${ORANGE}cydramanager update${NC}"
+        echo -e "${RED}Le gestionnaire de paquets ne fonctionnera pas si la 1ere mise a jour n'a pas été effectuée..: ${ORANGE}cydramanager update${NC}"
     fi
 
     if ! [[ -d ${CACHE_FILE} ]]; then
@@ -607,7 +607,7 @@ if [[ "$1" == "install" ]]; then
     fi
 elif [[ "$1" == "remove" ]]; then
     if [ ! -f "/etc/cydraterms/firstupdated" ]; then
-        echo -e "${RED}Le gestionnaire de paquets ne fonctionnera pas si la 1ere mise a jour n'a pas été effectuée..:\n${ORANGE}cydramanager update${NC}"
+        echo -e "${RED}Le gestionnaire de paquets ne fonctionnera pas si la 1ere mise a jour n'a pas été effectuée..: ${ORANGE}cydramanager update${NC}"
     fi
 
     if ! [[ -d ${CACHE_FILE} ]]; then

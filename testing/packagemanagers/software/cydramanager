@@ -310,7 +310,7 @@ function install_packet {
     wget "${POOL_DL}/${PKG_ARCHIVE}" -P "${INSTALL_DIR}" --no-check-certificate -q
 
     chmod +rwx "${INSTALL_DIR}${PKG_ARCHIVE}"
-    tar xf "${INSTALL_DIR}${PKG_ARCHIVE}" -C "/usr/cydramanager/pkgt"
+    tar xf "${INSTALL_DIR}${PKG_ARCHIVE}" -C "/usr/cydramanager/pkgt" 2> /dev/null
     for packageFilter in /usr/cydramanager/pkgt/usr/*; do
        if [ "$(basename "${packageFilter}")" != "bin" ]; then
            mv "${packageFilter}" / 2> /etc/cydramanager/cache/smthawful.log
@@ -540,7 +540,7 @@ fi
 rm -rf /etc/cydramanager 2> /dev/null
 if [[ "$1" == "install" ]]; then
     if [ ! -f "/etc/cydraterms/firstupdated" ]; then
-        echo -e "${RED}Le gestionnaire de paquets ne fonctionnera pas si la 1ere mise a jour n'a pas été effectuée..:\n${ORANGE}cydramanager update${NC}"
+        echo -e "${RED}Le gestionnaire de paquets ne fonctionnera pas si la 1ere mise a jour n'a pas été effectuée..: ${ORANGE}cydramanager update${NC}"
     fi
 
     if ! [[ -d ${CACHE_FILE} ]]; then
@@ -607,7 +607,7 @@ if [[ "$1" == "install" ]]; then
     fi
 elif [[ "$1" == "remove" ]]; then
     if [ ! -f "/etc/cydraterms/firstupdated" ]; then
-        echo -e "${RED}Le gestionnaire de paquets ne fonctionnera pas si la 1ere mise a jour n'a pas été effectuée..:\n${ORANGE}cydramanager update${NC}"
+        echo -e "${RED}Le gestionnaire de paquets ne fonctionnera pas si la 1ere mise a jour n'a pas été effectuée..: ${ORANGE}cydramanager update${NC}"
     fi
 
     if ! [[ -d ${CACHE_FILE} ]]; then
@@ -803,7 +803,7 @@ elif [[ "$1" == "update" ]]; then
        ask_to_continue
        echo -e "${ORANGE}Arreter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Agisez avec précautions${NC}"
        wget -r "${CORE_DL}" -P ${CACHE_FILE} -q
-       if ! [[ -f "${CACHE_FILE}/core.db.tar.gz" ]]; then
+       if ! [[ -z "${CACHE_FILE}" ]]; then
            if [ "$PRINT_LOG" = true ]; then
                echo -e "${RED}Des fichiers obligatoires pour la mise en point de la base de donnee sont introuvables..\n Etes vous sur d'etre connectes a internet ?\n\nSi oui la raison viens peu etre d'un mirror defecteux pour le repare utilisez \n cydramanager fetch${NC}"
                rm -rf /etc/cydramanager

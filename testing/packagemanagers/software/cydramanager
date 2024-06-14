@@ -357,10 +357,10 @@ function install_packet {
     touch ${USER_INSTALLED_SOFTWARE_DIR}/"${PKG_NAME}"
     echo "${PKG_VERSION}" > ${USER_INSTALLED_SOFTWARE_DIR}/"${PKG_NAME}"
 }
-
-function install_deps {
     depsList=()
     readState=0
+
+function install_deps {
     while IFS= read -r line; do
 
         if [ $readState -eq 1 ]; then
@@ -802,28 +802,24 @@ elif [[ "$1" == "update" ]]; then
        echo -e "${NC}Total des paquets a installer: ${UPKG_NMB}"
        ask_to_continue
        echo -e "${ORANGE}Arreter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Agisez avec précautions${NC}"
-       wget -r -nd -P "/etc/cydramanager/cache" "${CORE_DL}" 2>&1 | while read -r line; do
-       if [[ $line == *' saved '* ]]; then
-            i=$((i+1))
-            if [ "$VERBOSE" = false ]; then
-                  PERCENT=$(( (i * 100) / UPKG_NMB ))
-                  printf "[1/2] Téléchargement : ["
-                  for ((j=0; j<50; j+=2)); do
-                      if [ $j -lt $((PERCENT/2)) ]; then
-                          printf "#"
-                      else
-                          printf " "
-                      fi
-                  done
-                  printf "] %d%%\r" "$PERCENT"
-              echo
-            fi
-            fi
-        done
+       if [ "$VERBOSE" = false ]; then
+           PERCENT=$(( (i * 100) / UPKG_NMB ))
+           printf "[1/2] Téléchargement : ["
+           for ((j=0; j<50; j+=2)); do
+                  if [ $j -lt $((PERCENT/2)) ]; then
+                      printf "#"
+                  else
+                      printf " "
+                  fi
+          done
+          printf "] %d%%\r" "$PERCENT"
+          echo
+       fi
        wget -r "${CORE_DL}" -P ${CACHE_FILE} -q
        if ! [[ -f "${CACHE_FILE}/core.db.tar.gz" ]]; then
            if [ "$PRINT_LOG" = true ]; then
-               echo -e "${RED} Des fichiers obligatoires pour la mise en point de la base de donnee sont introuvables..\n Etes vous sur d'etre connectes a internet ?\n\nSi oui la raison viens peu etre d'un mirror defecteux pour le repare utilisez \n cydramanager fetch"
+               echo -e "${RED}Des fichiers obligatoires pour la mise en point de la base de donnee sont introuvables..\n Etes vous sur d'etre connectes a internet ?\n\nSi oui la raison viens peu etre d'un mirror defecteux pour le repare utilisez \n cydramanager fetch${NC}"
+               rm -rf /etc/cydramanager
            fi
            exit 100
       fi
@@ -847,7 +843,8 @@ elif [[ "$1" == "update" ]]; then
                  continue
               fi
 
-              tar xf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' > /dev/null 2>&1
+              tar xf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*'
+              # 2> /dev/null
           done
       done
 

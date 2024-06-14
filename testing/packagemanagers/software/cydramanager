@@ -803,6 +803,19 @@ elif [[ "$1" == "update" ]]; then
       ask_to_continue
       echo -e "${ORANGE}Arreter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Agisez avec précautions${NC}"
       wget -r -R "*linux*" "${CORE_DL}" -P ${CACHE_FILE} -q
+      if [ "$VERBOSE" = false ]; then
+          PERCENT=$(( (i * 100) / UPKG_NMB ))
+          printf "[1/2] Téléchargement : ["
+          for ((j=0; j<50; j+=2)); do
+                  if [ $j -lt $((PERCENT/2)) ]; then
+                    printf "#"
+                  else
+                    printf " "
+                  fi
+          done
+          printf "] %d%%\r" "$PERCENT"
+          echo
+      fi
       firstupdate_wash
       lfspackages+=("${installed_packages[@]}")
       chattr +i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue" "/usr/lib" "/etc/systemd" "/lib/systemd" "/run/systemd" "/var/log/journal" "/lib64"
@@ -824,19 +837,6 @@ elif [[ "$1" == "update" ]]; then
               fi
 
               tar xf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*'
-              if [ "$VERBOSE" = false ]; then
-                  PERCENT=$(( (i * 100) / UPKG_NMB ))
-                  printf "[1/2] Téléchargement : ["
-                  for ((j=0; j<50; j+=2)); do
-                         if [ $j -lt $((PERCENT/2)) ]; then
-                            printf "#"
-                         else
-                            printf " "
-                         fi
-                  done
-                  printf "] %d%%\r" "$PERCENT"
-                  echo
-             fi
               # 2> /dev/null
           done
       done

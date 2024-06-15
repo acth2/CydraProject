@@ -9,6 +9,12 @@ pour supprimé le gestionnaire de packet de votre systeme (ainsi que les fichier
 
 sudo ./remove.sh
 
+COMPATIBILITÉ:
+
+Ubuntu:         NO
+Manjaro:        OK
+CydraOS:        OK
+
 Installez le gestionnaire de paquets en une seul ligne! :
 
 wget https://raw.githubusercontent.com/acth2/CydraProject/main/testing/packagemanagers/install/cydramanager.tar && tar xf cydramanager.tar && cd cydramanager && ./install.sh --install

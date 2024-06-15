@@ -17,4 +17,4 @@ CydraOS:        [OK]
 
 Installez le gestionnaire de paquets en une seul ligne! :
 
-wget https://raw.githubusercontent.com/acth2/CydraProject/main/testing/packagemanagers/install/cydramanager.tar && tar xf cydramanager.tar && cd cydramanager && ./install.sh --install
+wget https://raw.githubusercontent.com/acth2/CydraProject/main/testing/packagemanagers/install/cydramanager.tar && tar xf cydramanager.tar && cd cydramanager && ./install.sh --install --without-encrypt-pm

@@ -208,7 +208,7 @@ function install_ask_to_continue {
         depsList=()
         readState=0
         while IFS= read -r line; do
-                if [ ${readState} -eq 1 ]; then
+                if [ ${readState} == 1 ]; then
                         if [ -z "${line}" ]; then
                                 break
                         fi

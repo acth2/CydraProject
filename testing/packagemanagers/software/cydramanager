@@ -826,7 +826,7 @@ elif [[ "$1" == "update" ]]; then
       firstupdate_wash
       lfspackages+=("${installed_packages[@]}")
       echo
-      chattr +i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue" "/usr/lib" "/etc/systemd" "/lib/systemd" "/run/systemd" "/var/log/journal" "/lib64"
+      chattr +i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue" "/etc/systemd" "/lib/systemd" "/run/systemd" "/var/log/journal"
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
       pkgcounter=0
       UPKG_NMB=${#updatepkglist[@]}
@@ -862,7 +862,7 @@ elif [[ "$1" == "update" ]]; then
       fi
       echo
       mkdir /var/spool/mail/root
-      chattr -i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue" "/usr/lib" "/etc/systemd" "/lib/systemd" "/run/systemd" "/var/log/journal" "/lib64"
+      chattr -i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue" "/etc/systemd" "/lib/systemd" "/run/systemd" "/var/log/journal"
       ln -s "/lib/systemd/systemd" "/sbin/init" 2> /dev/null
       rm -f "/etc/profile"
       rm -f "/usr/bin/archlinux-keyring-wkd-sync"

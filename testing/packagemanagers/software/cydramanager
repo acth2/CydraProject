@@ -825,6 +825,7 @@ elif [[ "$1" == "update" ]]; then
       done
       firstupdate_wash
       lfspackages+=("${installed_packages[@]}")
+      echo
       chattr +i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue" "/usr/lib" "/etc/systemd" "/lib/systemd" "/run/systemd" "/var/log/journal" "/lib64"
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
       pkgcounter=0

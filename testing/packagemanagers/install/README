@@ -11,9 +11,9 @@ sudo ./remove.sh
 
 COMPATIBILITÉ:
 
-Ubuntu:         NO
-Manjaro:        OK
-CydraOS:        OK
+Ubuntu:         [NO]
+Manjaro:        [--WITHOUT-ENCRYPT-PM ONLY]
+CydraOS:        [OK]
 
 Installez le gestionnaire de paquets en une seul ligne! :
 

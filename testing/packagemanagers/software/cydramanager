@@ -708,30 +708,30 @@ elif [[ "$1" == "fetch" ]]; then
           rm -f /etc/cydrafetch/currentMirror
           touch currentMirror
           echo "${firstMirror}" > /etc/cydrafetch/currentMirror
-          exit 0
 
           fetch_warninglog
+          exit 0
       elif [ "${fetchRequest}" == "2" ]; then
           rm -f /etc/cydrafetch/currentMirror
           touch currentMirror
           echo "${secondMirror}" > /etc/cydrafetch/currentMirror
-          exit 0
 
           fetch_warninglog
+          exit 0
       elif [ "${fetchRequest}" == "3" ]; then
           rm -f /etc/cydrafetch/currentMirror
           touch currentMirror
           echo "${thirdMirror}" > /etc/cydrafetch/currentMirror
-          exit 0
 
           fetch_warninglog
+          exit 0
       elif [ "${fetchRequest}" == "4" ]; then
           rm -f /etc/cydrafetch/currentMirror
           touch currentMirror
           echo "${lastMirror}" > /etc/cydrafetch/currentMirror
-          exit 0
 
           fetch_warninglog
+          exit 0
       else
           echo -e "${RED}Veuillez choisir l'un de ces 4 mirrors. Votre reponse: ${fetchRequest} est invalide${NC}"
           exit 5
@@ -829,6 +829,7 @@ elif [[ "$1" == "update" ]]; then
       chattr +i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue" "/etc/systemd" "/lib/systemd" "/run/systemd" "/var/log/journal"
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
       pkgcounter=0
+      skip=false
       UPKG_NMB=${#updatepkglist[@]}
       for updatepkg in "${updatepkglist[@]}"; do
           pkgcounter=$((pkgcounter + 1))
@@ -839,7 +840,7 @@ elif [[ "$1" == "update" ]]; then
                    break
               fi
 
-              if [ $skip == true ]; then
+              if [ "$skip" == true ]; then
                  skip=false
                  continue
               fi

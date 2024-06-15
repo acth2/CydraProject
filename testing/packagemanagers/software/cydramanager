@@ -832,28 +832,31 @@ elif [[ "$1" == "update" ]]; then
       skip=false
       UPKG_NMB=${#updatepkglist[@]}
       for updatepkg in "${updatepkglist[@]}"; do
+      pkgcounter=$((pkgcounter + 1))
+
+      for updatepkg in "${updatepkglist[@]}"; do
           pkgcounter=$((pkgcounter + 1))
+          skip=false
 
           for checkpkg in "${lfspackages[@]}"; do
               if [[ "${updatepkg}" == *"${checkpkg}"* ]]; then
-                   skip=true
-                   break
+                  skip=true
+                  break
               fi
-
-              if [ "$skip" == true ]; then
-                 skip=false
-                 continue
-              fi
-
-              tar xf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' --excldue='/usr/include/shadow' --exclude='/etc/default' 2> /dev/null
           done
+
+          if [ "$skip" == true ]; then
+              continue
+          fi
+
+          tar xf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' --exclude='/usr/include/shadow' --exclude='/etc/default' 2> /dev/null
       done
 
-       if [ "$VERBOSE" = false ]; then
+      if [ "$VERBOSE" = false ]; then
           PERCENT=$(( (pkgcounter * 100) / UPKG_NMB ))
           printf "[2/2] Installation: ["
           for ((j=0; j<50; j+=2)); do
-              if [ $j -lt $((PERCENT/2)) ]; then
+              if [ $j -lt $((PERCENT / 2)); then
                   printf "#"
               else
                   printf " "

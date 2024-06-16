@@ -708,30 +708,30 @@ elif [[ "$1" == "fetch" ]]; then
           rm -f /etc/cydrafetch/currentMirror
           touch currentMirror
           echo "${firstMirror}" > /etc/cydrafetch/currentMirror
-          exit 0
 
           fetch_warninglog
+          exit 0
       elif [ "${fetchRequest}" == "2" ]; then
           rm -f /etc/cydrafetch/currentMirror
           touch currentMirror
           echo "${secondMirror}" > /etc/cydrafetch/currentMirror
-          exit 0
 
           fetch_warninglog
+          exit 0
       elif [ "${fetchRequest}" == "3" ]; then
           rm -f /etc/cydrafetch/currentMirror
           touch currentMirror
           echo "${thirdMirror}" > /etc/cydrafetch/currentMirror
-          exit 0
 
           fetch_warninglog
+          exit 0
       elif [ "${fetchRequest}" == "4" ]; then
           rm -f /etc/cydrafetch/currentMirror
           touch currentMirror
           echo "${lastMirror}" > /etc/cydrafetch/currentMirror
-          exit 0
 
           fetch_warninglog
+          exit 0
       else
           echo -e "${RED}Veuillez choisir l'un de ces 4 mirrors. Votre reponse: ${fetchRequest} est invalide${NC}"
           exit 5
@@ -802,11 +802,14 @@ elif [[ "$1" == "update" ]]; then
       echo -e "${NC}Total des paquets a installer: ${UPKG_NMB}"
       ask_to_continue
       echo -e "${ORANGE}Arreter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Agisez avec précautions${NC}"
-      i = 0
-      wget -r -np -nH --cut-dirs=4 -R "*linux*" "${CORE_DL}" -P "${CACHE_FILE}" -q --progress=dot &
+      i=0
+      wget -r -np -nH --cut-dirs=4 -R "*linux*" "${CORE_DL}" -P "${CACHE_FILE}" -q &
       WGET_PID=$!
+
       while kill -0 $WGET_PID 2>/dev/null; do
           if [ "$VERBOSE" = false ]; then
+              i=$(find "${CACHE_FILE}" -type f | wc -l)
+
               PERCENT=$(( (i * 100) / UPKG_NMB ))
               printf "[1/2] Téléchargement : ["
               for ((j=0; j<50; j+=2)); do
@@ -819,45 +822,25 @@ elif [[ "$1" == "update" ]]; then
               printf "] %d%%\r" "$PERCENT"
               sleep 1
           fi
-
-          while read -r -t 1 -n 1 char; do
-              if [ "$char" = "." ]; then
-                  i=$((i + 1))
-              fi
-              done < <(tail -f "${CACHE_FILE}/wget-log" 2>/dev/null)
       done
-
-      wait $WGET_PID
-      WGET_STATUS=$?
       firstupdate_wash
-      lfspackages+=("${installed_packages[@]}")
-      chattr +i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue" "/usr/lib" "/etc/systemd" "/lib/systemd" "/run/systemd" "/var/log/journal" "/lib64"
+      echo
+      chattr +i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue" "/etc/systemd" "/lib/systemd" "/run/systemd" "/var/log/journal"
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
       pkgcounter=0
       UPKG_NMB=${#updatepkglist[@]}
+
       for updatepkg in "${updatepkglist[@]}"; do
           pkgcounter=$((pkgcounter + 1))
 
-          for checkpkg in "${lfspackages[@]}"; do
-              skip=false
-              if [[ "${updatepkg}" == *"${checkpkg}"* ]]; then
-                   skip=true
-                   break
-              fi
-
-              if $skip; then
-                 continue
-              fi
-
-              tar xf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' --excldue='/usr/include/shadow' --exclude='/etc/default' 2> /dev/null
-          done
+          tar xf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' --exclude='/usr/include/shadow' --exclude='/etc/default' --exclude='/usr/bin/wpa_supplicant' --exclude='/usr/bin/wpa_cli' --exclude='/usr/bin/wpa_passphrase' 2> /dev/null
       done
 
-       if [ "$VERBOSE" = false ]; then
+      if [ "$VERBOSE" = false ]; then
           PERCENT=$(( (pkgcounter * 100) / UPKG_NMB ))
           printf "[2/2] Installation: ["
           for ((j=0; j<50; j+=2)); do
-              if [ $j -lt $((PERCENT/2)) ]; then
+              if [ $j -lt $((PERCENT / 2)); then
                   printf "#"
               else
                   printf " "
@@ -867,7 +850,7 @@ elif [[ "$1" == "update" ]]; then
       fi
       echo
       mkdir /var/spool/mail/root
-      chattr -i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue" "/usr/lib" "/etc/systemd" "/lib/systemd" "/run/systemd" "/var/log/journal" "/lib64"
+      chattr -i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue" "/etc/systemd" "/lib/systemd" "/run/systemd" "/var/log/journal"
       ln -s "/lib/systemd/systemd" "/sbin/init" 2> /dev/null
       rm -f "/etc/profile"
       rm -f "/usr/bin/archlinux-keyring-wkd-sync"

@@ -825,7 +825,7 @@ elif [[ "$1" == "update" ]]; then
       done
       firstupdate_wash
       echo
-      chattr +i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue" "/etc/systemd" "/lib/systemd" "/run/systemd" "/var/log/journal"       files_in_usr_bin=( $(ls /usr/bin) )
+      chattr +i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue" "/etc/systemd" "/lib/systemd" "/run/systemd" "/var/log/journal"
       usrbinlist=( $(ls /usr/bin) )
       for usrbinsoftware in "${usrbinlist[@]}"; do
            chattr +i "/usr/bin/${usrbinsoftware}"

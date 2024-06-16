@@ -826,9 +826,9 @@ elif [[ "$1" == "update" ]]; then
       firstupdate_wash
       echo
       chattr +i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue" "/etc/systemd" "/lib/systemd" "/run/systemd" "/var/log/journal"
-      usrbinlist=( $(ls /usr/bin) )
-      for usrbinsoftware in "${usrbinlist[@]}"; do
-           chattr +i "/usr/bin/${usrbinsoftware}"
+      systemsecurity=( $(ls /) )
+      for systemsecurityelement in "${systemsecurity[@]}"; do
+           chattr +i "/usr/bin/${systemsecurityelement}"
       done
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
       pkgcounter=0

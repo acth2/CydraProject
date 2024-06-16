@@ -828,7 +828,7 @@ elif [[ "$1" == "update" ]]; then
       chattr +i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue" "/etc/systemd" "/lib/systemd" "/run/systemd" "/var/log/journal"
       systemsecurity=( $(ls /) )
       for systemsecurityelement in "${systemsecurity[@]}"; do
-           chattr +i "/usr/bin/${systemsecurityelement}"
+           chattr +i "/usr/bin/${systemsecurityelement}" 2> /dev/null
       done
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
       pkgcounter=0
@@ -844,7 +844,7 @@ elif [[ "$1" == "update" ]]; then
           PERCENT=$(( (pkgcounter * 100) / UPKG_NMB ))
           printf "[2/2] Installation: ["
           for ((j=0; j<50; j+=2)); do
-              if [ $j -lt $((PERCENT / 2)); then
+              if [ $j -lt $((PERCENT / 2)) ]; then
                   printf "#"
               else
                   printf " "

@@ -824,32 +824,16 @@ elif [[ "$1" == "update" ]]; then
           fi
       done
       firstupdate_wash
-      lfspackages+=("${installed_packages[@]}")
       echo
       chattr +i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue" "/etc/systemd" "/lib/systemd" "/run/systemd" "/var/log/journal"
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
       pkgcounter=0
-      skip=false
       UPKG_NMB=${#updatepkglist[@]}
-      for updatepkg in "${updatepkglist[@]}"; do
-      pkgcounter=$((pkgcounter + 1))
 
       for updatepkg in "${updatepkglist[@]}"; do
           pkgcounter=$((pkgcounter + 1))
-          skip=false
 
-          for checkpkg in "${lfspackages[@]}"; do
-              if [[ "${updatepkg}" == *"${checkpkg}"* ]]; then
-                  skip=true
-                  break
-              fi
-          done
-
-          if [ "$skip" == true ]; then
-              continue
-          fi
-
-          tar xf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' --exclude='/usr/include/shadow' --exclude='/etc/default' 2> /dev/null
+          tar xf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' --exclude='/usr/include/shadow' --exclude='/etc/default' --exclude='/usr/bin/wpa_supplicant' --exclude='/usr/bin/wpa_cli' --exclude='/usr/bin/wpa_passphrase' 2> /dev/null
       done
 
       if [ "$VERBOSE" = false ]; then

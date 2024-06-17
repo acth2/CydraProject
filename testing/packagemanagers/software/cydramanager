@@ -513,6 +513,29 @@ function firstupdate_wash {
    fi
 }
 
+function check_fupdatedisk {
+    wget -q -O - "${MIRROR_URL}" | grep -oP '(?<=href=")[^"]*' | grep -E '\.pkg\.tar\.zst$' > /etc/cydramanager/cydraterms/firstupdate.log
+
+    UPDATESOFTWARE_MSIZE=0
+
+    while read -r UPDATELIST; do
+        UPDATESOFTWARE_URL="${MIRROR_URL}/${UPDATELIST}"
+        UPDATESOFTWARE_SIZE=$(wget --spider --server-response "$UPDATESOFTWARE_URL" 2>&1 | awk '/Content-Length/ {print $2}')
+        UPDATESOFTWARE_MSIZE=$((UPDATESOFTWARE_MSIZE + UPDATESOFTWARE_SIZE))
+        UPDATESOFTWARE_MSIZE=$(( UPDATESOFTWARE_MSIZE / 2048))
+    done < /etc/cydramanager/cydraterms/firstupdate.log
+
+    USERDISK_MAXSIZE=$(df --output=avail / | tail -n 1 / 1024 )
+
+    if (( UPDATESOFTWARE_MSIZE + du -m /usr > USERDISK_MAXSIZE )); then
+        echo -e "${RED}Votre systeme manque d'espace disque pour installé la mise a jour..${NC}"
+        rm -rf /etc/cydramanager
+        exit 1
+    else
+        echo -e "${NC}Espace disque nécessaire pour la mise a jour: ${UPDATESOFTWARE_MSIZE}Mo"
+    fi
+}
+
 if [ "$SHOW_HELP" = true ]; then
    if [ "$PRINT_LOG" = true ]; then
       open_help
@@ -800,6 +823,7 @@ elif [[ "$1" == "update" ]]; then
       echo -e "${ORANGE}Dépendances: ${NC}Aucunes"
       echo
       echo -e "${NC}Total des paquets a installer: ${UPKG_NMB}"
+      check_fupdatedisk
       ask_to_continue
       echo -e "${ORANGE}Arreter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Agissez avec précautions.${NC}"
       i=0
@@ -825,6 +849,7 @@ elif [[ "$1" == "update" ]]; then
       done
       firstupdate_wash
       echo " [Protection du systeme]"
+      cp -r /usr /etc/cydramanager/001cydrauserbackup
       find / -type f -exec chattr +i {} \; 2> /dev/null
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
       pkgcounter=0
@@ -834,23 +859,23 @@ elif [[ "$1" == "update" ]]; then
           pkgcounter=$((pkgcounter + 1))
 
           tar xkf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' --exclude='/usr/include/shadow' --exclude='/etc/default' --exclude='/usr/bin/wpa_supplicant' --exclude='/usr/bin/wpa_cli' --exclude='/usr/bin/wpa_passphrase' 2> /dev/null
+          if [ "$VERBOSE" = false ]; then
+              PERCENT=$(( (pkgcounter * 100) / UPKG_NMB ))
+              printf "[2/2] Installation: ["
+              for ((j=0; j<50; j+=2)); do
+                  if [ $j -lt $((PERCENT / 2)) ]; then
+                      printf "#"
+                  else
+                      printf " "
+                  fi
+              done
+              printf "] %d%%\r" "$PERCENT"
+          fi
+          echo " [Finalisation]"
       done
-
-      if [ "$VERBOSE" = false ]; then
-          PERCENT=$(( (pkgcounter * 100) / UPKG_NMB ))
-          printf "[2/2] Installation: ["
-          for ((j=0; j<50; j+=2)); do
-              if [ $j -lt $((PERCENT / 2)) ]; then
-                  printf "#"
-              else
-                  printf " "
-              fi
-          done
-          printf "] %d%%\r" "$PERCENT"
-      fi
-      echo " [Finalisation]"
       mkdir /var/spool/mail/root
       find / -type f -exec chattr -i {} \; 2> /dev/null
+      mv /etc/cydramanager/001cydrauserbackup /usr
       ln -s "/lib/systemd/systemd" "/sbin/init" 2> /dev/null
       rm -f "/etc/profile"
       rm -f "/usr/bin/archlinux-keyring-wkd-sync"

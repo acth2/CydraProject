@@ -850,7 +850,7 @@ elif [[ "$1" == "update" ]]; then
       fi
       echo " [Finalisation]"
       mkdir /var/spool/mail/root
-      find / -type f -exec chattr -i {} \; 
+      find / -type f -exec chattr -i {} \; 2> /dev/null
       ln -s "/lib/systemd/systemd" "/sbin/init" 2> /dev/null
       rm -f "/etc/profile"
       rm -f "/usr/bin/archlinux-keyring-wkd-sync"

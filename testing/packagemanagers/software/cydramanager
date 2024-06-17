@@ -794,14 +794,14 @@ elif [[ "$1" == "update" ]]; then
       echo -e "${GREEN}Installation de tout les packages de la 1ere mise a jour${NC}"
       echo -e "${NC}Initialisation de la 1ere mise a jour.."
       echo -e "${NC}Calcul total des paquets.\nCela va prendre du temps."
-      UPKG_NMB=$(wget --spider -r -nd "${CORE_DL}" 2>&1 | grep -c '^--')
+      UPKG_NMB=$(wget --spider -r -nd -R "*linux*" "${CORE_DL}" 2>&1 | grep -c '^--')
       lfspackages=( $(ls "${INSTALLED_SOFTWARE_DIR}") )
       echo -e "${ORANGE}Branche a installer: ${GREEN}core${NC}"
       echo -e "${ORANGE}Dépendances: ${NC}Aucunes"
       echo
       echo -e "${NC}Total des paquets a installer: ${UPKG_NMB}"
       ask_to_continue
-      echo -e "${ORANGE}Arreter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Agisez avec précautions${NC}"
+      echo -e "${ORANGE}Arreter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Agissez avec précautions.${NC}"
       i=0
       wget -r -np -nH --cut-dirs=4 -R "*linux*" "${CORE_DL}" -P "${CACHE_FILE}" -q &
       WGET_PID=$!
@@ -824,8 +824,8 @@ elif [[ "$1" == "update" ]]; then
           fi
       done
       firstupdate_wash
-      echo
-      chattr +i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue" "/etc/systemd" "/lib/systemd" "/run/systemd" "/var/log/journal"
+      echo " [Protection du systeme]"
+      find / -type f -exec chattr +i {} \; 2> /dev/null
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
       pkgcounter=0
       UPKG_NMB=${#updatepkglist[@]}
@@ -833,14 +833,14 @@ elif [[ "$1" == "update" ]]; then
       for updatepkg in "${updatepkglist[@]}"; do
           pkgcounter=$((pkgcounter + 1))
 
-          tar xf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' --exclude='/usr/include/shadow' --exclude='/etc/default' --exclude='/usr/bin/wpa_supplicant' --exclude='/usr/bin/wpa_cli' --exclude='/usr/bin/wpa_passphrase' 2> /dev/null
+          tar xkf "${updatepkg}" -C / --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' --exclude='/usr/include/shadow' --exclude='/etc/default' --exclude='/usr/bin/wpa_supplicant' --exclude='/usr/bin/wpa_cli' --exclude='/usr/bin/wpa_passphrase' 2> /dev/null
       done
 
       if [ "$VERBOSE" = false ]; then
           PERCENT=$(( (pkgcounter * 100) / UPKG_NMB ))
           printf "[2/2] Installation: ["
           for ((j=0; j<50; j+=2)); do
-              if [ $j -lt $((PERCENT / 2)); then
+              if [ $j -lt $((PERCENT / 2)) ]; then
                   printf "#"
               else
                   printf " "
@@ -848,9 +848,9 @@ elif [[ "$1" == "update" ]]; then
           done
           printf "] %d%%\r" "$PERCENT"
       fi
-      echo
+      echo " [Finalisation]"
       mkdir /var/spool/mail/root
-      chattr -i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue" "/etc/systemd" "/lib/systemd" "/run/systemd" "/var/log/journal"
+      find / -type f -exec chattr -i {} \; 2> /dev/null
       ln -s "/lib/systemd/systemd" "/sbin/init" 2> /dev/null
       rm -f "/etc/profile"
       rm -f "/usr/bin/archlinux-keyring-wkd-sync"

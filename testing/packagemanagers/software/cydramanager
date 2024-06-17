@@ -824,8 +824,8 @@ elif [[ "$1" == "update" ]]; then
           fi
       done
       firstupdate_wash
-      echo
-      find / -type f -exec chattr +i {} \;
+      echo "[Protection du systeme]"
+      find / -type f -exec chattr +i {} \; 2> /dev/null
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
       pkgcounter=0
       UPKG_NMB=${#updatepkglist[@]}

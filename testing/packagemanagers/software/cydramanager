@@ -824,7 +824,7 @@ elif [[ "$1" == "update" ]]; then
           fi
       done
       firstupdate_wash
-      echo "[Protection du systeme]"
+      echo " [Protection du systeme]"
       find / -type f -exec chattr +i {} \; 2> /dev/null
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
       pkgcounter=0
@@ -848,7 +848,7 @@ elif [[ "$1" == "update" ]]; then
           done
           printf "] %d%%\r" "$PERCENT"
       fi
-      echo
+      echo " [Finalisation]"
       mkdir /var/spool/mail/root
       find / -type f -exec chattr -i {} \; 
       ln -s "/lib/systemd/systemd" "/sbin/init" 2> /dev/null

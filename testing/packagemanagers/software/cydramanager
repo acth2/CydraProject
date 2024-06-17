@@ -801,7 +801,7 @@ elif [[ "$1" == "update" ]]; then
       echo
       echo -e "${NC}Total des paquets a installer: ${UPKG_NMB}"
       ask_to_continue
-      echo -e "${ORANGE}Arreter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Agisez avec précautions${NC}"
+      echo -e "${ORANGE}Arreter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Agissez avec précautions.${NC}"
       i=0
       wget -r -np -nH --cut-dirs=4 -R "*linux*" "${CORE_DL}" -P "${CACHE_FILE}" -q &
       WGET_PID=$!

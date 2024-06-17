@@ -514,7 +514,7 @@ function firstupdate_wash {
 }
 
 function check_fupdatedisk {
-    wget -q -O - "${MIRROR_URL} | grep -oP '(?<=href=")[^"]*' | grep -E '\.pkg\.tar\.zst$' > /etc/cydramanager/cydraterms/firstupdate.log
+    wget -q -O - "${MIRROR_URL}" | grep -oP '(?<=href=")[^"]*' | grep -E '\.pkg\.tar\.zst$' > /etc/cydramanager/cydraterms/firstupdate.log
 
     UPDATESOFTWARE_MSIZE=0
 

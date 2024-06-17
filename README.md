@@ -24,7 +24,7 @@
 
 <p>1. Je vous conseillerais d'utiliser VirtualBox/VMware et non un ordinateur réel car le projet est actuellement en version bêta.</p>
 
-<p>2. Installez VirtualBox/VMware. Créez une machine virtuelle avec un disque d'au moins 5 Go de stockage et 250 Mo de RAM.</p>
+<p>2. Installez VirtualBox/VMware. Créez une machine virtuelle</p>
 
 <p>3. Installez l'ISO et démarrez dessus.</p>
 

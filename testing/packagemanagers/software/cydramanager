@@ -825,11 +825,7 @@ elif [[ "$1" == "update" ]]; then
       done
       firstupdate_wash
       echo
-      chattr +i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue" "/etc/systemd" "/lib/systemd" "/run/systemd" "/var/log/journal"
-      systemsecurity=( $(ls /) )
-      for systemsecurityelement in "${systemsecurity[@]}"; do
-           chattr +i "/usr/bin/${systemsecurityelement}" 2> /dev/null
-      done
+      find / -type f -exec chattr +i {} \;
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
       pkgcounter=0
       UPKG_NMB=${#updatepkglist[@]}
@@ -854,7 +850,7 @@ elif [[ "$1" == "update" ]]; then
       fi
       echo
       mkdir /var/spool/mail/root
-      chattr -i "/etc/passwd" "/etc/shadow" "/etc/group" "/etc/fstab" "/etc/locale.conf" "/etc/profile" "/etc/issue" "/etc/systemd" "/lib/systemd" "/run/systemd" "/var/log/journal"
+      find / -type f -exec chattr -i {} \; 
       ln -s "/lib/systemd/systemd" "/sbin/init" 2> /dev/null
       rm -f "/etc/profile"
       rm -f "/usr/bin/archlinux-keyring-wkd-sync"

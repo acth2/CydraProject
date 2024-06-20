@@ -515,7 +515,7 @@ function firstupdate_wash {
 
 function check_fupdatedisk {
     touch "/etc/cydraterms/firstupdate.log"
-    wget -q -O - "${MIRROR_URL}" | grep -oP '(?<=href=")[^"]*' | grep -E '\.pkg\.tar\.zst$' > "/etc/cydraterms/firstupdate.log"
+    wget -q -O - "${MIRROR_URL}" | grep -o 'href="[^"]*"' | grep -E '\.pkg\.tar\.zst$' > "/etc/cydraterms/firstupdate.log"
 
     UPDATESOFTWARE_MSIZE=0
 
@@ -523,17 +523,21 @@ function check_fupdatedisk {
         UPDATESOFTWARE_URL="${MIRROR_URL}/${UPDATELIST}"
         UPDATESOFTWARE_SIZE=$(wget --spider --server-response "$UPDATESOFTWARE_URL" 2>&1 | awk '/Content-Length/ {print $2}')
         UPDATESOFTWARE_MSIZE=$((UPDATESOFTWARE_MSIZE + UPDATESOFTWARE_SIZE))
-        UPDATESOFTWARE_MSIZE=$(( UPDATESOFTWARE_MSIZE / 2048))
     done < /etc/cydraterms/firstupdate.log
 
-    USERDISK_MAXSIZE=$(df --output=avail / | tail -n 1 / 1024 )
+    UPDATESOFTWARE_MSIZE=$(( UPDATESOFTWARE_MSIZE / 1024 / 1024 ))
 
-    if (( UPDATESOFTWARE_MSIZE + du -m /usr > USERDISK_MAXSIZE )); then
-        echo -e "${RED}Votre systeme manque d'espace disque pour installé la mise a jour..${NC}"
+    USERDISK_MAXSIZE=$(df --output=avail / | tail -n 1)
+    USERDISK_MAXSIZE=$(( USERDISK_MAXSIZE / 1024 ))
+
+    USAGE_SIZE=$(du -sm /usr | cut -f1)
+
+    if (( UPDATESOFTWARE_MSIZE + USAGE_SIZE > USERDISK_MAXSIZE )); then
+        echo -e "${RED}Votre systeme manque d'espace disque pour installer la mise à jour..${NC}"
         rm -rf /etc/cydramanager
         exit 1
     else
-        echo -e "${NC}Espace disque nécessaire pour la mise a jour: ${UPDATESOFTWARE_MSIZE}Mo"
+        echo -e "${NC}Espace disque nécessaire pour la mise à jour: ${UPDATESOFTWARE_MSIZE}Mo"
     fi
 }
 

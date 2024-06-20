@@ -514,7 +514,8 @@ function firstupdate_wash {
 }
 
 function check_fupdatedisk {
-    wget -q -O - "${MIRROR_URL}" | grep -oP '(?<=href=")[^"]*' | grep -E '\.pkg\.tar\.zst$' > /etc/cydramanager/cydraterms/firstupdate.log
+    touch "/etc/cydramanager/cydraterms/firstupdate.log"
+    wget -q -O - "${MIRROR_URL}" | grep -oP '(?<=href=")[^"]*' | grep -E '\.pkg\.tar\.zst$' > "/etc/cydramanager/cydraterms/firstupdate.log"
 
     UPDATESOFTWARE_MSIZE=0
 
@@ -823,7 +824,7 @@ elif [[ "$1" == "update" ]]; then
       echo -e "${ORANGE}Dépendances: ${NC}Aucunes"
       echo
       echo -e "${NC}Total des paquets a installer: ${UPKG_NMB}"
-      #check_fupdatedisk
+      check_fupdatedisk
       ask_to_continue
       echo -e "${ORANGE}Arreter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Agissez avec précautions.${NC}"
       i=0

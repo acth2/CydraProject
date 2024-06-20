@@ -514,8 +514,8 @@ function firstupdate_wash {
 }
 
 function check_fupdatedisk {
-    touch "/etc/cydramanager/cydraterms/firstupdate.log"
-    wget -q -O - "${MIRROR_URL}" | grep -oP '(?<=href=")[^"]*' | grep -E '\.pkg\.tar\.zst$' > "/etc/cydramanager/cydraterms/firstupdate.log"
+    touch "/etc/cydraterms/firstupdate.log"
+    wget -q -O - "${MIRROR_URL}" | grep -oP '(?<=href=")[^"]*' | grep -E '\.pkg\.tar\.zst$' > "/etc/cydraterms/firstupdate.log"
 
     UPDATESOFTWARE_MSIZE=0
 
@@ -524,7 +524,7 @@ function check_fupdatedisk {
         UPDATESOFTWARE_SIZE=$(wget --spider --server-response "$UPDATESOFTWARE_URL" 2>&1 | awk '/Content-Length/ {print $2}')
         UPDATESOFTWARE_MSIZE=$((UPDATESOFTWARE_MSIZE + UPDATESOFTWARE_SIZE))
         UPDATESOFTWARE_MSIZE=$(( UPDATESOFTWARE_MSIZE / 2048))
-    done < /etc/cydramanager/cydraterms/firstupdate.log
+    done < /etc/cydraterms/firstupdate.log
 
     USERDISK_MAXSIZE=$(df --output=avail / | tail -n 1 / 1024 )
 

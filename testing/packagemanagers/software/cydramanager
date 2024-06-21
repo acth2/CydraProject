@@ -519,7 +519,7 @@ function check_fupdatedisk {
     wget -q -O - "${CORE_DL}" > /tmp/mirror_content.html
     cat /tmp/mirror_content.html 
     
-    grep -oP '(?<=href=")[^"]*' /tmp/mirror_content.html | grep -E '\.pkg\.tar\.zst$' > /etc/cydraterms/firstupdate.log
+    grep -o '(?<=href=")[^"]*' /tmp/mirror_content.html | grep -E '\.pkg\.tar\.zst$' > /etc/cydraterms/firstupdate.log
     cat /etc/cydraterms/firstupdate.log
     
     UPDATESOFTWARE_MSIZE=0

@@ -544,6 +544,7 @@ function check_fupdatedisk {
       exit 1
   else
       echo -DEST_DIR="/etc/cydramanager/cache"
+  fi
 
   > "/etc/cydraterms/firstupdate.log"
 

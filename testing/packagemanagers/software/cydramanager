@@ -520,9 +520,7 @@ function check_fupdatedisk {
 
   UPDATESOFTWARE_MSIZE=0
 
-  find "${CACHE_FILE}" -type f -name "*.desc"
-
-  find "${CACHE_FILE}" -type f -name "*.desc" | while read -r CURRENT_DESC; do
+  find "${CACHE_FILE}" -type f -name "desc" | while read -r CURRENT_DESC; do
       if [[ "$VERBOSE" == true ]]; then
           echo "CURRENT_DESC: ${CURRENT_DESC}"
       fi

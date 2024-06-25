@@ -522,7 +522,7 @@ function check_fupdatedisk {
 
   UPDATESOFTWARE_MSIZE=0
 
-  find "$DEST_DIR" -type f -name "*.desc" | while read -r desc_file; do
+  find "${CACHE_FILE}" -type f -name "*.desc" | while read -r desc_file; do
       ISIZE=$(sed -n '/%ISIZE%/{n;p}' "$desc_file")
       if [ -n "$ISIZE" ]; then
           UPDATESOFTWARE_MSIZE=$((UPDATESOFTWARE_MSIZE + ISIZE))
@@ -542,38 +542,7 @@ function check_fupdatedisk {
       echo -e "${RED}Votre système manque d'espace disque pour installer la mise à jour..${NC}"
       rm -rf /etc/cydramanager
       exit 1
-  else
-      echo -DEST_DIR="/etc/cydramanager/cache"
   fi
-
-  > "/etc/cydraterms/firstupdate.log"
-
-  UPDATESOFTWARE_MSIZE=0
-  
-  find "$DEST_DIR" -type f -name "*.desc" | while read -r desc_file; do
-      ISIZE=$(sed -n '/%ISIZE%/{n;p}' "$desc_file")
-      if [ -n "$ISIZE" ]; then
-          UPDATESOFTWARE_MSIZE=$((UPDATESOFTWARE_MSIZE + ISIZE))
-      fi
-  done
-
-  UPDATESOFTWARE_MSIZE=$(( UPDATESOFTWARE_MSIZE / 1024 ))
-
-  USERDISK_MAXSIZE=$(df --output=avail / | tail -n 1)
-  USERDISK_MAXSIZE=$(( USERDISK_MAXSIZE / 1024 ))
-
-  USAGE_SIZE=$(du -sm /usr | cut -f1)
-
-  TOTAL_REQUIRED_SPACE=$((UPDATESOFTWARE_MSIZE + (2 * USAGE_SIZE)))
-
-  if (( TOTAL_REQUIRED_SPACE > USERDISK_MAXSIZE )); then
-      echo -e "${RED}Votre système manque d'espace disque pour installer la mise à jour..${NC}"
-      rm -rf /etc/cydramanager
-      exit 1
-  else
-      echo -e "${NC}Espace disque nécessaire pour la mise à jour: ${TOTAL_REQUIRED_SPACE} Mo"
-  fi
-  rm -rf "/etc/cydramanager/cache/*"
 }
 
 

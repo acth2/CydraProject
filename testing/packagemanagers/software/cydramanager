@@ -542,6 +542,8 @@ function check_fupdatedisk {
       echo -e "${RED}Votre système manque d'espace disque pour installer la mise à jour..${NC}"
       rm -rf /etc/cydramanager
       exit 1
+  else
+      echo -e "${NC}Espace disque nécessaire pour la mise à jour: ${TOTAL_REQUIRED_SPACE} Mo"
   fi
 }
 

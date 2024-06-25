@@ -521,17 +521,19 @@ function check_fupdatedisk {
 
   UPDATESOFTWARE_MSIZE=0
 
-  find "${CACHE_FILE}" -type f -name "*.desc" | while read -r desc_file; do
-      ISIZE=$(sed -n '/%ISIZE%/{n;p}' "$desc_file")
+  find "${CACHE_FILE}" -type f -name "*.desc" | while read -r CURRENT_DESC; do
+      ISIZE=$(sed -n '20p' "${CURRENT_DESC}")
       if [ -n "$ISIZE" ]; then
-          echo "Taille trouvée: $ISIZE Ko dans le fichier $desc_file" >> /etc/cydraterms/firstupdate.log
+          echo "Log: ${ISIZE} Ko dans le fichier ${CURRENT_DESC}" >> /etc/cydraterms/firstupdate.log
           UPDATESOFTWARE_MSIZE=$((UPDATESOFTWARE_MSIZE + ISIZE))
       else
-          echo "Erreur: ${desc_file}, aucune taille trouvé.." >> /etc/cydraterms/firstupdate.log
+          echo "Erreur: ${CURRENT_DESC}, aucune taille trouvé.." >> /etc/cydraterms/firstupdate.log
       fi
   done
 
-  cat /etc/cydraterms/firstupdate.log
+  if [[ "$VERBOSE" == true ]]; then
+      cat /etc/cydraterms/firstupdate.log
+  fi
 
   UPDATESOFTWARE_MSIZE=$(( UPDATESOFTWARE_MSIZE / 1024 ))
 

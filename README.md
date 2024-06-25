@@ -2,7 +2,7 @@
 
 <p align="center"><img src="https://raw.githubusercontent.com/acth2/CydraProject/main/imgs/test.png" alt="project-image"></p>
 
-<p id="description">CydraProject est un projet amateur propulsé et mis à jour par l'envie de coder par un curieux qui aimerait approfondir ses connaissances dans ce domaine. CydraProject est basé sur la documentation Linux from Scratch 12.0 SystemD !</p>
+<p id="description">CydraProject est un projet amateur propulsé et mis à jour par l'envie de coder par un curieux qui aimerait approfondir ses connaissances dans ce domaine. CydraProject est basé sur la documentation Linux from Scratch (systemd) !</p>
 
 <h2>🚀 Demo</h2>
 

@@ -514,27 +514,37 @@ function firstupdate_wash {
 }
 
 function check_fupdatedisk {
-    wget -q -O - "${MIRROR_URL}" | grep -oP '(?<=href=")[^"]*' | grep -E '\.pkg\.tar\.zst$' > /etc/cydramanager/cydraterms/firstupdate.log
 
-    UPDATESOFTWARE_MSIZE=0
+  > "/etc/cydraterms/firstupdate.log"
 
-    while read -r UPDATELIST; do
-        UPDATESOFTWARE_URL="${MIRROR_URL}/${UPDATELIST}"
-        UPDATESOFTWARE_SIZE=$(wget --spider --server-response "$UPDATESOFTWARE_URL" 2>&1 | awk '/Content-Length/ {print $2}')
-        UPDATESOFTWARE_MSIZE=$((UPDATESOFTWARE_MSIZE + UPDATESOFTWARE_SIZE))
-        UPDATESOFTWARE_MSIZE=$(( UPDATESOFTWARE_MSIZE / 2048))
-    done < /etc/cydramanager/cydraterms/firstupdate.log
+  wget "${CORE_DL_URL}" -P ${CACHE_FILE} --no-check-certificate -q
+  tar xf ${CACHE_FILE}/core.db.tar.gz -C ${CACHE_FILE} > /dev/null 2>&1;
 
-    USERDISK_MAXSIZE=$(df --output=avail / | tail -n 1 / 1024 )
+  UPDATESOFTWARE_MSIZE=0
 
-    if (( UPDATESOFTWARE_MSIZE + du -m /usr > USERDISK_MAXSIZE )); then
-        echo -e "${RED}Votre systeme manque d'espace disque pour installé la mise a jour..${NC}"
-        rm -rf /etc/cydramanager
-        exit 1
-    else
-        echo -e "${NC}Espace disque nécessaire pour la mise a jour: ${UPDATESOFTWARE_MSIZE}Mo"
-    fi
+  find "${CACHE_FILE}" -type f -name "*.desc" | while read -r desc_file; do
+      ISIZE=$(sed -n '/%ISIZE%/{n;p}' "$desc_file")
+      if [ -n "$ISIZE" ]; then
+          UPDATESOFTWARE_MSIZE=$((UPDATESOFTWARE_MSIZE + ISIZE))
+      fi
+  done
+
+  UPDATESOFTWARE_MSIZE=$(( UPDATESOFTWARE_MSIZE / 1024 ))
+
+  USERDISK_MAXSIZE=$(df --output=avail / | tail -n 1)
+  USERDISK_MAXSIZE=$(( USERDISK_MAXSIZE / 1024 ))
+  
+  USAGE_SIZE=$(du -sm /usr | cut -f1)
+
+  TOTAL_REQUIRED_SPACE=$((UPDATESOFTWARE_MSIZE + (2 * USAGE_SIZE)))
+
+  if (( TOTAL_REQUIRED_SPACE > USERDISK_MAXSIZE )); then
+      echo -e "${RED}Votre système manque d'espace disque pour installer la mise à jour..${NC}"
+      rm -rf /etc/cydramanager
+      exit 1
+  fi
 }
+
 
 if [ "$SHOW_HELP" = true ]; then
    if [ "$PRINT_LOG" = true ]; then
@@ -823,7 +833,7 @@ elif [[ "$1" == "update" ]]; then
       echo -e "${ORANGE}Dépendances: ${NC}Aucunes"
       echo
       echo -e "${NC}Total des paquets a installer: ${UPKG_NMB}"
-      #check_fupdatedisk
+      check_fupdatedisk
       ask_to_continue
       echo -e "${ORANGE}Arreter la mise à jour ici rendra votre système ${RED}inutilisable. ${ORANGE}Agissez avec précautions.${NC}"
       i=0

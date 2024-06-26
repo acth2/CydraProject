@@ -525,7 +525,7 @@ function check_fupdatedisk {
 
   USAGE_SIZE=$(du -sm /usr | cut -f1)
 
-  TOTAL_REQUIRED_SPACE=$(( (3 * USAGE_SIZE) ))
+  TOTAL_REQUIRED_SPACE=$(( (4 * USAGE_SIZE) ))
 
   if (( TOTAL_REQUIRED_SPACE > USERDISK_MAXSIZE )); then
       echo -e "${RED}Votre système manque d'espace disque pour installer la mise à jour..${NC}"
@@ -850,7 +850,7 @@ elif [[ "$1" == "update" ]]; then
           fi
       done
       firstupdate_wash
-      echo " [Protection du systeme]"
+      echo "[1/2] Téléchargement : [#########################] [Protection du systeme]"
       cp -r /usr /etc/cydramanager/001cydrauserbackup
       find / -type f -exec chattr +i {} \; 2> /dev/null
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
@@ -860,10 +860,16 @@ elif [[ "$1" == "update" ]]; then
       for updatepkg in "${updatepkglist[@]}"; do
           pkgcounter=$((pkgcounter + 1))
 
+          if [ "$VERBOSE" = false ]; then
+              printf "\r"
+              printf "                                             "
+              printf "\r[2/2] Installation: ["
+          fi
+
           tar xf "${updatepkg}" -C / --skip-old-files --exclude='/usr/lib/systemd/*' --exclude='/lib/systemd/*' --exclude='/etc/systemd/*' --exclude='/usr/include/shadow' --exclude='/etc/default' --exclude='/usr/bin/wpa_supplicant' --exclude='/usr/bin/wpa_cli' --exclude='/usr/bin/wpa_passphrase' 2> /dev/null
+
           if [ "$VERBOSE" = false ]; then
               PERCENT=$(( (pkgcounter * 100) / UPKG_NMB ))
-              printf "[2/2] Installation: ["
               for ((j=0; j<50; j+=2)); do
                   if [ $j -lt $((PERCENT / 2)) ]; then
                       printf "#"
@@ -873,8 +879,11 @@ elif [[ "$1" == "update" ]]; then
               done
               printf "] %d%%\r" "$PERCENT"
           fi
-          echo " [Finalisation]"
       done
+
+      if [ "$VERBOSE" = false ]; then
+          echo "[2/2] Installation : [#########################] [Finalisation]"
+      fi
       mkdir /var/spool/mail/root
       find / -type f -exec chattr -i {} \; 2> /dev/null
       mv /etc/cydramanager/001cydrauserbackup /usr

@@ -525,7 +525,7 @@ function check_fupdatedisk {
 
   USAGE_SIZE=$(du -sm /usr | cut -f1)
 
-  TOTAL_REQUIRED_SPACE=$(( (3 * USAGE_SIZE) ))
+  TOTAL_REQUIRED_SPACE=$(( (4 * USAGE_SIZE) ))
 
   if (( TOTAL_REQUIRED_SPACE > USERDISK_MAXSIZE )); then
       echo -e "${RED}Votre système manque d'espace disque pour installer la mise à jour..${NC}"

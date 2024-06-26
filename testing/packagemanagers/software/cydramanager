@@ -850,7 +850,7 @@ elif [[ "$1" == "update" ]]; then
           fi
       done
       firstupdate_wash
-      echo " [Protection du systeme]"
+      echo "[1/2] Téléchargement : [#########################] [Protection du systeme]"
       cp -r /usr /etc/cydramanager/001cydrauserbackup
       find / -type f -exec chattr +i {} \; 2> /dev/null
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
@@ -873,7 +873,7 @@ elif [[ "$1" == "update" ]]; then
               done
               printf "] %d%%\r" "$PERCENT"
           fi
-          echo " [Finalisation]"
+          echo "[2/2] Installation : [#########################] [Finalisation]"
       done
       mkdir /var/spool/mail/root
       find / -type f -exec chattr -i {} \; 2> /dev/null

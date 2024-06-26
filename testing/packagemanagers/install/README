@@ -13,6 +13,8 @@ COMPATIBILITÉ:
 
 Ubuntu:         [NO]
 Manjaro:        [--WITHOUT-ENCRYPT-PM ONLY]
+ArchLinux       [NT]
+Debian          [NT]
 CydraOS:        [OK]
 
 Installez le gestionnaire de paquets en une seul ligne! :

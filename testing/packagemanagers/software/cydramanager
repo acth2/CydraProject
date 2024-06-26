@@ -512,6 +512,7 @@ function firstupdate_wash {
      rm -f /etc/cydramanager/cache/lib32-opencl-nvidia-550.78-2-x86_64.pkg.tar.zst
    fi
 }
+
 function check_fupdatedisk {
   > "/etc/cydraterms/firstupdate.log"
 
@@ -524,7 +525,7 @@ function check_fupdatedisk {
 
   USAGE_SIZE=$(du -sm /usr | cut -f1)
 
-  TOTAL_REQUIRED_SPACE=$((7475 + (2 * USAGE_SIZE)))
+  TOTAL_REQUIRED_SPACE=$(( (3 * USAGE_SIZE) ))
 
   if (( TOTAL_REQUIRED_SPACE > USERDISK_MAXSIZE )); then
       echo -e "${RED}Votre système manque d'espace disque pour installer la mise à jour..${NC}"
@@ -536,6 +537,7 @@ function check_fupdatedisk {
 
   rm -rf "/etc/cydramanager/cache/*"
 }
+
 if [ "$SHOW_HELP" = true ]; then
    if [ "$PRINT_LOG" = true ]; then
       open_help

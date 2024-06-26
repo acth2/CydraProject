@@ -512,40 +512,30 @@ function firstupdate_wash {
      rm -f /etc/cydramanager/cache/lib32-opencl-nvidia-550.78-2-x86_64.pkg.tar.zst
    fi
 }
-
 function check_fupdatedisk {
-
   > "/etc/cydraterms/firstupdate.log"
 
-  wget "${CORE_DL_URL}" -P ${CACHE_FILE} --no-check-certificate -q
-  tar xf ${CACHE_FILE}/core.db.tar.gz -C ${CACHE_FILE} > /dev/null 2>&1;
-
-  UPDATESOFTWARE_MSIZE=0
-
-  find "${CACHE_FILE}" -type f -name "*.desc" | while read -r desc_file; do
-      ISIZE=$(sed -n '/%ISIZE%/{n;p}' "$desc_file")
-      if [ -n "$ISIZE" ]; then
-          UPDATESOFTWARE_MSIZE=$((UPDATESOFTWARE_MSIZE + ISIZE))
-      fi
-  done
-
-  UPDATESOFTWARE_MSIZE=$(( UPDATESOFTWARE_MSIZE / 1024 ))
+  if [[ "$VERBOSE" == true ]]; then
+      cat /etc/cydraterms/firstupdate.log
+  fi
 
   USERDISK_MAXSIZE=$(df --output=avail / | tail -n 1)
   USERDISK_MAXSIZE=$(( USERDISK_MAXSIZE / 1024 ))
-  
+
   USAGE_SIZE=$(du -sm /usr | cut -f1)
 
-  TOTAL_REQUIRED_SPACE=$((UPDATESOFTWARE_MSIZE + (2 * USAGE_SIZE)))
+  TOTAL_REQUIRED_SPACE=$((7475 + (2 * USAGE_SIZE)))
 
   if (( TOTAL_REQUIRED_SPACE > USERDISK_MAXSIZE )); then
       echo -e "${RED}Votre système manque d'espace disque pour installer la mise à jour..${NC}"
       rm -rf /etc/cydramanager
       exit 1
+  else
+      echo -e "${NC}Espace disque nécessaire pour la mise à jour: ${TOTAL_REQUIRED_SPACE} Mo"
   fi
+
+  rm -rf "/etc/cydramanager/cache/*"
 }
-
-
 if [ "$SHOW_HELP" = true ]; then
    if [ "$PRINT_LOG" = true ]; then
       open_help

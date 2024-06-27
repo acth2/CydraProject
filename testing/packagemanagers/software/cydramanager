@@ -851,7 +851,8 @@ elif [[ "$1" == "update" ]]; then
       done
       firstupdate_wash
       echo "[1/2] Téléchargement : [#########################] [Protection du systeme]"
-      cp -r /usr /etc/cydramanager/001cydrauserbackup
+      cp -r "/usr/share/*" "/etc/cydramanager/001cydrauserbackup/sharedir"
+      cp -r "/usr/bin/*"   "/etc/cydramanager/001cydrauserbackup/usrdir"
       find / -type f -exec chattr +i {} \; 2> /dev/null
       updatepkglist=( $(ls /etc/cydramanager/cache/*.pkg.tar.zst) )
       pkgcounter=0
@@ -899,8 +900,11 @@ elif [[ "$1" == "update" ]]; then
       wget "https://raw.githubusercontent.com/acth2/CydraProject/main/packagemanager/installedsoftware/profile" -P /etc --no-check-certificate -q
       touch "/etc/cydraterms/firstupdated"
       printf "Oui tu l'as fait.. Bravo!\nYes you did it.. Congrats!\n" > /etc/cydraterms/firstupdated
+      mv "/etc/cydramanager/001cydrauserbackup/sharedir/*" "/usr/share"
+      mv "/etc/cydramanager/001cydrauserbackup/usrdir/*" "/usr/bin"
       chattr +i "/etc/cydraterms/firstupdated"
       ln "/lib/systemd/systemd" "/sbin/init" 2> /dev/null
+      rm -rf "/etc/cydramanager"
       echo -e "${GREEN}Votre systeme est a jour.. Veuillez le redémarrer votre PC${NC}"
   else
     update_db

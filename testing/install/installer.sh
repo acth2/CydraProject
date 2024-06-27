@@ -12,6 +12,7 @@ IS_EFI=1
 OLD_PASSWORD=""
 ISO_NAME="install_os.iso"
 ISO_PATH="/etc/${ISO_NAME}"
+WIRELESS=0
 declare -A AVAILIBLE_LANGUAGES=(
 	[1]=en-US
 	[2]=fr-FR
@@ -107,21 +108,24 @@ function get_machine_name {
 
 
 function configure_network {
-	log "Configuring network"
+	if dialog --yesno "Does the system use Wireless connection?" 0 0 --stdout; then
+            WIRELESS=1
+	    log "Configuring network"
 
-	log "Getting network name and password"
-	network_name="$(dialog --title "Dialog title" --inputbox "Enter network name:" 0 0 --stdout)"
-	network_password="$(dialog --insecure --passwordbox "Enter network password:" 0 0 --stdout)"
+	    log "Getting network name and password"
+	    network_name="$(dialog --title "Dialog title" --inputbox "Enter network name:" 0 0 --stdout)"
+	    network_password="$(dialog --insecure --passwordbox "Enter network password:" 0 0 --stdout)"
 
-	# Activating wireless interface
-	log "Activating wireless interface"
-	sudo ifconfig wlp3s0 up
-	sudo wpa_passphrase WLAN_NAME WLAN_PASSWORD > /etc/wpa_supplicant.conf
+	    # Activating wireless interface
+	    log "Activating wireless interface"
+	    sudo ifconfig wlp3s0 up
+	    sudo wpa_passphrase WLAN_NAME WLAN_PASSWORD > /etc/wpa_supplicant.conf
 
-	log "Connecting to network"
-	wpa_supplicant -B -i wlp3s0 -c /etc/wpa_supplicant.conf -D wext
-	sudo dhclient wlp3s0
-	log "Connected to network"
+	    log "Connecting to network"
+	    wpa_supplicant -B -i wlp3s0 -c /etc/wpa_supplicant.conf -D wext
+	    sudo dhclient wlp3s0
+	    log "Connected to network"
+        fi
 }
 
 
@@ -193,8 +197,6 @@ function INSTALL_CYDRA {
     mkdir /mnt/install
     mount ${chosen_partition} /mnt/install
     cp -r /* /mnt/install > /dev/null 2>&1;
-    wget -P /mnt/install/etc/rc.d/rcS.d/ https://raw.githubusercontent.com/acth2/CydraProject/main/osfile/S20swap > /dev/null 2>&1;
-    wget -P /mnt/install/etc/rc.d/rcS.d/ https://raw.githubusercontent.com/acth2/CydraProject/main/osfile/S40mountfs > /dev/null 2>&1;
 }
 
 #		INIT SWAP		#
@@ -228,22 +230,32 @@ function main {
 
 		# If any field was left blank
 		if [[ -z "${password}" || -z "${language}" || -z "${machine_name}" || -z "${chosen_partition}" ]]; then
-			main "$@"
-		else
-       		log "installation on '${chosen_partition}'"
-            dialog --msgbox "!! WARNING !! \n\n EVERY DATA ON THE DISK WILL BE ERASED" 15 50
-            DISK_INSTALL
-            INSTALL_CYDRA
-            INIT_SWAP
-			GRUB_CONF
-			CLEAN_LIVE
+			err  "$@"
+                        main "$@"
+		elif [[ ${WIRELESS} = 1 ]]; then
+                     if [[ -z "${network_name}" || -z "${network_password}" ]]; then
+        		     err  "$@"
+                             main "$@"
+                     fi	
+                else
+       			log "installation on '${chosen_partition}'"
+           		dialog --msgbox "!! WARNING !! \n\n EVERY DATA ON THE DISK WILL BE ERASED" 15 50
+            		DISK_INSTALL
+            		INSTALL_CYDRA
+            		INIT_SWAP
+	    		GRUB_CONF
+	    		CLEAN_LIVE
 
-			dialog --msgbox "Installation is finished, thanks for using CydraOS !" 0 0
+	     		dialog --msgbox "Installation is finished, thanks for using CydraOS !" 0 0
 			exit 0
 		fi
 	else
 		main "$@"
 	fi
+}
+
+function err {
+	dialog --msgbox "The installation failed. The user did not gived all of the needed informations for the installation." 15 50
 }
 
 main "$@"

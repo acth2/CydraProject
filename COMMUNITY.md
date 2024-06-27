@@ -35,3 +35,7 @@ Mise+Internet
 
 
 Le disque dur de mon pc perso a été corrompu, j'ai du donc faire un bon vieux mkfs pour remettre le tout en ordre ce qui ma obligé de donc refaire une installation complete de manjaro linux sa va retardé le développement de l'os d'un jour le temps que je conf virtualbox re mette une sauvegarde que j'avais faite de ma vm contenant l'os ( ouf ) et surtout ! installé firefox je pense bien que c'est l'étape la plus éprouvante a laquel je vais avoir a faire malheureusement ...
+
+FIX /\
+
+Ma VM qui contient l'os n'a pas assez d'espace disque et pour des raisons diverses elle refuse de m'écouté et ne veux pas augmenté son stockage je vais donc me concentré sur l'installeur et le mettre sur une autre vm avec une bonne config et pouvoir continué le dev !

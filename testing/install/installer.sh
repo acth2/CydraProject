@@ -123,8 +123,10 @@ function configure_network {
 
 	    log "Connecting to network"
 	    wpa_supplicant -B -i wlp3s0 -c /etc/wpa_supplicant.conf -D wext
-	    sudo dhclient wlp3s0
-	    log "Connected to network"
+            mv "/etc/unusedwirless" "/etc/systemd/network/25-wireless.network"
+	    log "Connected to network. Reboot necessary"
+        else
+            rm -f "/etc/unusedwirless"
         fi
 }
 

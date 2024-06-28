@@ -228,7 +228,7 @@ function main {
 
 
 	# If the user wants to continue the installation or return to the beginning
-	if dialog --yesno "Installation is finished, do you want to continue ?" 0 0 --stdout; then
+	if dialog --yesno "Installation is finished, do you want to continue ?" 15 75 --stdout; then
 
 		# If any field was left blank
 		if [[ -z "${password}" || -z "${language}" || -z "${machine_name}" || -z "${chosen_partition}" ]]; then
@@ -241,14 +241,21 @@ function main {
                      fi	
                 else
        			log "installation on '${chosen_partition}'"
-           		dialog --msgbox "!! WARNING !! \n\n EVERY DATA ON THE DISK WILL BE ERASED" 15 50
-            		DISK_INSTALL
-            		INSTALL_CYDRA
-            		INIT_SWAP
-	    		GRUB_CONF
-	    		CLEAN_LIVE
+	                if dialog --yesno "!! WARNING !! \n\n EVERY DATA ON THE DISK WILL BE ERASED.\n Do you want to continue ?" 25 85 --stdout; then
+            		     DISK_INSTALL
+            		     INSTALL_CYDRA
+            		     INIT_SWAP
+	    		     GRUB_CONF
+	    		     CLEAN_LIVE
 
-	     		dialog --msgbox "Installation is finished, thanks for using CydraOS !" 0 0
+	     		     dialog --msgbox "Installation is finished, thanks for using CydraOS !" 0 0
+	                else
+  			     if dialog --yesno "Do you want to exit the Installation ?" 15 35 --stdout; then
+			          main "$@"
+                             else
+                                  halt
+	                     fi
+                        fi
 			exit 0
 		fi
 	else
@@ -257,7 +264,7 @@ function main {
 }
 
 function err {
-	dialog --msgbox "The installation failed. The user did not gived all of the needed informations for the installation." 15 50
+	dialog --msgbox "The installation failed. The user did not gived all of the needed informations for the installation." 15 100
 }
 
 main "$@"

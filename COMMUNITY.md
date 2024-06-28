@@ -31,6 +31,7 @@ pciutils-3.7.0
 wpa_supplicant
 core
 libnl
+squashfs-tools
 Mise+Internet
 
 
@@ -39,3 +40,5 @@ Le disque dur de mon pc perso a été corrompu, j'ai du donc faire un bon vieux 
 FIX /\
 
 Ma VM qui contient l'os n'a pas assez d'espace disque et pour des raisons diverses elle refuse de m'écouté et ne veux pas augmenté son stockage je vais donc me concentré sur l'installeur et le mettre sur une autre vm avec une bonne config et pouvoir continué le dev !
+
+L'installeur avance tres bien ! Le contenu de l'iso sera sur le github a l'exception des font grub et du fichier .sfs de l'os pour des raisons évidentes de places.

@@ -10,8 +10,12 @@ RESET_COLOR="\e[0m"
 
 IS_EFI=1
 OLD_PASSWORD=""
-ISO_NAME="install_os.iso"
-ISO_PATH="/etc/${ISO_NAME}"
+PARTITIONS=$(cat /proc/partitions | awk '$4 == "part" { print $4, $5 }' | sed '1d')
+partition_list=()
+while read -r line; do
+    size=$(echo "$line" | awk '{ print $2 }')
+    partition_list+=("$size" "")
+done <<< "$partitions"
 WIRELESS=0
 declare -A AVAILIBLE_LANGUAGES=(
 	[1]=en-US
@@ -152,19 +156,29 @@ function GET_USER_INFOS {
 #		DISK PARTITION		#
 
 function DISK_PARTITION {
-	section "DISK PARTITIONNING"
+    section "DISK PARTITIONNING"
 
-	chosen_partition="$(dialog --title "Dialog title" --inputbox "Enter chosen partition on which will be installed system, \n Exemple: /dev/sdb or /dev/sda3" 20 60 --stdout)"
-    dialog --title "Swap partition" \
-    --backtitle "Do you want a swap?" \
-    --yesno "Do you want to use a swap? If yes, please give us the name of the partition/disk where we can install it! \n( 2GO will be enough" 20 60
-        response=$?
-        case $response in
-             0) 	chosen_swap="$(dialog --title "Dialog title" --inputbox "Enter chosen partition on which will be installed the swap, \n Exemple: /dev/sda1 or /dev/sdb2" 20 60 --stdout)";;
-	    esac
-    if [ -d /sys/firmware/efi ]; then
-        dialog --title "Efi detected" --msgbox "EFI was been detected ! \n CydraLite will be in EFI \n\n But if you dont want disable it on the BIOS CydraLite will boot anyway"
-        IS_EFI = 0
+    chosen_partition=$(dialog --stdout --menu "Choose the system partition" 15 60 10 "${partition_list[@]}")
+    chosen_partition_size=$(lsblk -b -n -o SIZE -d "${chosen_partition}" | awk '{printf "%.2f", $1 / (1024 * 1024 * 1024)}')
+    if [ "${chosen_partition_size}" -ge "25.00" ]; then
+        if dialog --yesno "Do you want to create a swap partition?" 25 85 --stdout; then
+            for i in "${!partition_list[@]}"; do
+                if [ "${partition_list[i]}" = "${chosen_partition}" ]; then
+                   unset 'partition_list[i]'
+                   break
+                fi
+            done
+            swap_partition=$(dialog --stdout --menu "Choose the swap partition" 15 60 10 "${partition_list[@]}")
+        fi
+    
+        if [ -d /sys/firmware/efi ]; then
+            dialog --title "Efi detected" --msgbox "EFI was been detected ! \n CydraLite will be in EFI \n\n But if you dont want disable it on the BIOS CydraLite will boot anyway"
+            IS_EFI = 0
+        fi
+    else
+	dialog --msgbox "Error. The chosen partition is too little to contain the system. 25GB at least." 15 100
+        unset chosen_partition chosen_partition_size
+	DISK_PARTITION
     fi
 }
 
@@ -172,7 +186,6 @@ function DISK_INSTALL {
     section "INSTALL DISK"
 
     mkfs.ext4 ${chosen_partition}
-    
 }
 
 #		GRUB CONFIGURATION		#
@@ -212,7 +225,7 @@ function INIT_SWAP {
 function CLEAN_LIVE {
     section "CLEANING LIVECD BEFORE REBOOTING"
 
-    umount /mnt/install
+    umount /mnt/install > /dev/null 2>&1;
 }
 
 

@@ -72,7 +72,7 @@ function INFORMATIONS {
 
 function get_password {
 	log "Getting password"
-	password="$(dialog --insecure --passwordbox "Enter new password:" 0 0 --stdout)"
+	password="$(dialog --insecure --passwordbox "Enter machine password:" 0 0 --stdout)"
 
 	# Set new root password
 	log "Setting password..."

@@ -91,8 +91,8 @@ function get_language {
 	)
 
 	case "${language}" in
-		"en-US") export LANG="en_US.UTF-8";;
-		"fr-FR") export LANG="fr_FR.UTF-8";;
+		"en-US") loadkeys fr;;
+		"fr-FR") loadkeys us;;
 		*) ;;
 	esac
 
@@ -157,8 +157,8 @@ function configure_network {
 function GET_USER_INFOS {
 	section "GET USER INFOS"
 
-	get_informations
 	get_language
+	get_informations
 	configure_network
 
 	echo -e "\n"

@@ -110,6 +110,25 @@ function get_machine_name {
 	log "Machine name set"
 }
 
+function get_informations {
+	exec 3>&1
+
+	GLOBALVALUES=$(dialog --ok-label "Valider" \
+               --backtitle "System informations" \
+               --title "Enter the informations" \
+               --form "System informations" \
+               15 50 0 \
+               "Machine Name:" 1 1 "${machine_name}" 1 17 30 0 \
+               "Username:" 2 1 "${user_name}" 2 17 30 0 \
+               "Root Password:" 3 1 "${password}" 3 17 30 0 \
+               2>&1 1>&3)
+
+	exec 3>&-
+	machine_name=$(echo "${GLOBALVALUES}" | awk -F: '{print $1}')
+	user_name=$(echo "${GLOBALVALUES}" | awk -F: '{print $2}')
+	password=$(echo "${GLOBALVALUES}" | awk -F: '{print $3}')
+}
+
 
 function configure_network {
 	if dialog --yesno "Does the system use Wireless connection?" 0 0 --stdout; then
@@ -138,10 +157,8 @@ function configure_network {
 function GET_USER_INFOS {
 	section "GET USER INFOS"
 
-	get_username
-	get_password
+	get_informations
 	get_language
-	get_machine_name
 	configure_network
 
 	echo -e "\n"

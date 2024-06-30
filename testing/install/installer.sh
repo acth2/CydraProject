@@ -238,8 +238,32 @@ function GRUB_CONF {
 	umount ${efi_partition}
     fi
     rm -rf /mnt/install/boot/grub/grub.cfg
-    grub-mkconfig –o /mnt/install/boot/grub/grub.cfg 
-
+    rm -rf /mnt/efi/boot/grub/grub.cfg
+    touch /mnt/install/boot/grub/grub.cfg
+    touch /mnt/efi/boot/grub/grub.cfg
+    chosen_partition_suffix="${chosen_partition#/dev/sd}"
+    chosen_partition_letter="${chosen_partition_suffix:0:1}"
+    grubrootnum0=$(( $(printf "%d" "'${chosen_partition_letter}") - 96 ))
+    grubrootnum1="${chosen_partition_suffix:1}"
+    echo "set default=0" > /mnt/efi/boot/grub/grub.cfg
+    echo "set timeout=5" > /mnt/efi/boot/grub/grub.cfg
+    echo "" > /mnt/efi/boot/grub/grub.cfg
+    echo "insmod part_gpt" > /mnt/efi/boot/grub/grub.cfg
+    echo "insmod ext2" > /mnt/efi/boot/grub/grub.cfg
+    echo "set root=(hd${grubrootnum0},${grubrootnum1})" > /mnt/efi/boot/grub/grub.cfg
+    echo "" > /mnt/efi/boot/grub/grub.cfg
+    echo "insmod all_video" > /mnt/efi/boot/grub/grub.cfg
+    echo "if loadfont /boot/grub/fonts/unicode.pf2; then" > /mnt/efi/boot/grub/grub.cfg
+    echo "  terminal_output gfxterm" > /mnt/efi/boot/grub/grub.cfg
+    echo "fi" > /mnt/efi/boot/grub/grub.cfg
+    echo "" > /mnt/efi/boot/grub/grub.cfg
+    echo 'menuentry "GNU/Linux, CydraLite Release V2.0"  {' > /mnt/efi/boot/grub/grub.cfg
+    echo "  linux   /boot/os root=UUID=${mainPartitionUuid} ro" > /mnt/efi/boot/grub/grub.cfg
+    echo "}" > /mnt/efi/boot/grub/grub.cfg
+    echo "" > /mnt/efi/boot/grub/grub.cfg
+    echo "menuentry "Firmware Setup" {" > /mnt/efi/boot/grub/grub.cfg
+    echo "  fwsetup" > /mnt/efi/boot/grub/grub.cfg
+    echo "}" > /mnt/efi/boot/grub/grub.cfg
 }
 
 #		CYDRA INSTALLATION		#
@@ -260,11 +284,10 @@ function INSTALL_CYDRA {
     if [ SWAPUSED = 0 ]; then
 	echo "UUID=${swapPartitionUuid}     swap         swap     pri=1               0     0" > /mnt/install/etc/fstab
     fi
+    
     if [ IS_EFI = 0 ]; then
 	echo "UUID=${efiPartitionUuid} /boot/efi vfat codepage=437,iocharset=iso8859-1 0 1" > /mnt/install/etc/fstab
     fi
-
-    
     
     if [[ ${WIRELESS} = 1 ]]; then
 	mv "/root/installdir/25-wireless.network" "/mnt/install/systemd/network/25-wireless.network"
@@ -283,6 +306,8 @@ function CLEAN_LIVE {
     section "CLEANING LIVECD BEFORE REBOOTING"
 
     umount /mnt/install > /dev/null 2>&1;
+    umount /mnt/efi > /dev/null 2>&1;
+    umount /mnt/temp > /dev/null 2>&1;
 }
 
 
@@ -313,9 +338,9 @@ function main {
        			log "installation on '${chosen_partition}'"
 	                if dialog --yesno "!! WARNING !! \n\n EVERY DATA ON THE DISK WILL BE ERASED.\n Do you want to continue ?" 25 85 --stdout; then
             		     DISK_INSTALL
+		   	     GRUB_CONF
             		     INSTALL_CYDRA
             		     INIT_SWAP
-	    		     GRUB_CONF
 	    		     CLEAN_LIVE
 
 	     		     dialog --msgbox "Installation is finished, thanks for using CydraOS !" 0 0

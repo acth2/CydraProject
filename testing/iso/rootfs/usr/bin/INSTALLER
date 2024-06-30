@@ -224,24 +224,18 @@ function GRUB_CONF {
 
 
     if [ IS_EFI = 1 ]; then
-        mainPartitionUuid=$(blid ${chosen_partion})
-	if [ SWAPUSED = 0 ]; then
-	    swapPartitionUuid=$(blid ${swap_partion})
-        fi
-	mkdir /mnt/install/boot
-        grub-install --root-directory=/mnt/install/boot ${chosen_partition}
+        grub-install ${chosen_partition}
     else
         mainPartitionUuid=$(blid ${chosen_partion})
-	if [ SWAPUSED = 0 ]; then
-	    swapPartitionUuid=$(blid ${swap_partion})
-        fi
+	swapPartitionUuid=$(blid ${swap_partion})
         efiPartitionUuid=$(blid ${efi_partion})
 	mkfs.vfat ${efi_partition}
 	echo -e "t\n\nuefi\nw" | fdisk ${efi_partition}
         mkdir /mnt/efi
 	mount ${efi_partition} /mnt/efi
-        grub-install ${efi_partition} --root-directory=/mnt/efi --target=x86_64-efi --removable
+        grub-install --root-directory=/mnt/efi --target=x86_64-efi --removable
 	rm -f "${efi_partition}/boot/grub/grub.cfg"
+	umount ${efi_partition}
     fi
     rm -rf /mnt/install/boot/grub/grub.cfg
     rm -rf /mnt/efi/boot/grub/grub.cfg
@@ -278,7 +272,7 @@ function INSTALL_CYDRA {
     section "INSTALLING CYDRA"
 
     mkdir /mnt/install
-    mount ${chosenPartition} /mnt/install
+    mount ${efiPartitionUuid} /mnt/install
     mv "/etc/system.sfs" "/mnt/system.sfs"
     mount -t squashfs "/mnt/system.sfs" /mnt/temp
     cp -r "/mnt/temp/*" "/mnt/install"

@@ -224,8 +224,16 @@ function GRUB_CONF {
     if [ IS_EFI = 1 ]; then
         grub-install ${chosen_partition}
     else
-        #################################################################################################
-        grub-install --target=x86_64-efi --removable
+        mainPartitionUuid=$(blid ${chosen_partion})
+	swapPartitionUuid=$(blid ${swap_partion})
+        efiPartitionUuid=$(blid ${efi_partion})
+	mkfs.vfat ${efi_partition}
+	echo -e "t\n\nuefi\nw" | fdisk ${efi_partition}
+        mkdir /mnt/efi
+	mount ${efi_partition} /mnt/efi
+        grub-install --root-directory=/mnt/efi --target=x86_64-efi --removable
+	rm -f "${efi_partition}/boot/grub/grub.cfg"
+	umount ${efi_partition}
     fi
     rm -rf /mnt/install/boot/grub/grub.cfg
     grub-mkconfig –o /mnt/install/boot/grub/grub.cfg 

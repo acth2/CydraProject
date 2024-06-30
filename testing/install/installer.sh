@@ -9,6 +9,7 @@ RESET_COLOR="\e[0m"
 #			VARS			#
 
 IS_EFI=1
+SWAPUSED=0
 OLD_PASSWORD=""
 PARTITIONS=$(cat /proc/partitions | awk '$4 == "part" { print $4, $5 }' | sed '1d')
 partition_list=()
@@ -181,6 +182,7 @@ function DISK_PARTITION {
     chosen_partition_size=$(lsblk -b -n -o SIZE -d "${chosen_partition}" | awk '{printf "%.2f", $1 / (1024 * 1024 * 1024)}')
     if [ "${chosen_partition_size}" -ge "25.00" ]; then
         if dialog --yesno "Do you want to create a swap partition?" 25 85 --stdout; then
+	    SWAPUSED=0
             for i in "${!partition_list[@]}"; do
                 if [ "${partition_list[i]}" = "${chosen_partition}" ]; then
                    unset 'partition_list[i]'
@@ -246,11 +248,24 @@ function INSTALL_CYDRA {
     section "INSTALLING CYDRA"
 
     mkdir /mnt/install
-    mkdir /mnt/temp
-    mount ${chosen_partition} /mnt/install
+    mount ${efiPartitionUuid} /mnt/install
     mv "/etc/system.sfs" "/mnt/system.sfs"
     mount -t squashfs "/mnt/system.sfs" /mnt/temp
     cp -r "/mnt/temp/*" "/mnt/install"
+    rm -f /mnt/install/etc/fstab
+    touch /mnt/install/etc/fstab
+    echo "#CydraLite FSTAB File, Make a backup if you want to modify this file." > /mnt/install/etc/fstab
+    echo "" > /mnt/install/etc/fstab
+    echo "UUID=${mainPartitionUuid}     /            ext4    defaults            1     1" > /mnt/install/etc/fstab
+    if [ SWAPUSED = 0 ]; then
+	echo "UUID=${swapPartitionUuid}     swap         swap     pri=1               0     0" > /mnt/install/etc/fstab
+    fi
+    if [ IS_EFI = 0 ]; then
+	echo "UUID=${efiPartitionUuid} /boot/efi vfat codepage=437,iocharset=iso8859-1 0 1" > /mnt/install/etc/fstab
+    fi
+
+    
+    
     if [[ ${WIRELESS} = 1 ]]; then
 	mv "/root/installdir/25-wireless.network" "/mnt/install/systemd/network/25-wireless.network"
     fi

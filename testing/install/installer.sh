@@ -140,14 +140,16 @@ function configure_network {
 	    network_password="$(dialog --insecure --passwordbox "Enter network password:" 0 0 --stdout)"
 
 	    # Activating wireless interface
-	    log "Activating wireless interface"
+	    log "Configuration of the network."
+
 	    sudo ifconfig wlp3s0 up
 	    sudo wpa_passphrase WLAN_NAME WLAN_PASSWORD > /etc/wpa_supplicant.conf
 
 	    log "Connecting to network"
 	    wpa_supplicant -B -i wlp3s0 -c /etc/wpa_supplicant.conf -D wext
-            mv "/etc/unusedwirless" "/etc/systemd/network/25-wireless.network"
-	    log "Connected to network. Reboot necessary"
+     	    mkdir "/root/installdir"
+            mv "/etc/unusedwireless" "/root/installdir/25-wireless.network"
+	    log "Network configured. Reboot necessary."
         else
             rm -f "/etc/unusedwirless"
         fi
@@ -189,8 +191,16 @@ function DISK_PARTITION {
         fi
     
         if [ -d /sys/firmware/efi ]; then
-            dialog --title "Efi detected" --msgbox "EFI was been detected ! \n CydraLite will be in EFI \n\n But if you dont want disable it on the BIOS CydraLite will boot anyway"
-            IS_EFI = 0
+	    if dialog --title "Efi detected"  --yesno "EFI was been detected ! Do you want to create an EFI partition ?" 25 85 --stdout; then
+                for i in "${!partition_list[@]}"; do
+                    if [ "${partition_list[i]}" = "${swap_partition}" ]; then
+                        unset 'partition_list[i]'
+                        break
+                    fi
+                done
+		efi_partition=$(dialog --stdout --menu "Choose the swap partition" 15 60 10 "${partition_list[@]}")
+                IS_EFI = 0
+            fi
         fi
     else
 	dialog --msgbox "Error. The chosen partition is too little to contain the system. 25GB at least." 15 100
@@ -214,6 +224,7 @@ function GRUB_CONF {
     if [ IS_EFI = 1 ]; then
         grub-install ${chosen_partition}
     else
+        #################################################################################################
         grub-install --target=x86_64-efi --removable
     fi
     rm -rf /mnt/install/boot/grub/grub.cfg
@@ -227,8 +238,14 @@ function INSTALL_CYDRA {
     section "INSTALLING CYDRA"
 
     mkdir /mnt/install
+    mkdir /mnt/temp
     mount ${chosen_partition} /mnt/install
-    cp -r /* /mnt/install > /dev/null 2>&1;
+    mv "/etc/system.sfs" "/mnt/system.sfs"
+    mount -t squashfs "/mnt/system.sfs" /mnt/temp
+    cp -r "/mnt/temp/*" "/mnt/install"
+    if [[ ${WIRELESS} = 1 ]]; then
+	mv "/root/installdir/25-wireless.network" "/mnt/install/systemd/network/25-wireless.network"
+    fi
 }
 
 #		INIT SWAP		#

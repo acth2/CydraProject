@@ -1,4 +1,4 @@
-#!/bin/env bash
+#!/bin/bash
 
 
 BOLD_WHITE="\e[1;37m"

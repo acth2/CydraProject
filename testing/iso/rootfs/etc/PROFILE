@@ -1,5 +1,18 @@
 dmesg -n 3
+clear
+echo "Dont skip this stape !"
+sleep 1
+cd /usr/bin
+tar xf /usr/bin/dialog.tar.gz
+cd dialog-1.3-20240619/
+./configure
+make
+make install
+echo "Starting installer in 2 seconds.."
+sleep 2
+clear
 /usr/bin/installer
+clear
 echo "You can safely remove the cydralite installation guide from your computer!."
 sleep 3
 halt

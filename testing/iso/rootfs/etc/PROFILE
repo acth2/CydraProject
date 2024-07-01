@@ -1,5 +1,6 @@
 dmesg -n 3
 /usr/bin/installer
+clear
 echo "You can safely remove the cydralite installation guide from your computer!."
 sleep 3
 halt

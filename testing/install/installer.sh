@@ -92,8 +92,8 @@ function get_language {
 	)
 
 	case "${language}" in
-		"en-US") loadkeys fr;;
-		"fr-FR") loadkeys us;;
+		"en-US") loadkeys us;;
+		"fr-FR") loadkeys fr;;
 		*) ;;
 	esac
 

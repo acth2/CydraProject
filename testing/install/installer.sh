@@ -91,24 +91,13 @@ function get_language {
 		--stdout
 	)
 
-	case "${language}" in
-		"en-US") loadkeys fr;;
-		"fr-FR") loadkeys us;;
-		*) ;;
-	esac
+	if [ ${language} = "fr-FR" ]; then
+              loadkeys fr
+        else
+              loadkeys us
+        fi
 
 	log "Language set to '${language}'"
-}
-
-
-function get_machine_name {
-	log "Getting machine name"
-	machine_name="$(dialog --title "Dialog title" --inputbox "Enter machine name:" 0 0 --stdout)"
-
-	# Set machine name to 'machine_name'
-	log "Setting machine name..."
-	sudo hostname "${machine_name}"
-	log "Machine name set"
 }
 
 function get_informations {
@@ -298,6 +287,9 @@ function INSTALL_CYDRA {
     if [[ ${WIRELESS} = 1 ]]; then
 	mv "/root/installdir/25-wireless.network" "/mnt/install/systemd/network/25-wireless.network"
     fi
+    rm -f /mnt/install/etc/wpa_supplicant.conf
+    cp -r /etc/wpa_supplicant.conf /mnt/install/etc/wpa_supplicant.conf
+    
 }
 
 #		INIT SWAP		#

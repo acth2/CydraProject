@@ -11,7 +11,6 @@ RESET_COLOR="\e[0m"
 IS_EFI=1
 SWAPUSED=0
 OLD_PASSWORD=""
-#!/bin/bash
 partition_list=($(lsblk -nr -o NAME,TYPE | awk '$2 == "disk" || $2 == "part" {print "/dev/" $1}'));
 WIRELESS=0
 declare -A AVAILIBLE_LANGUAGES=(

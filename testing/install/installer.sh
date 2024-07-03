@@ -10,13 +10,9 @@ RESET_COLOR="\e[0m"
 
 IS_EFI=1
 SWAPUSED=0
+CORRECTDISK=0
 OLD_PASSWORD=""
-PARTITIONS=$(cat /proc/partitions | awk '$4 == "part" { print $4, $5 }' | sed '1d')
-partition_list=()
-while read -r line; do
-    size=$(echo "$line" | awk '{ print $2 }')
-    partition_list+=("$size" "")
-done <<< "$partitions"
+partition_list=($(lsblk -nr -o NAME,TYPE | awk '$2 == "disk" || $2 == "part" {print "/dev/" $1}'));
 WIRELESS=0
 declare -A AVAILIBLE_LANGUAGES=(
 	[1]=en-US
@@ -85,17 +81,8 @@ function get_password {
 function get_language {
 	log "Getting language"
 
-	language=$(dialog --radiolist "Select system language:" 0 0 0 \
-		1 "en-US" on \
-		2 "fr-FR" off \
-		--stdout
-	)
-
-	if [ ${language} = "fr-FR" ]; then
-              loadkeys fr
-        else
-              loadkeys us
-        fi
+	language="$(dialog --title "Dialog title" --inputbox "Enter language name (fr / us ):" 0 0 --stdout)"
+        loadkeys ${language}
 
 	log "Language set to '${language}'"
 }
@@ -126,8 +113,8 @@ function configure_network {
 	    log "Configuring network"
 
 	    log "Getting network name and password"
-	    network_name="$(dialog --title "Dialog title" --inputbox "Enter network name:" 0 0 --stdout)"
-	    network_password="$(dialog --insecure --passwordbox "Enter network password:" 0 0 --stdout)"
+	    network_name="$(dialog --title "Network name" --inputbox "Enter network name:" 0 0 --stdout)"
+	    network_password="$(dialog --title "Network password" --insecure --passwordbox "Enter network password:" 0 0 --stdout)"
 
 	    # Activating wireless interface
 	    log "Configuration of the network."
@@ -165,20 +152,45 @@ function GET_USER_INFOS {
 #		DISK PARTITION		#
 
 function DISK_PARTITION {
+    clear
     section "DISK PARTITIONNING"
-
-    chosen_partition=$(dialog --stdout --menu "Choose the system partition" 15 60 10 "${partition_list[@]}")
+    log "Enter your system partition \n here the list of your partitions: ${partition_list[@]}"
+    echo -e "Input: "
+    read chosen_partition
+    for item in "${partition_list[@]}"; do
+        if [[ "$item" == "${chosen_partition}" ]]; then
+            CORRECTDISK=1
+            break
+        fi
+    done
+    
+    if [[ ${CORRECTDISK} == 0 ]]; then
+        log "Error: System disk not found.."
+	sleep 2
+        DISK_PARTITION
+    fi
     chosen_partition_size=$(lsblk -b -n -o SIZE -d "${chosen_partition}" | awk '{printf "%.2f", $1 / (1024 * 1024 * 1024)}')
     if [ "${chosen_partition_size}" -ge "25.00" ]; then
         if dialog --yesno "Do you want to create a swap partition?" 25 85 --stdout; then
-	    SWAPUSED=0
             for i in "${!partition_list[@]}"; do
                 if [ "${partition_list[i]}" = "${chosen_partition}" ]; then
                    unset 'partition_list[i]'
                    break
                 fi
             done
-            swap_partition=$(dialog --stdout --menu "Choose the swap partition" 15 60 10 "${partition_list[@]}")
+	    clear
+	    log "Enter your swap partition \n here the list of your partitions: ${partition_list[@]}"
+    	    echo -e "Input: "
+   	    read swap_partition
+	    for item in "${partition_list[@]}"; do
+    		if [[ "$item" == "${swap_partition}" ]]; then
+                      SWAPUSED=1
+                      break
+                fi
+            done
+	    if [[ ${SWAPUSED} == 0 ]]; then
+                log "Error: The SWAP will not be used.. Bad values"
+            fi
         fi
     
         if [ -d /sys/firmware/efi ]; then
@@ -189,8 +201,18 @@ function DISK_PARTITION {
                         break
                     fi
                 done
-		efi_partition=$(dialog --stdout --menu "Choose the swap partition" 15 60 10 "${partition_list[@]}")
-                IS_EFI = 0
+	        log "Enter your EFI partition \n here the list of your partitions: ${partition_list[@]}"
+    	        echo -e "Input: "
+   	        read efi_partition
+		for item in "${partition_list[@]}"; do
+    		    if [[ "$item" == "${efi_partition}" ]]; then
+                        IS_EFI=0
+                        break
+                    fi
+                done
+		if [[ ${IS_EFI} == 1 ]]; then
+                   log "Error: EFI will not be used.. Bad values"
+                fi
             fi
         fi
     else

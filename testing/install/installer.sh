@@ -11,12 +11,8 @@ RESET_COLOR="\e[0m"
 IS_EFI=1
 SWAPUSED=0
 OLD_PASSWORD=""
-PARTITIONS=$(cat /proc/partitions | awk '$4 == "part" { print $4, $5 }' | sed '1d')
-partition_list=()
-while read -r line; do
-    size=$(echo "$line" | awk '{ print $2 }')
-    partition_list+=("$size" "")
-done <<< "$partitions"
+#!/bin/bash
+partition_list=($(lsblk -nr -o NAME,TYPE | awk '$2 == "disk" || $2 == "part" {print "/dev/" $1}'));
 WIRELESS=0
 declare -A AVAILIBLE_LANGUAGES=(
 	[1]=en-US

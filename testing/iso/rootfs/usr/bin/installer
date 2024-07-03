@@ -11,7 +11,8 @@ RESET_COLOR="\e[0m"
 IS_EFI=1
 SWAPUSED=0
 OLD_PASSWORD=""
-PARTITIONS=$(cat /proc/partitions | awk '$4 == "part" { print $4, $5 }' | sed '1d')
+SALT="75vv97x9QnG9MjVR"
+PARTITIONS=$(cat /proc/partitions | awk 'NR > 2 && $4 !~ /^(sr0|loop0)$/ { print $4 }')
 partition_list=()
 while read -r line; do
     size=$(echo "$line" | awk '{ print $2 }')
@@ -22,7 +23,6 @@ declare -A AVAILIBLE_LANGUAGES=(
 	[1]=en-US
 	[2]=fr-FR
 )
-
 
 log() {
 	echo -e "[${BOLD_BLUE}LOG${RESET_COLOR}] $*"
@@ -70,18 +70,6 @@ function INFORMATIONS {
 
 # - - - - - - - - - - - - - #
 
-
-function get_password {
-	log "Getting password"
-	password="$(dialog --insecure --passwordbox "Enter machine password:" 0 0 --stdout)"
-
-	# Set new root password
-	log "Setting password..."
-	[[ -n "${password}" ]] || echo -e "${OLD_PASSWORD}\n{password}\n{password}" | passwd
-	log "Password set"
-}
-
-
 function get_language {
 	log "Getting language"
 
@@ -100,17 +88,6 @@ function get_language {
 	log "Language set to '${language}'"
 }
 
-
-function get_machine_name {
-	log "Getting machine name"
-	machine_name="$(dialog --title "Dialog title" --inputbox "Enter machine name:" 0 0 --stdout)"
-
-	# Set machine name to 'machine_name'
-	log "Setting machine name..."
-	sudo hostname "${machine_name}"
-	log "Machine name set"
-}
-
 function get_informations {
 	exec 3>&1
 
@@ -126,8 +103,11 @@ function get_informations {
 
 	exec 3>&-
 	machine_name=$(echo "${GLOBALVALUES}" | awk -F: '{print $1}')
-	user_name=$(echo "${GLOBALVALUES}" | awk -F: '{print $2}')
+	username=$(echo "${GLOBALVALUES}" | awk -F: '{print $2}')
 	password=$(echo "${GLOBALVALUES}" | awk -F: '{print $3}')
+        password_encrypted=$(mkpasswd -m sha-512 ${password} ${SALT})
+        password_only=$(${password_encrypted} | sed 's/^.*$6$[^$]*$//')
+        username_encrypted="${username}:x:2130:2130:The Guest:/home/${username}:/bin/bash"
 }
 
 
@@ -251,25 +231,25 @@ function GRUB_CONF {
     chosen_partition_letter="${chosen_partition_suffix:0:1}"
     grubrootnum0=$(( $(printf "%d" "'${chosen_partition_letter}") - 96 ))
     grubrootnum1="${chosen_partition_suffix:1}"
-    echo "set default=0" > /mnt/efi/boot/grub/grub.cfg
-    echo "set timeout=5" > /mnt/efi/boot/grub/grub.cfg
-    echo "" > /mnt/efi/boot/grub/grub.cfg
-    echo "insmod part_gpt" > /mnt/efi/boot/grub/grub.cfg
-    echo "insmod ext2" > /mnt/efi/boot/grub/grub.cfg
-    echo "set root=(hd${grubrootnum0},${grubrootnum1})" > /mnt/efi/boot/grub/grub.cfg
-    echo "" > /mnt/efi/boot/grub/grub.cfg
-    echo "insmod all_video" > /mnt/efi/boot/grub/grub.cfg
-    echo "if loadfont /boot/grub/fonts/unicode.pf2; then" > /mnt/efi/boot/grub/grub.cfg
-    echo "  terminal_output gfxterm" > /mnt/efi/boot/grub/grub.cfg
-    echo "fi" > /mnt/efi/boot/grub/grub.cfg
-    echo "" > /mnt/efi/boot/grub/grub.cfg
-    echo 'menuentry "GNU/Linux, CydraLite Release V2.0"  {' > /mnt/efi/boot/grub/grub.cfg
-    echo "  linux   /boot/os root=UUID=${mainPartitionUuid} ro" > /mnt/efi/boot/grub/grub.cfg
-    echo "}" > /mnt/efi/boot/grub/grub.cfg
-    echo "" > /mnt/efi/boot/grub/grub.cfg
-    echo "menuentry "Firmware Setup" {" > /mnt/efi/boot/grub/grub.cfg
-    echo "  fwsetup" > /mnt/efi/boot/grub/grub.cfg
-    echo "}" > /mnt/efi/boot/grub/grub.cfg
+    echo "set default=0" >> /mnt/efi/boot/grub/grub.cfg
+    echo "set timeout=5" >> /mnt/efi/boot/grub/grub.cfg
+    echo "" >> /mnt/efi/boot/grub/grub.cfg
+    echo "insmod part_gpt" >> /mnt/efi/boot/grub/grub.cfg
+    echo "insmod ext2" >> /mnt/efi/boot/grub/grub.cfg
+    echo "set root=(hd${grubrootnum0},${grubrootnum1})" >> /mnt/efi/boot/grub/grub.cfg
+    echo "" >> /mnt/efi/boot/grub/grub.cfg
+    echo "insmod all_video" >> /mnt/efi/boot/grub/grub.cfg
+    echo "if loadfont /boot/grub/fonts/unicode.pf2; then" >> /mnt/efi/boot/grub/grub.cfg
+    echo "  terminal_output gfxterm" >> /mnt/efi/boot/grub/grub.cfg
+    echo "fi" >> /mnt/efi/boot/grub/grub.cfg
+    echo "" >> /mnt/efi/boot/grub/grub.cfg
+    echo 'menuentry "GNU/Linux, CydraLite Release V2.0"  {' >> /mnt/efi/boot/grub/grub.cfg
+    echo "  linux   /boot/os root=UUID=${mainPartitionUuid} ro" >> /mnt/efi/boot/grub/grub.cfg
+    echo "}" >> /mnt/efi/boot/grub/grub.cfg
+    echo "" >> /mnt/efi/boot/grub/grub.cfg
+    echo "menuentry "Firmware Setup" {" >> /mnt/efi/boot/grub/grub.cfg
+    echo "  fwsetup" >> /mnt/efi/boot/grub/grub.cfg
+    echo "}" >> /mnt/efi/boot/grub/grub.cfg
 }
 
 #		CYDRA INSTALLATION		#
@@ -286,18 +266,25 @@ function INSTALL_CYDRA {
     touch /mnt/install/etc/fstab
     echo "#CydraLite FSTAB File, Make a backup if you want to modify this file." > /mnt/install/etc/fstab
     echo "" > /mnt/install/etc/fstab
-    echo "UUID=${mainPartitionUuid}     /            ext4    defaults            1     1" > /mnt/install/etc/fstab
+    echo "UUID=${mainPartitionUuid}     /            ext4    defaults            1     1" >> /mnt/install/etc/fstab
     if [ SWAPUSED = 0 ]; then
-	echo "UUID=${swapPartitionUuid}     swap         swap     pri=1               0     0" > /mnt/install/etc/fstab
+	echo "UUID=${swapPartitionUuid}     swap         swap     pri=1               0     0" >> /mnt/install/etc/fstab
     fi
     
     if [ IS_EFI = 0 ]; then
-	echo "UUID=${efiPartitionUuid} /boot/efi vfat codepage=437,iocharset=iso8859-1 0 1" > /mnt/install/etc/fstab
+	echo "UUID=${efiPartitionUuid} /boot/efi vfat codepage=437,iocharset=iso8859-1 0 1" >> /mnt/install/etc/fstab
     fi
     
     if [[ ${WIRELESS} = 1 ]]; then
 	mv "/root/installdir/25-wireless.network" "/mnt/install/systemd/network/25-wireless.network"
     fi
+
+    echo ${password_encrypted} >> "/mnt/install/etc/shadow"
+    echo ${username_encrypted} >> "/mnt/install/etc/passwd"
+    echo "${username}:${password_only}:2130:" >> "/mnt/install/etc/group"
+
+    mkdir "/mnt/install/home/${username}"
+    chown --recursive ${username}:${username} "/mnt/install/home/${username}"
 }
 
 #		INIT SWAP		#

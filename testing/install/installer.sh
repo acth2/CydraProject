@@ -151,8 +151,7 @@ function GET_USER_INFOS {
 
 function DISK_PARTITION {
     section "DISK PARTITIONNING"
-
-    chosen_partition=$(dialog --stdout --menu "Choose the system partition" 15 60 10 "${partition_list[@]}")
+    chosen_partition=$(dialog --title "System partition" --insecure --passwordbox "Enter your system partition \n here the list of your partitions: ${partition_list[@]}" 0 0 --stdout)
     chosen_partition_size=$(lsblk -b -n -o SIZE -d "${chosen_partition}" | awk '{printf "%.2f", $1 / (1024 * 1024 * 1024)}')
     if [ "${chosen_partition_size}" -ge "25.00" ]; then
         if dialog --yesno "Do you want to create a swap partition?" 25 85 --stdout; then
@@ -163,7 +162,7 @@ function DISK_PARTITION {
                    break
                 fi
             done
-            swap_partition=$(dialog --stdout --menu "Choose the swap partition" 15 60 10 "${partition_list[@]}")
+            swap_partition=$(dialog --title "Swap partition" --insecure --passwordbox "Enter your system partition \n here the list of your partitions: ${partition_list[@]}" 0 0 --stdout)
         fi
     
         if [ -d /sys/firmware/efi ]; then
@@ -174,7 +173,7 @@ function DISK_PARTITION {
                         break
                     fi
                 done
-		efi_partition=$(dialog --stdout --menu "Choose the swap partition" 15 60 10 "${partition_list[@]}")
+		efi_partition=$(dialog --title "EFI partition" --insecure --passwordbox "Enter your EFI partition \n here the list of your partitions: ${partition_list[@]}" 0 0 --stdout)
                 IS_EFI = 0
             fi
         fi

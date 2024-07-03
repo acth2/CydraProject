@@ -155,7 +155,7 @@ function DISK_PARTITION {
     clear
     section "DISK PARTITIONNING"
     log "Enter your system partition \n here the list of your partitions: ${partition_list[@]}"
-    echo -e "Input: "
+    echo -n "Input: "
     read chosen_partition
     for item in "${partition_list[@]}"; do
         if [[ "$item" == "${chosen_partition}" ]]; then
@@ -170,7 +170,7 @@ function DISK_PARTITION {
         DISK_PARTITION
     fi
     chosen_partition_size=$(lsblk -b -n -o SIZE -d "${chosen_partition}" | awk '{printf "%.2f", $1 / (1024 * 1024 * 1024)}')
-    if [ "${chosen_partition_size}" -ge "25.00" ]; then
+    if [ "${chosen_partition_size}" -gt "25" ]; then
         if dialog --yesno "Do you want to create a swap partition?" 25 85 --stdout; then
             for i in "${!partition_list[@]}"; do
                 if [ "${partition_list[i]}" = "${chosen_partition}" ]; then
@@ -180,7 +180,7 @@ function DISK_PARTITION {
             done
 	    clear
 	    log "Enter your swap partition \n here the list of your partitions: ${partition_list[@]}"
-    	    echo -e "Input: "
+    	    echo -n "Input: "
    	    read swap_partition
 	    for item in "${partition_list[@]}"; do
     		if [[ "$item" == "${swap_partition}" ]]; then
@@ -202,7 +202,7 @@ function DISK_PARTITION {
                     fi
                 done
 	        log "Enter your EFI partition \n here the list of your partitions: ${partition_list[@]}"
-    	        echo -e "Input: "
+    	        echo -n "Input: "
    	        read efi_partition
 		for item in "${partition_list[@]}"; do
     		    if [[ "$item" == "${efi_partition}" ]]; then

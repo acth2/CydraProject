@@ -154,7 +154,7 @@ function GET_USER_INFOS {
 function DISK_PARTITION {
     clear
     section "DISK PARTITIONNING"
-    log "Enter your system partition \n here the list of your partitions: ${partition_list[@]}"
+    log "Enter your system partition \nhere the list of your partitions: ${partition_list[@]}"
     echo -n "Input: "
     read chosen_partition
     for item in "${partition_list[@]}"; do
@@ -179,7 +179,7 @@ function DISK_PARTITION {
                 fi
             done
 	    clear
-	    log "Enter your swap partition \n here the list of your partitions: ${partition_list[@]}"
+	    log "Enter your swap partition \nhere the list of your partitions: ${partition_list[@]}"
     	    echo -n "Input: "
    	    read swap_partition
 	    for item in "${partition_list[@]}"; do
@@ -201,7 +201,7 @@ function DISK_PARTITION {
                         break
                     fi
                 done
-	        log "Enter your EFI partition \n here the list of your partitions: ${partition_list[@]}"
+	        log "Enter your EFI partition \nhere the list of your partitions: ${partition_list[@]}"
     	        echo -n "Input: "
    	        read efi_partition
 		for item in "${partition_list[@]}"; do

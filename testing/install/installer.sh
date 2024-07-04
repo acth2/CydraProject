@@ -169,7 +169,7 @@ function DISK_PARTITION {
 	sleep 2
         DISK_PARTITION
     fi
-    chosen_partition_size_kb=$(df -k --output=size "$PARTITION" | tail -n 1)
+    chosen_partition_size_kb=$(df -k --output=size "${chosen_partition}" | tail -n 1)
     chosen_partition_size_gb=$((${chosen_partition_size_kb} / 1048576))
     if [ "${chosen_partition_size_gb}" -ge "25" ]; then
         if dialog --yesno "Do you want to create a swap partition?" 25 85 --stdout; then
@@ -205,12 +205,21 @@ function DISK_PARTITION {
 	        log "Enter your EFI partition \nhere the list of your partitions: ${partition_list[@]}"
     	        echo -n "Input: "
    	        read efi_partition
+		efi_partition_size_kb=$(df -k --output=size "${efi_partition}" | tail -n 1)
+    	   	efi_partition_size_gb=$((${efi_chosen_partition_size_kb} / 1048576))
 		for item in "${partition_list[@]}"; do
     		    if [[ "$item" == "${efi_partition}" ]]; then
                         IS_EFI=0
+			if [ "3" -ge "${efi_partition_size_gb}" ]; then
+                            IS_EFI=2
+                        fi
                         break
                     fi
                 done
+	        if [[ ${IS_EFI} == 2 ]]; then
+                    log "Error: EFI will not be used.. Not enough space"
+                fi
+		
 		if [[ ${IS_EFI} == 1 ]]; then
                    log "Error: EFI will not be used.. Bad values"
                 fi

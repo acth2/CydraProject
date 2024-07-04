@@ -169,8 +169,9 @@ function DISK_PARTITION {
 	sleep 2
         DISK_PARTITION
     fi
-    chosen_partition_size=$(lsblk -b -n -o SIZE -d "${chosen_partition}" | awk '{printf "%.2f", $1 / (1024 * 1024 * 1024)}')
-    if [ "${chosen_partition_size}" -gt "25" ]; then
+    chosen_partition_size_kb=$(df -k --output=size "$PARTITION" | tail -n 1)
+    chosen_partition_size_gb=$((${chosen_partition_size_kb} / 1048576))
+    if [ "${chosen_partition_size_gb}" -ge "25" ]; then
         if dialog --yesno "Do you want to create a swap partition?" 25 85 --stdout; then
             for i in "${!partition_list[@]}"; do
                 if [ "${partition_list[i]}" = "${chosen_partition}" ]; then

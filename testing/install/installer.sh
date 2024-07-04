@@ -223,11 +223,6 @@ function DISK_PARTITION {
                 fi
             fi
         fi
-    else
-	dialog --msgbox "Error. The chosen partition is too little to contain the system. 25GB at least." 15 100
-        unset chosen_partition chosen_partition_size
-	DISK_PARTITION
-    fi
 }
 
 function DISK_INSTALL {

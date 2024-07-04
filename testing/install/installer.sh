@@ -152,26 +152,24 @@ function GET_USER_INFOS {
 #		DISK PARTITION		#
 
 function DISK_PARTITION {
-    clear
-    section "DISK PARTITIONNING"
-    log "Enter your system partition \nhere the list of your partitions: ${partition_list[@]}"
-    echo -n "Input: "
-    read chosen_partition
-    for item in "${partition_list[@]}"; do
-        if [[ "$item" == "${chosen_partition}" ]]; then
-            CORRECTDISK=1
-            break
-        fi
-    done
+        clear
+        section "DISK PARTITIONNING"
+        log "Enter your system partition \nhere the list of your partitions: ${partition_list[@]}"
+        echo -n "Input: "
+        read chosen_partition
+        for item in "${partition_list[@]}"; do
+            if [[ "$item" == "${chosen_partition}" ]]; then
+                CORRECTDISK=1
+                break
+            fi
+        done
     
-    if [[ ${CORRECTDISK} == 0 ]]; then
-        log "Error: System disk not found.."
-	sleep 2
-        DISK_PARTITION
-    fi
-    chosen_partition_size_kb=$(df -k --output=size "${chosen_partition}" | tail -n 1)
-    chosen_partition_size_gb=$((${chosen_partition_size_kb} / 1048576))
-    if [ "${chosen_partition_size_gb}" -ge "25" ]; then
+        if [[ ${CORRECTDISK} == 0 ]]; then
+            log "Error: System disk not found.."
+	    sleep 2
+            DISK_PARTITION
+        fi
+	
         if dialog --yesno "Do you want to create a swap partition?" 25 85 --stdout; then
             for i in "${!partition_list[@]}"; do
                 if [ "${partition_list[i]}" = "${chosen_partition}" ]; then

@@ -200,6 +200,7 @@ function DISK_PARTITION {
                         break
                     fi
                 done
+		clear
 	        log "Enter your EFI partition \nhere the list of your partitions: ${partition_list[@]}"
     	        echo -n "Input: "
    	        read efi_partition

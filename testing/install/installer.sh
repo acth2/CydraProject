@@ -347,7 +347,7 @@ function main {
 
 
 	# If the user wants to continue the installation or return to the beginning
-	if dialog --title "Install cydralite"  --yesno "The Installation will start do you want to continue?" 25 85 --stdout; then
+	if dialog --yesno "The Installation will start. Continue?" 25 85 --stdout; then
 
 		# If any field was left blank
 		if [[ -z "${password}" || -z "${language}" || -z "${machine_name}" || -z "${chosen_partition}" ]]; then

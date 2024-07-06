@@ -49,3 +49,5 @@ Ma VM qui contient l'os n'a pas assez d'espace disque et pour des raisons divers
 L'installeur avance tres bien ! Le contenu de l'iso sera sur le github a l'exception des font grub et du fichier .sfs de l'os pour des raisons évidentes de places.
 
 Toutes les modifications sur l'iso que j'ai fait depuis 10 jours sont portés sur github
+
+Mon pc est re broken ...

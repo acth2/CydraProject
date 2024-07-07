@@ -18,7 +18,7 @@ make prefix=/usr install-pos
 echo "THE INSTALLATION GUIDE IS STARTING SOON!"
 sleep 3
 /usr/bin/installer
-clear
+#clear debug
 echo "You can remove the cydralite installation guide from your computer and reboot!"
 sleep 5
 reboot

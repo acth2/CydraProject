@@ -96,13 +96,13 @@ function get_informations {
                --form "System informations" \
                15 50 0 \
                "Machine Name:" 1 1 "${machine_name}" 1 17 30 0 \
-               "Username:" 2 1 "${user_name}" 2 17 30 0 \
-               "Root Password:" 3 1 "${password}" 3 17 30 0 \
+               "Username:" 2 1 "${username}" 2 17 30 0 \
+               "Password:" 3 1 "${password}" 3 17 30 0 \
                2>&1 1>&3)
 
 	exec 3>&-
 	machine_name=$(echo "${GLOBALVALUES}" | awk -F: '{print $1}')
-	user_name=$(echo "${GLOBALVALUES}" | awk -F: '{print $2}')
+	username=$(echo "${GLOBALVALUES}" | awk -F: '{print $2}')
 	password=$(echo "${GLOBALVALUES}" | awk -F: '{print $3}')
 }
 
@@ -350,7 +350,7 @@ function main {
 	if dialog --yesno "The Installation will start. Continue?" 25 85 --stdout; then
 
 		# If any field was left blank
-		if [[ -z "${password}" || -z "${language}" || -z "${machine_name}" || -z "${chosen_partition}" ]]; then
+		if [[ -z "${password}" || -z "${username}" || -z "${machine_name}" || -z "${chosen_partition}" ]]; then
 			err  "$@"
                         main "$@"
 		elif [[ ${WIRELESS} = 1 ]]; then

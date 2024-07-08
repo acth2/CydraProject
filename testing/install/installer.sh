@@ -205,7 +205,7 @@ function DISK_PARTITION {
     	        echo -n "Input: "
    	        read efi_partition
 		efi_partition_size_kb=$(df -k --output=size "${efi_partition}" | tail -n 1)
-    	   	efi_partition_size_gb=$((${efi_chosen_partition_size_kb} / 1048576))
+    	   	efi_partition_size_gb=$((efi_chosen_partition_size_kb / 1048576))
 		for item in "${partition_list[@]}"; do
     		    if [[ "$item" == "${efi_partition}" ]]; then
                         IS_EFI=0

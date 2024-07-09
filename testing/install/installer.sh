@@ -88,22 +88,17 @@ function get_language {
 }
 
 function get_informations {
-	exec 3>&1
+    GLOBALVALUES=$(dialog --ok-label "Continue" \
+    	--backtitle "System informations" \
+    	--title "Enter the informations" \
+    	--form "System informations" \
+    	15 50 0 \
+    	"Machine Name:" 1 1 "${machine_name}" 1 17 30 0 \
+    	"Username:" 2 1 "${username}" 2 17 30 0 \
+    	"Password:" 3 1 "${password}" 3 17 30 0 \
+    	3>&1 1>&2 2>&3 3>&-)
 
-	GLOBALVALUES=$(dialog --ok-label "Valider" \
-               --backtitle "System informations" \
-               --title "Enter the informations" \
-               --form "System informations" \
-               15 50 0 \
-               "Machine Name:" 1 1 "${machine_name}" 1 17 30 0 \
-               "Username:" 2 1 "${username}" 2 17 30 0 \
-               "Password:" 3 1 "${password}" 3 17 30 0 \
-               2>&1 1>&3)
-
-	exec 3>&-
-	machine_name=$(echo "${GLOBALVALUES}" | awk -F: '{print $1}')
-	username=$(echo "${GLOBALVALUES}" | awk -F: '{print $2}')
-	password=$(echo "${GLOBALVALUES}" | awk -F: '{print $3}')
+    IFS=$'\n' read -r machine_name username password <<< "$(echo "${GLOBALVALUES}" | tr ':' '\n')"
 }
 
 

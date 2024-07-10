@@ -96,7 +96,7 @@ function get_informations {
 
 
 function configure_network {
-	if dialog --yesno "Does the system use Wireless connection?" 0 0 --stdout; then
+	if dialog --yesno "Does the system should use Wireless connection?" 0 0 --stdout; then
             WIRELESS=1
 	    log "Configuring network"
 

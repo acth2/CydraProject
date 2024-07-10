@@ -90,7 +90,7 @@ function get_language {
 function get_informations {
 	log "Getting machine name"
 	machine_name="$(dialog --title "System informations" --inputbox "Enter machine name:" 0 0 --stdout)"
-        username="$(dialog --title "System informations" --inputbox "Enter machine username:" 0 0 --stdout)"
+        username="$(dialog --title "System informations" --inputbox "Enter your username:" 0 0 --stdout)"
         password="$(dialog --title "System informations" --insecure --passwordbox "Enter machine password" 0 0 --stdout)"
 }
 

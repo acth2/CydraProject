@@ -217,7 +217,7 @@ function DISK_PARTITION {
 function DISK_INSTALL {
     section "INSTALL DISK"
 
-    mkfs.ext4 ${chosen_partition}
+    mkfs.ext4 -F ${chosen_partition}
 }
 
 #		GRUB CONFIGURATION		#
@@ -239,7 +239,7 @@ function GRUB_CONF {
 	    swapPartitionUuid=$(blid ${swap_partion})
         fi
         efiPartitionUuid=$(blid ${efi_partion})
-	mkfs.vfat ${efi_partition}
+	mkfs.vfat -F ${efi_partition}
 	echo -e "t\n\nuefi\nw" | fdisk ${efi_partition}
         mkdir /mnt/efi
 	mount ${efi_partition} /mnt/efi

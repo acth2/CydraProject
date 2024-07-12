@@ -227,18 +227,18 @@ function GRUB_CONF {
 
 
     if [ IS_EFI = 1 ]; then
-        mainPartitionUuid=$(blid ${chosen_partion})
+        mainPartitionUuid=$(blkid ${chosen_partion})
 	if [ SWAPUSED = 0 ]; then
-	    swapPartitionUuid=$(blid ${swap_partion})
+	    swapPartitionUuid=$(blkid ${swap_partion})
         fi
 	mkdir /mnt/install/boot
         grub-install --root-directory=/mnt/install/boot ${chosen_partition}
     else
-        mainPartitionUuid=$(blid ${chosen_partion})
+        mainPartitionUuid=$(blkid ${chosen_partion})
 	if [ SWAPUSED = 0 ]; then
-	    swapPartitionUuid=$(blid ${swap_partion})
+	    swapPartitionUuid=$(blkid ${swap_partion})
         fi
-        efiPartitionUuid=$(blid ${efi_partion})
+        efiPartitionUuid=$(blkid ${efi_partion})
 	mkfs.vfat -F ${efi_partition}
 	echo -e "t\n\nuefi\nw" | fdisk ${efi_partition}
         mkdir /mnt/efi

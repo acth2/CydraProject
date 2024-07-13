@@ -239,11 +239,11 @@ function GRUB_CONF {
 	    swapPartitionUuid=$(blkid ${swap_partion})
         fi
         efiPartitionUuid=$(blkid ${efi_partion})
-	mkfs.vfat -F ${efi_partition}
-	echo -e "t\n\nuefi\nw" | fdisk ${efi_partition}
+	sudo mkfs.vfat -F 32 -n "${efi_partition}" "${efi_partition}1"
+	echo -e "t\n\nuefi\nw" | fdisk "${efi_partition}1"
         mkdir /mnt/efi
-	mount ${efi_partition} /mnt/efi
-        grub-install ${efi_partition} --root-directory=/mnt/efi --target=x86_64-efi --removable
+	mount "${efi_partition}1" /mnt/efi
+        grub-install "${efi_partition}1" --root-directory=/mnt/efi --target=x86_64-efi --removable
 	rm -f "${efi_partition}/boot/grub/grub.cfg"
     fi
     rm -rf /mnt/install/boot/grub/grub.cfg
@@ -316,10 +316,10 @@ function INIT_SWAP {
 
 function CLEAN_LIVE {
     section "CLEANING LIVECD BEFORE REBOOTING"
-
-    umount /mnt/install > /dev/null 2>&1;
-    umount /mnt/efi > /dev/null 2>&1;
-    umount /mnt/temp > /dev/null 2>&1;
+    # > /dev/null 2>&1;
+    umount /mnt/install
+    umount /mnt/efi
+    umount /mnt/temp
 }
 
 
@@ -348,7 +348,7 @@ function main {
                      fi	
                 else
        			log "installation on '${chosen_partition}'"
-	                if dialog --yesno "!! WARNING !! \n\n EVERY DATA ON THE DISK WILL BE ERASED.\n Do you want to continue ?" 25 85 --stdout; then
+	                if dialog --yesno "!! WARNING !! \n\nEVERY DATA ON THE DISK WILL BE ERASED.\nDo you want to continue ?" 25 85 --stdout; then
             		     DISK_INSTALL
 		   	     GRUB_CONF
             		     INSTALL_CYDRA

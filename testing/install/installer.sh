@@ -12,7 +12,7 @@ IS_EFI=1
 SWAPUSED=0
 CORRECTDISK=0
 OLD_PASSWORD=""
-partition_list=($(lsblk -nr -o NAME,TYPE | awk '$2 == "disk" || $2 == "part" {print "/dev/" $1}'));
+partition_list=($(lsblk -nr -o NAME,TYPE | awk '$2 == "disk" {print "/dev/" $1}'));
 WIRELESS=0
 declare -A AVAILIBLE_LANGUAGES=(
 	[1]=en-US
@@ -239,7 +239,7 @@ function GRUB_CONF {
 	    swapPartitionUuid=$(blkid ${swap_partion})
         fi
         efiPartitionUuid=$(blkid ${efi_partion})
-	sudo mkfs.vfat -F 32 -n "${efi_partition}" "${efi_partition}1"
+	mkfs.vfat -F 32 -n "${efi_partition}" "${efi_partition}1"
 	echo -e "t\n\nuefi\nw" | fdisk "${efi_partition}1"
         mkdir /mnt/efi
 	mount "${efi_partition}1" /mnt/efi
@@ -287,7 +287,7 @@ function INSTALL_CYDRA {
     cp -r "/mnt/temp/*" "/mnt/install"
     rm -f /mnt/install/etc/fstab
     touch /mnt/install/etc/fstab
-    echo "#CydraLite FSTAB File, Make a backup if you want to modify this file." > /mnt/install/etc/fstab
+    echo "#CydraLite FSTAB File, Make a backup if you want to modify it.." > /mnt/install/etc/fstab
     echo "" > /mnt/install/etc/fstab
     echo "UUID=${mainPartitionUuid}     /            ext4    defaults            1     1" > /mnt/install/etc/fstab
     if [ SWAPUSED = 0 ]; then
@@ -316,10 +316,10 @@ function INIT_SWAP {
 
 function CLEAN_LIVE {
     section "CLEANING LIVECD BEFORE REBOOTING"
-    # > /dev/null 2>&1;
-    umount /mnt/install
-    umount /mnt/efi
-    umount /mnt/temp
+
+    umount /mnt/install > /dev/null 2>&1;
+    umount /mnt/efi > /dev/null 2>&1;
+    umount /mnt/temp > /dev/null 2>&1;
 }
 
 

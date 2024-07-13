@@ -340,11 +340,11 @@ function main {
 		# If any field was left blank
 		if [[ -z "${password}" || -z "${username}" || -z "${machine_name}" || -z "${chosen_partition}" ]]; then
 			err  "$@"
-                        main "$@"
+                        /usr/bin/install
 		elif [[ ${WIRELESS} = 1 ]]; then
                      if [[ -z "${network_name}" || -z "${network_password}" ]]; then
         		     err  "$@"
-                             main "$@"
+                             /usr/bin/install
                      fi	
                 else
        			log "installation on '${chosen_partition}'"
@@ -358,9 +358,9 @@ function main {
 	     		     dialog --msgbox "Installation is finished, thanks for using CydraOS !" 0 0
 	                else
   			     if dialog --yesno "Do you want to exit the Installation ?" 15 35 --stdout; then
-			          main "$@"
+			          halt
                              else
-                                  halt
+                                  /usr/bin/install
 	                     fi
                         fi
 			exit 0

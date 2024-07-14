@@ -216,7 +216,9 @@ function DISK_PARTITION {
 
 function DISK_INSTALL {
     section "INSTALL DISK"
-
+    mkdir -p "/mnt/install"
+    mkdir -p "/mnt/efi"
+    mkdir -p "/mnt/temp"
     mkfs.ext4 -F ${chosen_partition}
 }
 
@@ -239,8 +241,8 @@ function GRUB_CONF {
 	    swapPartitionUuid=$(blkid ${swap_partion})
         fi
         efiPartitionUuid=$(blkid ${efi_partion})
-	mkfs.vfat -F 32 -n "${efi_partition}" "${efi_partition}1"
-	echo -e "t\n\nuefi\nw" | fdisk "${efi_partition}1"
+	mkfs.vfat -F 32 -n "${efi_partition}" "${efi_partition}"
+	echo -e "t\n\nuefi\nw" | fdisk "${efi_partition}"
         mkdir /mnt/efi
 	mount "${efi_partition}1" /mnt/efi
         grub-install "${efi_partition}1" --root-directory=/mnt/efi --target=x86_64-efi --removable
@@ -309,7 +311,7 @@ function INSTALL_CYDRA {
 #		INIT SWAP		#
 
 function INIT_SWAP {
-    mkswap ${chosen_swap}
+    mkswap -f ${chosen_swap}
 }
 
 #		CLEAN UP		#
@@ -349,6 +351,7 @@ function main {
                 else
        			log "installation on '${chosen_partition}'"
 	                if dialog --yesno "!! WARNING !! \n\nEVERY DATA ON THE DISK WILL BE ERASED.\nDo you want to continue ?" 25 85 --stdout; then
+		             mkdir -p ""
             		     DISK_INSTALL
 		   	     GRUB_CONF
             		     INSTALL_CYDRA

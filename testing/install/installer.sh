@@ -12,7 +12,7 @@ IS_EFI=1
 SWAPUSED=0
 CORRECTDISK=0
 OLD_PASSWORD=""
-partition_list=($(lsblk -nr -o NAME,TYPE | awk '$2 == "disk" || $2 == "part" {print "/dev/" $1}'));
+partition_list=($(lsblk -nr -o NAME,TYPE | awk '$2 == "disk" {print "/dev/" $1}'));
 WIRELESS=0
 declare -A AVAILIBLE_LANGUAGES=(
 	[1]=en-US
@@ -88,27 +88,15 @@ function get_language {
 }
 
 function get_informations {
-	exec 3>&1
-
-	GLOBALVALUES=$(dialog --ok-label "Valider" \
-               --backtitle "System informations" \
-               --title "Enter the informations" \
-               --form "System informations" \
-               15 50 0 \
-               "Machine Name:" 1 1 "${machine_name}" 1 17 30 0 \
-               "Username:" 2 1 "${user_name}" 2 17 30 0 \
-               "Root Password:" 3 1 "${password}" 3 17 30 0 \
-               2>&1 1>&3)
-
-	exec 3>&-
-	machine_name=$(echo "${GLOBALVALUES}" | awk -F: '{print $1}')
-	user_name=$(echo "${GLOBALVALUES}" | awk -F: '{print $2}')
-	password=$(echo "${GLOBALVALUES}" | awk -F: '{print $3}')
+	log "Getting machine name"
+	machine_name="$(dialog --title "System informations" --inputbox "Enter machine name:" 0 0 --stdout)"
+        username="$(dialog --title "System informations" --inputbox "Enter your username:" 0 0 --stdout)"
+        password="$(dialog --title "System informations" --insecure --passwordbox "Enter machine password" 0 0 --stdout)"
 }
 
 
 function configure_network {
-	if dialog --yesno "Does the system use Wireless connection?" 0 0 --stdout; then
+	if dialog --yesno "Does the system should use Wireless connection?" 0 0 --stdout; then
             WIRELESS=1
 	    log "Configuring network"
 
@@ -152,25 +140,24 @@ function GET_USER_INFOS {
 #		DISK PARTITION		#
 
 function DISK_PARTITION {
-    clear
-    section "DISK PARTITIONNING"
-    log "Enter your system partition \n here the list of your partitions: ${partition_list[@]}"
-    echo -e "Input: "
-    read chosen_partition
-    for item in "${partition_list[@]}"; do
-        if [[ "$item" == "${chosen_partition}" ]]; then
-            CORRECTDISK=1
-            break
-        fi
-    done
+        clear
+        section "DISK PARTITIONNING"
+        log "Enter your system partition \nhere the list of your partitions: ${partition_list[@]}"
+        echo -n "Input: "
+        read chosen_partition
+        for item in "${partition_list[@]}"; do
+            if [[ "$item" == "${chosen_partition}" ]]; then
+                CORRECTDISK=1
+                break
+            fi
+        done
     
-    if [[ ${CORRECTDISK} == 0 ]]; then
-        log "Error: System disk not found.."
-	sleep 2
-        DISK_PARTITION
-    fi
-    chosen_partition_size=$(lsblk -b -n -o SIZE -d "${chosen_partition}" | awk '{printf "%.2f", $1 / (1024 * 1024 * 1024)}')
-    if [ "${chosen_partition_size}" -ge "25.00" ]; then
+        if [[ ${CORRECTDISK} == 0 ]]; then
+            log "Error: System disk not found.."
+	    sleep 2
+            DISK_PARTITION
+        fi
+	
         if dialog --yesno "Do you want to create a swap partition?" 25 85 --stdout; then
             for i in "${!partition_list[@]}"; do
                 if [ "${partition_list[i]}" = "${chosen_partition}" ]; then
@@ -179,8 +166,8 @@ function DISK_PARTITION {
                 fi
             done
 	    clear
-	    log "Enter your swap partition \n here the list of your partitions: ${partition_list[@]}"
-    	    echo -e "Input: "
+	    log "Enter your swap partition \nhere the list of your partitions: ${partition_list[@]}"
+    	    echo -n "Input: "
    	    read swap_partition
 	    for item in "${partition_list[@]}"; do
     		if [[ "$item" == "${swap_partition}" ]]; then
@@ -201,31 +188,38 @@ function DISK_PARTITION {
                         break
                     fi
                 done
-	        log "Enter your EFI partition \n here the list of your partitions: ${partition_list[@]}"
-    	        echo -e "Input: "
+		clear
+	        log "Enter your EFI partition \nhere the list of your partitions: ${partition_list[@]}"
+    	        echo -n "Input: "
    	        read efi_partition
+		efi_partition_size_kb=$(df -k --output=size "${efi_partition}" | tail -n 1)
+    	   	efi_partition_size_gb=$((efi_chosen_partition_size_kb / 1048576))
 		for item in "${partition_list[@]}"; do
     		    if [[ "$item" == "${efi_partition}" ]]; then
                         IS_EFI=0
+			if [ "3" -ge "${efi_partition_size_gb}" ]; then
+                            IS_EFI=2
+                        fi
                         break
                     fi
                 done
+	        if [[ ${IS_EFI} == 2 ]]; then
+                    log "Error: EFI will not be used.. Not enough space"
+                fi
+		
 		if [[ ${IS_EFI} == 1 ]]; then
                    log "Error: EFI will not be used.. Bad values"
                 fi
             fi
         fi
-    else
-	dialog --msgbox "Error. The chosen partition is too little to contain the system. 25GB at least." 15 100
-        unset chosen_partition chosen_partition_size
-	DISK_PARTITION
-    fi
 }
 
 function DISK_INSTALL {
     section "INSTALL DISK"
-
-    mkfs.ext4 ${chosen_partition}
+    mkdir -p "/mnt/install"
+    mkdir -p "/mnt/efi"
+    mkdir -p "/mnt/temp"
+    mkfs.ext4 -F ${chosen_partition}
 }
 
 #		GRUB CONFIGURATION		#
@@ -235,23 +229,23 @@ function GRUB_CONF {
 
 
     if [ IS_EFI = 1 ]; then
-        mainPartitionUuid=$(blid ${chosen_partion})
+        mainPartitionUuid=$(blkid ${chosen_partion})
 	if [ SWAPUSED = 0 ]; then
-	    swapPartitionUuid=$(blid ${swap_partion})
+	    swapPartitionUuid=$(blkid ${swap_partion})
         fi
 	mkdir /mnt/install/boot
         grub-install --root-directory=/mnt/install/boot ${chosen_partition}
     else
-        mainPartitionUuid=$(blid ${chosen_partion})
+        mainPartitionUuid=$(blkid ${chosen_partion})
 	if [ SWAPUSED = 0 ]; then
-	    swapPartitionUuid=$(blid ${swap_partion})
+	    swapPartitionUuid=$(blkid ${swap_partion})
         fi
-        efiPartitionUuid=$(blid ${efi_partion})
-	mkfs.vfat ${efi_partition}
-	echo -e "t\n\nuefi\nw" | fdisk ${efi_partition}
+        efiPartitionUuid=$(blkid ${efi_partion})
+	mkfs.vfat -F 32 -n "${efi_partition}" "${efi_partition}"
+	echo -e "t\n\nuefi\nw" | fdisk "${efi_partition}"
         mkdir /mnt/efi
-	mount ${efi_partition} /mnt/efi
-        grub-install ${efi_partition} --root-directory=/mnt/efi --target=x86_64-efi --removable
+	mount "${efi_partition}1" /mnt/efi
+        grub-install "${efi_partition}1" --root-directory=/mnt/efi --target=x86_64-efi --removable
 	rm -f "${efi_partition}/boot/grub/grub.cfg"
     fi
     rm -rf /mnt/install/boot/grub/grub.cfg
@@ -295,7 +289,7 @@ function INSTALL_CYDRA {
     cp -r "/mnt/temp/*" "/mnt/install"
     rm -f /mnt/install/etc/fstab
     touch /mnt/install/etc/fstab
-    echo "#CydraLite FSTAB File, Make a backup if you want to modify this file." > /mnt/install/etc/fstab
+    echo "#CydraLite FSTAB File, Make a backup if you want to modify it.." > /mnt/install/etc/fstab
     echo "" > /mnt/install/etc/fstab
     echo "UUID=${mainPartitionUuid}     /            ext4    defaults            1     1" > /mnt/install/etc/fstab
     if [ SWAPUSED = 0 ]; then
@@ -317,7 +311,7 @@ function INSTALL_CYDRA {
 #		INIT SWAP		#
 
 function INIT_SWAP {
-    mkswap ${chosen_swap}
+    mkswap -f ${chosen_swap}
 }
 
 #		CLEAN UP		#
@@ -343,20 +337,21 @@ function main {
 
 
 	# If the user wants to continue the installation or return to the beginning
-	if dialog --yesno "Installation will start, do you want to continue ?" 15 75 --stdout; then
+	if dialog --yesno "The Installation will start. Continue?" 25 85 --stdout; then
 
 		# If any field was left blank
-		if [[ -z "${password}" || -z "${language}" || -z "${machine_name}" || -z "${chosen_partition}" ]]; then
+		if [[ -z "${password}" || -z "${username}" || -z "${machine_name}" || -z "${chosen_partition}" ]]; then
 			err  "$@"
-                        main "$@"
+                        /usr/bin/install
 		elif [[ ${WIRELESS} = 1 ]]; then
                      if [[ -z "${network_name}" || -z "${network_password}" ]]; then
         		     err  "$@"
-                             main "$@"
+                             /usr/bin/install
                      fi	
                 else
        			log "installation on '${chosen_partition}'"
-	                if dialog --yesno "!! WARNING !! \n\n EVERY DATA ON THE DISK WILL BE ERASED.\n Do you want to continue ?" 25 85 --stdout; then
+	                if dialog --yesno "!! WARNING !! \n\nEVERY DATA ON THE DISK WILL BE ERASED.\nDo you want to continue ?" 25 85 --stdout; then
+		             mkdir -p ""
             		     DISK_INSTALL
 		   	     GRUB_CONF
             		     INSTALL_CYDRA
@@ -366,9 +361,9 @@ function main {
 	     		     dialog --msgbox "Installation is finished, thanks for using CydraOS !" 0 0
 	                else
   			     if dialog --yesno "Do you want to exit the Installation ?" 15 35 --stdout; then
-			          main "$@"
+			          halt
                              else
-                                  halt
+                                  /usr/bin/install
 	                     fi
                         fi
 			exit 0

@@ -49,3 +49,9 @@ Ma VM qui contient l'os n'a pas assez d'espace disque et pour des raisons divers
 L'installeur avance tres bien ! Le contenu de l'iso sera sur le github a l'exception des font grub et du fichier .sfs de l'os pour des raisons évidentes de places.
 
 Toutes les modifications sur l'iso que j'ai fait depuis 10 jours sont portés sur github
+
+Mon pc est re broken ...
+RE: Je ne sais pas si je vais pouvoir bossé sur l'os aujourd'hui puisse que mon virtualbox ne veux tjr par marché ...
+
+
+L'installeur méttaient des logs d'erreurs tres vites j'ai du donc utilisé obs record l'installation apres reboot grub n'est plus détecté et je boot sur mon bios.. je dois donc utilisé une clé usb pour détecté les fichiers efi et démarré dessus .... oui bien goofy je sais mais quoi qu'il en sois le dev recommence réellement bruh

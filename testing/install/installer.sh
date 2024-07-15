@@ -87,6 +87,7 @@ function get_language {
             log "Language set to '${language}'"
         else
             log "Empty output, US by default.."
+	    sleep 2
         fi
 
 }

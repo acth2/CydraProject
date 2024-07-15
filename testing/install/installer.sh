@@ -81,10 +81,14 @@ function get_password {
 function get_language {
 	log "Getting language"
 
-	language="$(dialog --title "Dialog title" --inputbox "Enter language name (fr / us ):" 0 0 --stdout)"
-        loadkeys ${language}
+	language="$(dialog --title "Dialog title" --inputbox "Enter language name (fr / us):" 0 0 --stdout)"
+        if [[ ! -n "${language}" ]]; then
+	    loadkeys ${language}
+            log "Language set to '${language}'"
+        else
+            log "Empty output, US by default.."
+        fi
 
-	log "Language set to '${language}'"
 }
 
 function get_informations {

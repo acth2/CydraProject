@@ -109,19 +109,21 @@ function configure_network {
 	    network_name="$(dialog --title "Network name" --inputbox "Enter network name:" 0 0 --stdout)"
 	    network_password="$(dialog --title "Network password" --insecure --passwordbox "Enter network password:" 0 0 --stdout)"
 
-	    # Activating wireless interface
 	    log "Configuration of the network."
 
 	    sudo ifconfig wlp3s0 up
 	    sudo wpa_passphrase WLAN_NAME WLAN_PASSWORD > /etc/wpa_supplicant.conf
 
-	    log "Connecting to network"
+	    log "Configuration to network"
 	    wpa_supplicant -B -i wlp3s0 -c /etc/wpa_supplicant.conf -D wext
      	    mkdir "/root/installdir"
             mv "/etc/unusedwireless" "/root/installdir/25-wireless.network"
-	    log "Network configured. Reboot necessary."
+	    log "Network configured"
+            sleep 2
         else
             rm -f "/etc/unusedwirless"
+	    log "Network configured"
+            sleep 2
         fi
 }
 

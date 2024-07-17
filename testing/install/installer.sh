@@ -368,8 +368,20 @@ function main {
 	     		     dialog --msgbox "Installation is finished, thanks for using CydraOS !" 0 0
 	                else
   			     if dialog --yesno "Do you want to exit the Installation ?" 15 35 --stdout; then
+	                          export PS1="Exiting system..."
 			          halt
                              else
+			          log "Cleaning the vars.."
+	                          sleep 1
+	                          unset "IS_EFI"
+			          unset "SWAPUSED"
+	                          unset "CORRECTDISK"
+			          unset "OLD_PASSWORD"
+	                          unset "partition_list"
+			          unset "WIRELESS"
+	                          unset "AVAILIBLE_LANGUAGES"
+			          log "vars cleaned, restarting installation.."
+			          sleep 2
                                   /usr/bin/install
 	                     fi
                         fi

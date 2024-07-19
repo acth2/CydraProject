@@ -248,40 +248,63 @@ function GRUB_CONF {
 	    swapPartitionUuid=$(blkid ${swap_partion})
         fi
         efiPartitionUuid=$(blkid ${efi_partion})
-	mkfs.vfat -F 32 -n "${efi_partition}" "${efi_partition}" ##########################
-	echo -e "t\n\nuefi\nw" | fdisk "${efi_partition}"
+	if [[ "$efi_partition" =~ [0-9]$ ]]; then
+  	     efi_device=$(echo "$efi_partition" | sed 's/[0-9]*$//')
+  	     efi_partition_number=$(echo "$efi_partition" | grep -o '[0-9]*$')
+
+  	     (
+ 	     echo "t" 
+ 	     echo "${efi_artition_number}"  
+  	     echo "1"  
+             echo "w"   
+             ) | sudo fdisk "${efi_device}"
+  	     log "The partition ${efi_partition} has been set to EFI System Partition."
+
+	else
+              (
+              echo "n"   
+              echo "p"   
+              echo "1"   
+              echo       
+              echo       
+              echo "t" 
+              echo "1" 
+              echo "w"
+              ) | sudo fdisk "${efi_partition}"
+ 	      log "An EFI partition has been created on the device ${efi_partition}."
+	fi
         mkdir /mnt/efi
-	mount "${efi_partition}1" /mnt/efi
+	mount "${efi_partition}1" "/mnt/efi"
         grub-install "${efi_partition}1" --root-directory=/mnt/efi --target=x86_64-efi --removable
 	rm -f "${efi_partition}/boot/grub/grub.cfg"
     fi
-    rm -rf /mnt/install/boot/grub/grub.cfg
-    rm -rf /mnt/efi/boot/grub/grub.cfg
-    touch /mnt/install/boot/grub/grub.cfg
-    touch /mnt/efi/boot/grub/grub.cfg
+    rm -rf "/mnt/install/boot/grub/grub.cfg"
+    rm -rf "/mnt/efi/boot/grub/grub.cf"
+    touch "/mnt/install/boot/grub/grub.cfg"
+    touch "/mnt/efi/boot/grub/grub.cfg"
     chosen_partition_suffix="${chosen_partition#/dev/sd}"
     chosen_partition_letter="${chosen_partition_suffix:0:1}"
     grubrootnum0=$(( $(printf "%d" "'${chosen_partition_letter}") - 96 ))
     grubrootnum1="${chosen_partition_suffix:1}"
-    echo "set default=0" > /mnt/efi/boot/grub/grub.cfg
-    echo "set timeout=5" > /mnt/efi/boot/grub/grub.cfg
-    echo "" > /mnt/efi/boot/grub/grub.cfg
-    echo "insmod part_gpt" > /mnt/efi/boot/grub/grub.cfg
-    echo "insmod ext2" > /mnt/efi/boot/grub/grub.cfg
-    echo "set root=(hd${grubrootnum0},${grubrootnum1})" > /mnt/efi/boot/grub/grub.cfg
-    echo "" > /mnt/efi/boot/grub/grub.cfg
-    echo "insmod all_video" > /mnt/efi/boot/grub/grub.cfg
-    echo "if loadfont /boot/grub/fonts/unicode.pf2; then" > /mnt/efi/boot/grub/grub.cfg
-    echo "  terminal_output gfxterm" > /mnt/efi/boot/grub/grub.cfg
-    echo "fi" > /mnt/efi/boot/grub/grub.cfg
-    echo "" > /mnt/efi/boot/grub/grub.cfg
-    echo 'menuentry "GNU/Linux, CydraLite Release V2.0"  {' > /mnt/efi/boot/grub/grub.cfg
-    echo "  linux   /boot/os root=UUID=${mainPartitionUuid} ro" > /mnt/efi/boot/grub/grub.cfg
-    echo "}" > /mnt/efi/boot/grub/grub.cfg
-    echo "" > /mnt/efi/boot/grub/grub.cfg
-    echo "menuentry "Firmware Setup" {" > /mnt/efi/boot/grub/grub.cfg
-    echo "  fwsetup" > /mnt/efi/boot/grub/grub.cfg
-    echo "}" > /mnt/efi/boot/grub/grub.cfg
+    echo "set default=0" >> "/mnt/efi/boot/grub/grub.cfg"
+    echo "set timeout=5" >> "/mnt/efi/boot/grub/grub.cfg"
+    echo "" >> "/mnt/efi/boot/grub/grub.cfg"
+    echo "insmod part_gpt" >> "/mnt/efi/boot/grub/grub.cfg"
+    echo "insmod ext2" >> "/mnt/efi/boot/grub/grub.cfg"
+    echo "set root=(hd${grubrootnum0},${grubrootnum1})" >> "/mnt/efi/boot/grub/grub.cfg"
+    echo "" >> "/mnt/efi/boot/grub/grub.cfg"
+    echo "insmod all_video" >> "/mnt/efi/boot/grub/grub.cfg"
+    echo "if loadfont /boot/grub/fonts/unicode.pf2; then" >> "/mnt/efi/boot/grub/grub.cfg"
+    echo "  terminal_output gfxterm" >> "/mnt/efi/boot/grub/grub.cfg"
+    echo "fi" >> "/mnt/efi/boot/grub/grub.cfg"
+    echo "" >> "/mnt/efi/boot/grub/grub.cfg"
+    echo 'menuentry "GNU/Linux, CydraLite Release V2.0"  {' >> "/mnt/efi/boot/grub/grub.cfg"
+    echo "  linux   /boot/os root=UUID=${mainPartitionUuid} ro" >> "/mnt/efi/boot/grub/grub.cfg"
+    echo "}" >> "/mnt/efi/boot/grub/grub.cfg"
+    echo "" >> "/mnt/efi/boot/grub/grub.cfg"
+    echo "menuentry "Firmware Setup" {" >> "/mnt/efi/boot/grub/grub.cfg"
+    echo "  fwsetup" >> "/mnt/efi/boot/grub/grub.cfg"
+    echo "}" >> "/mnt/efi/boot/grub/grub.cfg"
 }
 
 #		CYDRA INSTALLATION		#
@@ -296,22 +319,22 @@ function INSTALL_CYDRA {
     cp -r "/mnt/temp/*" "/mnt/install"
     rm -f /mnt/install/etc/fstab
     touch /mnt/install/etc/fstab
-    echo "#CydraLite FSTAB File, Make a backup if you want to modify it.." > /mnt/install/etc/fstab
-    echo "" > /mnt/install/etc/fstab
-    echo "UUID=${mainPartitionUuid}     /            ext4    defaults            1     1" > /mnt/install/etc/fstab
+    echo "#CydraLite FSTAB File, Make a backup if you want to modify it.." >> /mnt/install/etc/fstab
+    echo "" >> /mnt/install/etc/fstab
+    echo "UUID=${mainPartitionUuid}     /            ext4    defaults            1     1" >> /mnt/install/etc/fstab
     if [ SWAPUSED = 0 ]; then
-	echo "UUID=${swapPartitionUuid}     swap         swap     pri=1               0     0" > /mnt/install/etc/fstab
+	echo "UUID=${swapPartitionUuid}     swap         swap     pri=1               0     0" >> /mnt/install/etc/fstab
     fi
     
     if [ IS_EFI = 0 ]; then
-	echo "UUID=${efiPartitionUuid} /boot/efi vfat codepage=437,iocharset=iso8859-1 0 1" > /mnt/install/etc/fstab
+	echo "UUID=${efiPartitionUuid} /boot/efi vfat codepage=437,iocharset=iso8859-1 0 1" >> /mnt/install/etc/fstab
     fi
     
     if [[ ${WIRELESS} = 1 ]]; then
 	mv "/root/installdir/25-wireless.network" "/mnt/install/systemd/network/25-wireless.network"
     fi
-    rm -f /mnt/install/etc/wpa_supplicant.conf
-    cp -r /etc/wpa_supplicant.conf /mnt/install/etc/wpa_supplicant.conf
+    rm -f "/mnt/install/etc/wpa_supplicant.conf"
+    cp -r "/etc/wpa_supplicant.conf /mnt/install/etc/wpa_supplicant.conf"
     
 }
 
@@ -326,9 +349,9 @@ function INIT_SWAP {
 function CLEAN_LIVE {
     section "CLEANING LIVECD BEFORE REBOOTING"
 
-    umount /mnt/install > /dev/null 2>&1;
-    umount /mnt/efi > /dev/null 2>&1;
-    umount /mnt/temp > /dev/null 2>&1;
+    umount "/mnt/install" > /dev/null 2>&1;
+    umount "/mnt/efi" > /dev/null 2>&1;
+    umount "/mnt/temp" > /dev/null 2>&1;
 }
 
 
@@ -343,10 +366,8 @@ function main {
 	DISK_PARTITION
 
 
-	# If the user wants to continue the installation or return to the beginning
 	if dialog --yesno "The Installation will start. Continue?" 25 85 --stdout; then
 
-		# If any field was left blank
 		if [[ -z "${password}" || -z "${username}" || -z "${machine_name}" || -z "${chosen_partition}" ]]; then
 			err  "$@"
                         /usr/bin/install

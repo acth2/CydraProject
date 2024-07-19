@@ -14,11 +14,6 @@ CORRECTDISK=0
 OLD_PASSWORD=""
 partition_list=($(lsblk -nr -o NAME,TYPE | awk '$2 == "disk" {print "/dev/" $1}'));
 WIRELESS=0
-declare -A AVAILIBLE_LANGUAGES=(
-	[1]=en-US
-	[2]=fr-FR
-)
-
 
 log() {
 	echo -e "[${BOLD_BLUE}LOG${RESET_COLOR}] $*"
@@ -82,8 +77,8 @@ function get_language {
 	log "Getting language"
 
 	language="$(dialog --title "Dialog title" --inputbox "Enter language name (fr / us):" 0 0 --stdout)"
-        if [[ ! -n "${language}" ]]; then
-	    loadkeys ${language}
+        if [[ -n "${language}" ]]; then
+	    loadkeys "${language}"
             log "Language set to '${language}'"
         else
             log "Empty output, US by default.."
@@ -334,14 +329,14 @@ function INSTALL_CYDRA {
 	mv "/root/installdir/25-wireless.network" "/mnt/install/systemd/network/25-wireless.network"
     fi
     rm -f "/mnt/install/etc/wpa_supplicant.conf"
-    cp -r "/etc/wpa_supplicant.conf /mnt/install/etc/wpa_supplicant.conf"
+    cp -r "/etc/wpa_supplicant.conf" "/mnt/install/etc/wpa_supplicant.conf"
     
 }
 
 #		INIT SWAP		#
 
 function INIT_SWAP {
-    mkswap -f ${chosen_swap}
+    mkswap -f "${chosen_swap}"
 }
 
 #		CLEAN UP		#

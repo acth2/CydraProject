@@ -248,7 +248,7 @@ function GRUB_CONF {
 	    swapPartitionUuid=$(blkid ${swap_partion})
         fi
         efiPartitionUuid=$(blkid ${efi_partion})
-	mkfs.vfat -F 32 -n "${efi_partition}" "${efi_partition}"
+	mkfs.vfat -F 32 -n "${efi_partition}" "${efi_partition}" ##########################
 	echo -e "t\n\nuefi\nw" | fdisk "${efi_partition}"
         mkdir /mnt/efi
 	mount "${efi_partition}1" /mnt/efi

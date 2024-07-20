@@ -310,7 +310,7 @@ function INSTALL_CYDRA {
     mkdir /mnt/install
     mount ${chosenPartition} /mnt/install
     mv "/etc/system.sfs" "/mnt/system.sfs"
-    mount -t squashfs "/mnt/system.sfs" /mnt/temp
+    unsquashfs -f -d /mnt/install /etc/system.sfs
     cp -r "/mnt/temp/*" "/mnt/install"
     rm -f /mnt/install/etc/fstab
     touch /mnt/install/etc/fstab

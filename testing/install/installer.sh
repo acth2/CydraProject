@@ -307,13 +307,13 @@ function GRUB_CONF {
 function INSTALL_CYDRA {
     section "INSTALLING CYDRA"
 
-    mkdir /mnt/install
-    mount ${chosenPartition} /mnt/install
+    mkdir "/mnt/install"
+    sudo mount -t ext4 ${chosen_partition} "/mnt/install"
     mv "/etc/system.sfs" "/mnt/system.sfs"
-    unsquashfs -f -d /mnt/install /etc/system.sfs
+    unsquashfs -f -d "/mnt/install" "/etc/system.sfs"
     cp -r "/mnt/temp/*" "/mnt/install"
-    rm -f /mnt/install/etc/fstab
-    touch /mnt/install/etc/fstab
+    rm -f "/mnt/install/etc/fstab"
+    touch "/mnt/install/etc/fstab"
     echo "#CydraLite FSTAB File, Make a backup if you want to modify it.." >> /mnt/install/etc/fstab
     echo "" >> /mnt/install/etc/fstab
     echo "UUID=${mainPartitionUuid}     /            ext4    defaults            1     1" >> /mnt/install/etc/fstab

@@ -246,12 +246,14 @@ function GRUB_CONF {
 	mkdir /mnt/efi
 	if [[ "$efi_partition" =~ [0-9]$ ]]; then
   	     efi_device=$(echo "$efi_partition" | sed 's/[0-9]*$//')
-  	     efi_partition_number=$(echo "$efi_partition" | grep -o '[0-9]*$')
   	     (
-  	     echo "t"        
-    	     echo "${efi_partition_numbe}r" 
-    	     echo "1"       
-    	     echo "w"       
+  	     echo "d"        
+             echo "n"   
+             echo "p"   
+             echo "1"   
+             echo       
+             echo    
+             echo "w" 
              ) | fdisk "${efi_device}"
 	     mount "${efi_partition}${efi_partition_number}" "/mnt/efi"
   	     log "The partition ${efi_partition} has been set to EFI System Partition."
@@ -262,18 +264,16 @@ function GRUB_CONF {
               echo "p"   
               echo "1"   
               echo       
-              echo       
-              echo "t" 
-              echo "1" 
+              echo    
               echo "w"
               ) | fdisk "${efi_partition}"
 	      mount "${efi_partition}" "/mnt/efi"
  	      log "An EFI partition has been created on the device ${efi_partition}."
 	fi
-        sudo mkfs.vfat -F 32 "$efi_partition"
-	log "The partition $efi_partition has been formatted as FAT32."
+        sudo mkfs.vfat -F 32 "${efi_partition}1"
+	log "The partition ${efi_partition}1 has been formatted as FAT32."
         grub-install "${efi_partition}1" --root-directory=/mnt/efi --target=x86_64-efi --removable
-	rm -f "${efi_partition}/boot/grub/grub.cfg"
+	rm -f "/mnt/efi/boot/grub/grub.cfg"
     fi
     rm -rf "/mnt/install/boot/grub/grub.cfg"3526
     rm -rf "/mnt/efi/boot/grub/grub.cf"

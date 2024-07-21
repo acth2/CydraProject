@@ -246,14 +246,15 @@ function GRUB_CONF {
 	mkdir /mnt/efi
 	if [[ "$efi_partition" =~ [0-9]$ ]]; then
   	     efi_device=$(echo "$efi_partition" | sed 's/[0-9]*$//')
-  	     efi_partition_number=$(echo "$efi_partition" | grep -o '[0-9]*$')
   	     (
-  	     echo "t"        
-    	     echo "${efi_partition_numbe}r" 
-    	     echo "1"       
-    	     echo "w"       
+  	     echo "d"        
+             echo "n"   
+             echo "p"   
+             echo "1"   
+             echo       
+             echo    
+             echo "w" 
              ) | fdisk "${efi_device}"
-	     mount "${efi_partition}${efi_partition_number}" "/mnt/efi"
   	     log "The partition ${efi_partition} has been set to EFI System Partition."
 
 	else
@@ -262,22 +263,20 @@ function GRUB_CONF {
               echo "p"   
               echo "1"   
               echo       
-              echo       
-              echo "t" 
-              echo "1" 
+              echo    
               echo "w"
               ) | fdisk "${efi_partition}"
-	      mount "${efi_partition}" "/mnt/efi"
  	      log "An EFI partition has been created on the device ${efi_partition}."
 	fi
-        sudo mkfs.vfat -F 32 "$efi_partition"
-	log "The partition $efi_partition has been formatted as FAT32."
+        mkfs.vfat -F 32 "${efi_partition}1"
+	mkdir /mnt/efi
+ 	mount "${efi_partition}1" "/mnt/efi"
+	log "The partition ${efi_partition}1 has been formatted as FAT32."
         grub-install "${efi_partition}1" --root-directory=/mnt/efi --target=x86_64-efi --removable
-	rm -f "${efi_partition}/boot/grub/grub.cfg"
+	rm -f "/mnt/efi/boot/grub/grub.cfg"
     fi
-    rm -rf "/mnt/install/boot/grub/grub.cfg"3526
+    rm -rf "/mnt/install/boot/grub/grub.cfg"
     rm -rf "/mnt/efi/boot/grub/grub.cf"
-    touch "/mnt/install/boot/grub/grub.cfg"
     touch "/mnt/efi/boot/grub/grub.cfg"
     chosen_partition_suffix="${chosen_partition#/dev/sd}"
     chosen_partition_letter="${chosen_partition_suffix:0:1}"
@@ -288,7 +287,6 @@ function GRUB_CONF {
     echo "" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "insmod part_gpt" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "insmod ext2" >> "/mnt/efi/boot/grub/grub.cfg"
-    echo "set root=(hd${grubrootnum0},${grubrootnum1})" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "insmod all_video" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "if loadfont /boot/grub/fonts/unicode.pf2; then" >> "/mnt/efi/boot/grub/grub.cfg"
@@ -296,7 +294,8 @@ function GRUB_CONF {
     echo "fi" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "" >> "/mnt/efi/boot/grub/grub.cfg"
     echo 'menuentry "GNU/Linux, CydraLite Release V2.0"  {' >> "/mnt/efi/boot/grub/grub.cfg"
-    echo "  linux   /boot/os root=UUID=${mainPartitionUuid} ro" >> "/mnt/efi/boot/grub/grub.cfg"
+    echo "  search --no-floppy --fs-uuid --set=root ${chosen_partition}" >> "/mnt/efi/boot/grub/grub.cfg"
+    echo "  linux /boot/os root=UUID=${chosen_partition} ro quiet" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "}" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "menuentry "Firmware Setup" {" >> "/mnt/efi/boot/grub/grub.cfg"

@@ -243,16 +243,17 @@ function GRUB_CONF {
 	    swapPartitionUuid=$(blkid ${swap_partion})
         fi
         efiPartitionUuid=$(blkid ${efi_partion})
+	mkdir /mnt/efi
 	if [[ "$efi_partition" =~ [0-9]$ ]]; then
   	     efi_device=$(echo "$efi_partition" | sed 's/[0-9]*$//')
   	     efi_partition_number=$(echo "$efi_partition" | grep -o '[0-9]*$')
-
   	     (
- 	     echo "t" 
- 	     echo "${efi_artition_number}"  
-  	     echo "1"  
-             echo "w"   
+  	     echo "t"        
+    	     echo "${efi_partition_numbe}r" 
+    	     echo "1"       
+    	     echo "w"       
              ) | sudo fdisk "${efi_device}"
+	     mount "${efi_partition}${êfi_partition_number}" "/mnt/efi"
   	     log "The partition ${efi_partition} has been set to EFI System Partition."
 
 	else
@@ -266,14 +267,15 @@ function GRUB_CONF {
               echo "1" 
               echo "w"
               ) | sudo fdisk "${efi_partition}"
+	      mount "${efi_partition}" "/mnt/efi"
  	      log "An EFI partition has been created on the device ${efi_partition}."
 	fi
-        mkdir /mnt/efi
-	mount "${efi_partition}1" "/mnt/efi"
+        sudo mkfs.vfat -F 32 "$efi_partition"
+	log "The partition $efi_partition has been formatted as FAT32."
         grub-install "${efi_partition}1" --root-directory=/mnt/efi --target=x86_64-efi --removable
 	rm -f "${efi_partition}/boot/grub/grub.cfg"
     fi
-    rm -rf "/mnt/install/boot/grub/grub.cfg"
+    rm -rf "/mnt/install/boot/grub/grub.cfg"3526
     rm -rf "/mnt/efi/boot/grub/grub.cf"
     touch "/mnt/install/boot/grub/grub.cfg"
     touch "/mnt/efi/boot/grub/grub.cfg"
@@ -310,7 +312,7 @@ function INSTALL_CYDRA {
     mkdir "/mnt/install"
     sudo mount -t ext4 ${chosen_partition} "/mnt/install"
     mv "/etc/system.sfs" "/mnt/system.sfs"
-    unsquashfs -f -d "/mnt/install" "/etc/system.sfs"
+    unsquashfs -f -d "/mnt/install" "/usr/bin/system.sfs"
     cp -r "/mnt/temp/*" "/mnt/install"
     rm -f "/mnt/install/etc/fstab"
     touch "/mnt/install/etc/fstab"

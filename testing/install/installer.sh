@@ -255,7 +255,6 @@ function GRUB_CONF {
              echo    
              echo "w" 
              ) | fdisk "${efi_device}"
-	     mount "${efi_partition}${efi_partition_number}" "/mnt/efi"
   	     log "The partition ${efi_partition} has been set to EFI System Partition."
 
 	else
@@ -267,10 +266,10 @@ function GRUB_CONF {
               echo    
               echo "w"
               ) | fdisk "${efi_partition}"
-	      mount "${efi_partition}" "/mnt/efi"
  	      log "An EFI partition has been created on the device ${efi_partition}."
 	fi
-        sudo mkfs.vfat -F 32 "${efi_partition}1"
+        mkfs.vfat -F 32 "${efi_partition}1"
+ 	mount "${efi_partition}1" "/mnt/efi"
 	log "The partition ${efi_partition}1 has been formatted as FAT32."
         grub-install "${efi_partition}1" --root-directory=/mnt/efi --target=x86_64-efi --removable
 	rm -f "/mnt/efi/boot/grub/grub.cfg"

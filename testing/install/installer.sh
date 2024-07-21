@@ -252,7 +252,7 @@ function GRUB_CONF {
     	     echo "${efi_partition_numbe}r" 
     	     echo "1"       
     	     echo "w"       
-             ) | sudo fdisk "${efi_device}"
+             ) | fdisk "${efi_device}"
 	     mount "${efi_partition}${êfi_partition_number}" "/mnt/efi"
   	     log "The partition ${efi_partition} has been set to EFI System Partition."
 
@@ -266,7 +266,7 @@ function GRUB_CONF {
               echo "t" 
               echo "1" 
               echo "w"
-              ) | sudo fdisk "${efi_partition}"
+              ) | fdisk "${efi_partition}"
 	      mount "${efi_partition}" "/mnt/efi"
  	      log "An EFI partition has been created on the device ${efi_partition}."
 	fi

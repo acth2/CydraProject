@@ -253,7 +253,7 @@ function GRUB_CONF {
     	     echo "1"       
     	     echo "w"       
              ) | fdisk "${efi_device}"
-	     mount "${efi_partition}${êfi_partition_number}" "/mnt/efi"
+	     mount "${efi_partition}${efi_partition_number}" "/mnt/efi"
   	     log "The partition ${efi_partition} has been set to EFI System Partition."
 
 	else
@@ -310,8 +310,7 @@ function INSTALL_CYDRA {
     section "INSTALLING CYDRA"
 
     mkdir "/mnt/install"
-    sudo mount -t ext4 ${chosen_partition} "/mnt/install"
-    mv "/etc/system.sfs" "/mnt/system.sfs"
+    mount -t ext4 ${chosen_partition} "/mnt/install"
     unsquashfs -f -d "/mnt/install" "/usr/bin/system.sfs"
     cp -r "/mnt/temp/*" "/mnt/install"
     rm -f "/mnt/install/etc/fstab"

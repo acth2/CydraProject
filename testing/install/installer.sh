@@ -269,14 +269,14 @@ function GRUB_CONF {
  	      log "An EFI partition has been created on the device ${efi_partition}."
 	fi
         mkfs.vfat -F 32 "${efi_partition}1"
+	mkdir /mnt/efi
  	mount "${efi_partition}1" "/mnt/efi"
 	log "The partition ${efi_partition}1 has been formatted as FAT32."
         grub-install "${efi_partition}1" --root-directory=/mnt/efi --target=x86_64-efi --removable
 	rm -f "/mnt/efi/boot/grub/grub.cfg"
     fi
-    rm -rf "/mnt/install/boot/grub/grub.cfg"3526
+    rm -rf "/mnt/install/boot/grub/grub.cfg"
     rm -rf "/mnt/efi/boot/grub/grub.cf"
-    touch "/mnt/install/boot/grub/grub.cfg"
     touch "/mnt/efi/boot/grub/grub.cfg"
     chosen_partition_suffix="${chosen_partition#/dev/sd}"
     chosen_partition_letter="${chosen_partition_suffix:0:1}"

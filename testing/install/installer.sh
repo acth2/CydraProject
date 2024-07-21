@@ -14,11 +14,6 @@ CORRECTDISK=0
 OLD_PASSWORD=""
 partition_list=($(lsblk -nr -o NAME,TYPE | awk '$2 == "disk" {print "/dev/" $1}'));
 WIRELESS=0
-declare -A AVAILIBLE_LANGUAGES=(
-	[1]=en-US
-	[2]=fr-FR
-)
-
 
 log() {
 	echo -e "[${BOLD_BLUE}LOG${RESET_COLOR}] $*"
@@ -82,8 +77,8 @@ function get_language {
 	log "Getting language"
 
 	language="$(dialog --title "Dialog title" --inputbox "Enter language name (fr / us):" 0 0 --stdout)"
-        if [[ ! -n "${language}" ]]; then
-	    loadkeys ${language}
+        if [[ -n "${language}" ]]; then
+	    loadkeys "${language}"
             log "Language set to '${language}'"
         else
             log "Empty output, US by default.."
@@ -248,16 +243,17 @@ function GRUB_CONF {
 	    swapPartitionUuid=$(blkid ${swap_partion})
         fi
         efiPartitionUuid=$(blkid ${efi_partion})
+	mkdir /mnt/efi
 	if [[ "$efi_partition" =~ [0-9]$ ]]; then
   	     efi_device=$(echo "$efi_partition" | sed 's/[0-9]*$//')
   	     efi_partition_number=$(echo "$efi_partition" | grep -o '[0-9]*$')
-
   	     (
- 	     echo "t" 
- 	     echo "${efi_artition_number}"  
-  	     echo "1"  
-             echo "w"   
-             ) | sudo fdisk "${efi_device}"
+  	     echo "t"        
+    	     echo "${efi_partition_numbe}r" 
+    	     echo "1"       
+    	     echo "w"       
+             ) | fdisk "${efi_device}"
+	     mount "${efi_partition}${efi_partition_number}" "/mnt/efi"
   	     log "The partition ${efi_partition} has been set to EFI System Partition."
 
 	else
@@ -270,15 +266,16 @@ function GRUB_CONF {
               echo "t" 
               echo "1" 
               echo "w"
-              ) | sudo fdisk "${efi_partition}"
+              ) | fdisk "${efi_partition}"
+	      mount "${efi_partition}" "/mnt/efi"
  	      log "An EFI partition has been created on the device ${efi_partition}."
 	fi
-        mkdir /mnt/efi
-	mount "${efi_partition}1" "/mnt/efi"
+        sudo mkfs.vfat -F 32 "$efi_partition"
+	log "The partition $efi_partition has been formatted as FAT32."
         grub-install "${efi_partition}1" --root-directory=/mnt/efi --target=x86_64-efi --removable
 	rm -f "${efi_partition}/boot/grub/grub.cfg"
     fi
-    rm -rf "/mnt/install/boot/grub/grub.cfg"
+    rm -rf "/mnt/install/boot/grub/grub.cfg"3526
     rm -rf "/mnt/efi/boot/grub/grub.cf"
     touch "/mnt/install/boot/grub/grub.cfg"
     touch "/mnt/efi/boot/grub/grub.cfg"
@@ -312,13 +309,12 @@ function GRUB_CONF {
 function INSTALL_CYDRA {
     section "INSTALLING CYDRA"
 
-    mkdir /mnt/install
-    mount ${chosenPartition} /mnt/install
-    mv "/etc/system.sfs" "/mnt/system.sfs"
-    mount -t squashfs "/mnt/system.sfs" /mnt/temp
+    mkdir "/mnt/install"
+    mount -t ext4 ${chosen_partition} "/mnt/install"
+    unsquashfs -f -d "/mnt/install" "/usr/bin/system.sfs"
     cp -r "/mnt/temp/*" "/mnt/install"
-    rm -f /mnt/install/etc/fstab
-    touch /mnt/install/etc/fstab
+    rm -f "/mnt/install/etc/fstab"
+    touch "/mnt/install/etc/fstab"
     echo "#CydraLite FSTAB File, Make a backup if you want to modify it.." >> /mnt/install/etc/fstab
     echo "" >> /mnt/install/etc/fstab
     echo "UUID=${mainPartitionUuid}     /            ext4    defaults            1     1" >> /mnt/install/etc/fstab
@@ -334,14 +330,14 @@ function INSTALL_CYDRA {
 	mv "/root/installdir/25-wireless.network" "/mnt/install/systemd/network/25-wireless.network"
     fi
     rm -f "/mnt/install/etc/wpa_supplicant.conf"
-    cp -r "/etc/wpa_supplicant.conf /mnt/install/etc/wpa_supplicant.conf"
+    cp -r "/etc/wpa_supplicant.conf" "/mnt/install/etc/wpa_supplicant.conf"
     
 }
 
 #		INIT SWAP		#
 
 function INIT_SWAP {
-    mkswap -f ${chosen_swap}
+    mkswap -f "${chosen_swap}"
 }
 
 #		CLEAN UP		#

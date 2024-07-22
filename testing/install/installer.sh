@@ -278,16 +278,16 @@ function GRUB_CONF {
     rm -rf "/mnt/install/boot/grub/grub.cfg"
     rm -rf "/mnt/efi/boot/grub/grub.cf"
     touch "/mnt/efi/boot/grub/grub.cfg"
-    chosen_partition_suffix="${chosen_partition#/dev/sd}"
-    chosen_partition_letter="${chosen_partition_suffix:0:1}"
-    grubrootnum0=$(( $(printf "%d" "'${chosen_partition_letter}") - 96 ))
-    grubrootnum1="${chosen_partition_suffix:1}"
+    local disk=$(echo ${chosen_partition} | sed -E 's|/dev/([a-z]+)[0-9]*|\1|')
+    local partition_letter=$(echo ${chosen_partition} | grep -o '[0-9]*$')
+    local disk_letter=${disk:2:1}
+    local grub_disk_letter=$(( $(printf "%d" "'${disk_letter}") - $(printf "%d" "'a") ))
     echo "set default=0" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "set timeout=5" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "insmod part_gpt" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "insmod ext2" >> "/mnt/efi/boot/grub/grub.cfg"
-    echo "" >> "/mnt/efi/boot/grub/grub.cfg"
+    echo "set root=(hd${grub_disk_letter},${partition_letter})" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "insmod all_video" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "if loadfont /boot/grub/fonts/unicode.pf2; then" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "  terminal_output gfxterm" >> "/mnt/efi/boot/grub/grub.cfg"

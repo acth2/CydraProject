@@ -235,7 +235,8 @@ function GRUB_CONF {
 	if [ SWAPUSED = 0 ]; then
 	    swapPartitionUuid=$(blkid ${swap_partion})
         fi
-	mkdir /mnt/install/boot
+	mount -t ext4 ${chosen_partition} "/mnt/install"
+        mkdir -p /mnt/install/boot
         grub-install --root-directory=/mnt/install/boot ${chosen_partition}
     else
         mainPartitionUuid=$(blkid ${chosen_partion})

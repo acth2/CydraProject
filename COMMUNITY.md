@@ -56,4 +56,4 @@ RE: Je ne sais pas si je vais pouvoir bossé sur l'os aujourd'hui puisse que mon
 
 L'installeur méttaient des logs d'erreurs tres vites j'ai du donc utilisé obs record l'installation apres reboot grub n'est plus détecté et je boot sur mon bios.. je dois donc utilisé une clé usb pour détecté les fichiers efi et démarré dessus .... oui bien goofy je sais mais quoi qu'il en sois le dev recommence réellement bruh
 
-L'installeur fonctionne en UEFI mais je dois re construire un nouveau .sfs qui contient l'os car celui présent n'a pas vraiment lair de fonctionné..
+L'installeur fonctionne en UEFI mais je dois re construire un nouveau .sfs qui contient l'os car celui présent n'a pas vraiment l'air de fonctionné..

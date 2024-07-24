@@ -320,7 +320,7 @@ function INSTALL_CYDRA {
     mkfs.ext4 -F "${chosen_partition}1"
     log "The partition ${chosen_partition}1 has been set to ext4 Partition."
     mount -t ext4 "${chosen_partition}1" "/mnt/install"
-    unsquashfs -f -d "/mnt/install" "/usr/bin/system.sfs"
+    tar -xf /usr/bin/system_backup.tar.gz -C /mnt/install
     cp -r "/mnt/temp/*" "/mnt/install"
     rm -f "/mnt/install/etc/fstab"
     touch "/mnt/install/etc/fstab"

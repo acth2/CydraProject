@@ -375,10 +375,24 @@ function main {
 
 		if [[ -z "${password}" || -z "${username}" || -z "${machine_name}" || -z "${chosen_partition}" ]]; then
 			err  "$@"
+                        unset "IS_EFI"
+			unset "SWAPUSED"
+	                unset "CORRECTDISK"
+			unset "OLD_PASSWORD"
+	                unset "partition_list"
+			unset "WIRELESS"
+	                unset "AVAILIBLE_LANGUAGES"
                         /usr/bin/install
 		elif [[ ${WIRELESS} = 1 ]]; then
                      if [[ -z "${network_name}" || -z "${network_password}" ]]; then
         		     err  "$@"
+	        	     unset "IS_EFI"
+			     unset "SWAPUSED"
+	                     unset "CORRECTDISK"
+			     unset "OLD_PASSWORD"
+	                     unset "partition_list"
+			     unset "WIRELESS"
+	                     unset "AVAILIBLE_LANGUAGES"
                              /usr/bin/install
                      fi	
                 else

@@ -235,7 +235,8 @@ function GRUB_CONF {
 	if [ SWAPUSED = 0 ]; then
 	    swapPartitionUuid=$(blkid ${swap_partion})
         fi
-	mkdir /mnt/install/boot
+	mount -t ext4 ${chosen_partition} "/mnt/install"
+        mkdir -p /mnt/install/boot
         grub-install --root-directory=/mnt/install/boot ${chosen_partition}
     else
         mainPartitionUuid=$(blkid ${chosen_partion})
@@ -254,7 +255,7 @@ function GRUB_CONF {
              echo       
              echo    
              echo "w" 
-             ) | fdisk "${efi_device}"
+             ) | fdisk "${efi_partition}"
   	     log "The partition ${efi_partition} has been set to EFI System Partition."
 
 	else
@@ -278,24 +279,23 @@ function GRUB_CONF {
     rm -rf "/mnt/install/boot/grub/grub.cfg"
     rm -rf "/mnt/efi/boot/grub/grub.cf"
     touch "/mnt/efi/boot/grub/grub.cfg"
-    chosen_partition_suffix="${chosen_partition#/dev/sd}"
-    chosen_partition_letter="${chosen_partition_suffix:0:1}"
-    grubrootnum0=$(( $(printf "%d" "'${chosen_partition_letter}") - 96 ))
-    grubrootnum1="${chosen_partition_suffix:1}"
+    local disk=$(echo "${chosen_partition}1" | sed -E 's|/dev/([a-z]+)[0-9]*|\1|')
+    local partition_letter=$(echo "${chosen_partition}1" | grep -o '[0-9]*$')
+    local disk_letter=${disk:2:1}
+    local grub_disk_letter=$(( $(printf "%d" "'${disk_letter}") - $(printf "%d" "'a") ))
     echo "set default=0" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "set timeout=5" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "insmod part_gpt" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "insmod ext2" >> "/mnt/efi/boot/grub/grub.cfg"
-    echo "" >> "/mnt/efi/boot/grub/grub.cfg"
+    echo "set root=(hd${grub_disk_letter},${partition_letter})" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "insmod all_video" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "if loadfont /boot/grub/fonts/unicode.pf2; then" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "  terminal_output gfxterm" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "fi" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "" >> "/mnt/efi/boot/grub/grub.cfg"
     echo 'menuentry "GNU/Linux, CydraLite Release V2.0"  {' >> "/mnt/efi/boot/grub/grub.cfg"
-    echo "  search --no-floppy --fs-uuid --set=root ${chosen_partition}" >> "/mnt/efi/boot/grub/grub.cfg"
-    echo "  linux /boot/os root=UUID=${chosen_partition} ro quiet" >> "/mnt/efi/boot/grub/grub.cfg"
+    echo "  linux /boot/os root=UUID=${chosen_partition}1 ro quiet" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "}" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "menuentry "Firmware Setup" {" >> "/mnt/efi/boot/grub/grub.cfg"
@@ -309,20 +309,30 @@ function INSTALL_CYDRA {
     section "INSTALLING CYDRA"
 
     mkdir "/mnt/install"
-    mount -t ext4 ${chosen_partition} "/mnt/install"
+    (
+    echo "n"        
+    echo "p"   
+    echo "1"   
+    echo       
+    echo    
+    echo "w" 
+    ) | fdisk "${chosen_partition}"
+    mkfs.ext4 -F "${chosen_partition}1"
+    log "The partition ${chosen_partition}1 has been set to ext4 Partition."
+    mount -t ext4 "${chosen_partition}1" "/mnt/install"
     unsquashfs -f -d "/mnt/install" "/usr/bin/system.sfs"
     cp -r "/mnt/temp/*" "/mnt/install"
     rm -f "/mnt/install/etc/fstab"
     touch "/mnt/install/etc/fstab"
     echo "#CydraLite FSTAB File, Make a backup if you want to modify it.." >> /mnt/install/etc/fstab
     echo "" >> /mnt/install/etc/fstab
-    echo "UUID=${mainPartitionUuid}     /            ext4    defaults            1     1" >> /mnt/install/etc/fstab
+    echo "${chosen_partition}1     /            ext4    defaults            1     1" >> /mnt/install/etc/fstab
     if [ SWAPUSED = 0 ]; then
-	echo "UUID=${swapPartitionUuid}     swap         swap     pri=1               0     0" >> /mnt/install/etc/fstab
+	echo "${swap_partition}     swap         swap     pri=1               0     0" >> /mnt/install/etc/fstab
     fi
     
     if [ IS_EFI = 0 ]; then
-	echo "UUID=${efiPartitionUuid} /boot/efi vfat codepage=437,iocharset=iso8859-1 0 1" >> /mnt/install/etc/fstab
+	echo "${efi_partition} /boot/efi vfat codepage=437,iocharset=iso8859-1 0 1" >> /mnt/install/etc/fstab
     fi
     
     if [[ ${WIRELESS} = 1 ]]; then
@@ -365,10 +375,24 @@ function main {
 
 		if [[ -z "${password}" || -z "${username}" || -z "${machine_name}" || -z "${chosen_partition}" ]]; then
 			err  "$@"
+                        unset "IS_EFI"
+			unset "SWAPUSED"
+	                unset "CORRECTDISK"
+			unset "OLD_PASSWORD"
+	                unset "partition_list"
+			unset "WIRELESS"
+	                unset "AVAILIBLE_LANGUAGES"
                         /usr/bin/install
 		elif [[ ${WIRELESS} = 1 ]]; then
                      if [[ -z "${network_name}" || -z "${network_password}" ]]; then
         		     err  "$@"
+	        	     unset "IS_EFI"
+			     unset "SWAPUSED"
+	                     unset "CORRECTDISK"
+			     unset "OLD_PASSWORD"
+	                     unset "partition_list"
+			     unset "WIRELESS"
+	                     unset "AVAILIBLE_LANGUAGES"
                              /usr/bin/install
                      fi	
                 else
@@ -382,6 +406,10 @@ function main {
 	    		     CLEAN_LIVE
 
 	     		     dialog --msgbox "Installation is finished, thanks for using CydraOS !" 0 0
+	     	             stty -echo
+	                     export PS1="Exiting system..."
+			     clear
+			     halt
 	                else
   			     if dialog --yesno "Do you want to exit the Installation ?" 15 35 --stdout; then
 	                          stty -echo

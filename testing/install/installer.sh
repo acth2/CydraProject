@@ -321,7 +321,7 @@ function INSTALL_CYDRA {
     log "The partition ${chosen_partition}1 has been set to ext4 Partition."
     mount -t ext4 "${chosen_partition}1" "/mnt/install"
     log "Copying the system into the main partition (${chosen_partition})"
-    tar -xf /usr/bin/system_backup.tar.gz -C /mnt/install
+    #tar -xf /usr/bin/system_backup.tar.gz -C /mnt/install
     cp -r "/mnt/temp/*" "/mnt/install"
     rm -f "/mnt/install/etc/fstab"
     touch "/mnt/install/etc/fstab"

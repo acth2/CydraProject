@@ -296,6 +296,7 @@ function GRUB_CONF {
     echo "" >> "/mnt/efi/boot/grub/grub.cfg"
     echo 'menuentry "GNU/Linux, CydraLite Release V2.0"  {' >> "/mnt/efi/boot/grub/grub.cfg"
     echo "  linux /boot/os root=UUID=${chosen_partition}1 ro quiet" >> "/mnt/efi/boot/grub/grub.cfg"
+    echo "  initrd /boot/initrd" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "}" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "menuentry "Firmware Setup" {" >> "/mnt/efi/boot/grub/grub.cfg"

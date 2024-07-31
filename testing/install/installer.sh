@@ -325,18 +325,21 @@ function INSTALL_CYDRA {
     mount -t ext4 "${chosen_partition}1" "/mnt/install"
     log "Copying the system into the main partition (${chosen_partition})"
     tar -xf /usr/bin/system.tar.gz -C /mnt/install
+    chosen_partition_uuid=$(blkid -s UUID -o value ${chosen_partition})
+    swap_partition_uuid=$(blkid -s UUID -o value ${swap_partition})
+    efi_partition_uuid=$(blkid -s UUID -o value ${efi_partition})
     cp -r "/mnt/temp/*" "/mnt/install"
     rm -f "/mnt/install/etc/fstab"
     touch "/mnt/install/etc/fstab"
     echo "#CydraLite FSTAB File, Make a backup if you want to modify it.." >> /mnt/install/etc/fstab
     echo "" >> /mnt/install/etc/fstab
-    echo "${chosen_partition}1     /            ext4    defaults            1     1" >> /mnt/install/etc/fstab
+    echo "UUID=${chosen_partition_uuid}     /            ext4    defaults            1     1" >> /mnt/install/etc/fstab
     if [ SWAPUSED = 0 ]; then
-	echo "${swap_partition}     swap         swap     pri=1               0     0" >> /mnt/install/etc/fstab
+	echo "UUID=${swap_partition_uuid}     swap         swap     pri=1               0     0" >> /mnt/install/etc/fstab
     fi
     
     if [ IS_EFI = 0 ]; then
-	echo "${efi_partition} /boot/efi vfat codepage=437,iocharset=iso8859-1 0 1" >> /mnt/install/etc/fstab
+	echo "UUID=${efi_partition_uuid} /boot/efi vfat codepage=437,iocharset=iso8859-1 0 1" >> /mnt/install/etc/fstab
     fi
     
     if [[ ${WIRELESS} = 1 ]]; then

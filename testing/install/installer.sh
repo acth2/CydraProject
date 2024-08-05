@@ -14,6 +14,7 @@ CORRECTDISK=0
 OLD_PASSWORD=""
 partition_list=($(lsblk -nr -o NAME,TYPE | awk '$2 == "disk" {print "/dev/" $1}'));
 WIRELESS=0
+SYSKERNEL_VER="5.19.2"
 
 log() {
 	echo -e "[${BOLD_BLUE}LOG${RESET_COLOR}] $*"
@@ -323,8 +324,9 @@ function INSTALL_CYDRA {
     mkfs.ext4 -F "${chosen_partition}1"
     log "The partition ${chosen_partition}1 has been set to ext4 Partition."
     mount -t ext4 "${chosen_partition}1" "/mnt/install"
-    log "Copying the system into the main partition (${chosen_partition})"
+    log "Copying the system into the main partition (${chosen_partition}1)"
     tar -xf /usr/bin/system.tar.gz -C /mnt/install
+    log "Configuring the system (${chosen_partition}1)"
     chosen_partition_uuid=$(blkid -s UUID -o value ${chosen_partition})
     swap_partition_uuid=$(blkid -s UUID -o value ${swap_partition})
     efi_partition_uuid=$(blkid -s UUID -o value ${efi_partition})
@@ -347,7 +349,15 @@ function INSTALL_CYDRA {
     fi
     rm -f "/mnt/install/etc/wpa_supplicant.conf"
     cp -r "/etc/wpa_supplicant.conf" "/mnt/install/etc/wpa_supplicant.conf"
-    
+    log "Generating the initrd (${chosen_partition}1)"
+    rm -f /mnt/install/boot/initrd
+    (
+    cd "/boot"
+    mkinitramfs "${SYSKERNEL_VER}"
+    exit
+    ) | chroot "/mnt/install"
+    sleep 5
+    echo "Debug moment :D"
 }
 
 #		INIT SWAP		#

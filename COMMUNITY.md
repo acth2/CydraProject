@@ -59,3 +59,5 @@ L'installeur méttaient des logs d'erreurs tres vites j'ai du donc utilisé obs 
 L'installeur fonctionne en UEFI mais je dois re construire un nouveau .sfs qui contient l'os car celui présent n'a pas vraiment l'air de fonctionné..
 
 RIP mon ordinateur j'en vais marre je l'ai transformé en serveur...
+
+J'ai bientot fini l'installeur mais je me frappe a un mur je trouve pas de solution a mon erreur ..

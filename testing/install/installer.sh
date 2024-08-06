@@ -354,6 +354,7 @@ function INSTALL_CYDRA {
     (
     cd "/boot"
     mkinitramfs "${SYSKERNEL_VER}"
+    mv "initrd.img-${SYSKERNEL_VER}" "initrd"
     exit
     ) | chroot "/mnt/install"
     sleep 5

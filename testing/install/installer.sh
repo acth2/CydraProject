@@ -353,6 +353,7 @@ function INSTALL_CYDRA {
     rm -f /mnt/install/boot/initrd
     (
     cd "/boot"
+    neofetch
     mkinitramfs
     mv "initrd.img-no-kmods" "initrd"
     exit

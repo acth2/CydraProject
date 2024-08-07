@@ -354,7 +354,6 @@ function INSTALL_CYDRA {
     chroot /mnt/install /bin/bash
     cd /boot
     rm -f initrd
-    neofetch
     mkinitramfs
     exit
     echo

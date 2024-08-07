@@ -14,6 +14,7 @@ CORRECTDISK=0
 OLD_PASSWORD=""
 partition_list=($(lsblk -nr -o NAME,TYPE | awk '$2 == "disk" {print "/dev/" $1}'));
 WIRELESS=0
+SYSKERNEL_VER="5.19.2"
 
 log() {
 	echo -e "[${BOLD_BLUE}LOG${RESET_COLOR}] $*"
@@ -295,7 +296,10 @@ function GRUB_CONF {
     echo "fi" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "" >> "/mnt/efi/boot/grub/grub.cfg"
     echo 'menuentry "GNU/Linux, CydraLite Release V2.0"  {' >> "/mnt/efi/boot/grub/grub.cfg"
+    echo "  echo Loading GNU/Linux CydraLite V02..." >> "/mnt/efi/boot/grub/grub.cfg"
     echo "  linux /boot/os root=UUID=${chosen_partition}1 ro quiet" >> "/mnt/efi/boot/grub/grub.cfg"
+    echo "  echo Loading ramdisk..." >> "/mnt/efi/boot/grub/grub.cfg"
+    echo "  initrd /boot/initrd.img-no-kmods" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "}" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "menuentry "Firmware Setup" {" >> "/mnt/efi/boot/grub/grub.cfg"
@@ -320,19 +324,24 @@ function INSTALL_CYDRA {
     mkfs.ext4 -F "${chosen_partition}1"
     log "The partition ${chosen_partition}1 has been set to ext4 Partition."
     mount -t ext4 "${chosen_partition}1" "/mnt/install"
-    unsquashfs -f -d "/mnt/install" "/usr/bin/system.sfs"
+    log "Copying the system into the main partition (${chosen_partition}1)"
+    tar -xf /usr/bin/system.tar.gz -C /mnt/install
+    log "Configuring the system (${chosen_partition}1)"
+    chosen_partition_uuid=$(blkid -s UUID -o value ${chosen_partition})
+    swap_partition_uuid=$(blkid -s UUID -o value ${swap_partition})
+    efi_partition_uuid=$(blkid -s UUID -o value ${efi_partition})
     cp -r "/mnt/temp/*" "/mnt/install"
     rm -f "/mnt/install/etc/fstab"
     touch "/mnt/install/etc/fstab"
     echo "#CydraLite FSTAB File, Make a backup if you want to modify it.." >> /mnt/install/etc/fstab
     echo "" >> /mnt/install/etc/fstab
-    echo "${chosen_partition}1     /            ext4    defaults            1     1" >> /mnt/install/etc/fstab
+    echo "UUID=${chosen_partition_uuid}     /            ext4    defaults            1     1" >> /mnt/install/etc/fstab
     if [ SWAPUSED = 0 ]; then
-	echo "${swap_partition}     swap         swap     pri=1               0     0" >> /mnt/install/etc/fstab
+	echo "UUID=${swap_partition_uuid}     swap         swap     pri=1               0     0" >> /mnt/install/etc/fstab
     fi
     
     if [ IS_EFI = 0 ]; then
-	echo "${efi_partition} /boot/efi vfat codepage=437,iocharset=iso8859-1 0 1" >> /mnt/install/etc/fstab
+	echo "UUID=${efi_partition_uuid} /boot/efi vfat codepage=437,iocharset=iso8859-1 0 1" >> /mnt/install/etc/fstab
     fi
     
     if [[ ${WIRELESS} = 1 ]]; then
@@ -340,7 +349,18 @@ function INSTALL_CYDRA {
     fi
     rm -f "/mnt/install/etc/wpa_supplicant.conf"
     cp -r "/etc/wpa_supplicant.conf" "/mnt/install/etc/wpa_supplicant.conf"
-    
+    log "Generating the initrd (${chosen_partition}1)"
+    rm -f /mnt/install/boot/initrd
+    chroot /mnt/install /bin/bash
+    cd /boot
+    rm -f initrd
+    neofetch
+    mkinitramfs
+    exit
+    echo
+    echo
+    echo "Debug moment :D"
+    sleep 5
 }
 
 #		INIT SWAP		#

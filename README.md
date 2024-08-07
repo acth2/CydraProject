@@ -33,7 +33,7 @@
 <h2>🍰 Contributions:</h2>
 
 <p>AinTea - L'installeur de la version lite (à venir) : https://github.com/AinTEAsports</p>
-<p></p>Wipeey - Modification de l'installeur / pm     : https://github.com/wipeey</p>
+<p>>Wipeey - Modification de l'installeur / pm     : https://github.com/wipeey</p>
   
   
 <h2>💻 Fait avec</h2>
@@ -42,6 +42,9 @@ Technologies used in the project:
 
 *   Virtualbox pour les vm
 *   Intellij idea pour le coding
+
+
+[![Star History Chart](https://api.star-history.com/svg?repos=acth2/CydraProject&type=Date)](https://star-history.com/#acth2/CydraProject&Date)
 
 <h2>🛡️ License:</h2>
 

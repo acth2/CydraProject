@@ -61,3 +61,6 @@ L'installeur fonctionne en UEFI mais je dois re construire un nouveau .sfs qui c
 RIP mon ordinateur j'en vais marre je l'ai transformé en serveur...
 
 J'ai bientot fini l'installeur mais je me frappe a un mur je trouve pas de solution a mon erreur ..
+
+
+Modification du kernel pour tenté de fix mon err-

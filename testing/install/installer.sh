@@ -297,9 +297,9 @@ function GRUB_CONF {
     echo "" >> "/mnt/efi/boot/grub/grub.cfg"
     echo 'menuentry "GNU/Linux, CydraLite Release V2.0"  {' >> "/mnt/efi/boot/grub/grub.cfg"
     echo "  echo Loading GNU/Linux CydraLite V02..." >> "/mnt/efi/boot/grub/grub.cfg"
-    echo "  linux /boot/os root=UUID=${chosen_partition}1 ro quiet" >> "/mnt/efi/boot/grub/grub.cfg"
+    echo "  linux /boot/vmlinuz-5.19.2 root=UUID=${chosen_partition}1 ro quiet" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "  echo Loading ramdisk..." >> "/mnt/efi/boot/grub/grub.cfg"
-    echo "  initrd /boot/initrd.img-no-kmods" >> "/mnt/efi/boot/grub/grub.cfg"
+    echo "  initrd /boot/initrd.img-5.19.2" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "}" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "menuentry "Firmware Setup" {" >> "/mnt/efi/boot/grub/grub.cfg"
@@ -349,13 +349,13 @@ function INSTALL_CYDRA {
     fi
     rm -f "/mnt/install/etc/wpa_supplicant.conf"
     cp -r "/etc/wpa_supplicant.conf" "/mnt/install/etc/wpa_supplicant.conf"
-    log "Generating the initrd (${chosen_partition}1)"
-    rm -f /mnt/install/boot/initrd
-    chroot /mnt/install /bin/bash
+    log "Generating the initramfs (${chosen_partition}1)"
+    rm -f /mnt/install/boot/initrd.img-5.19.2
+chroot /mnt/install /bin/bash << 'EOF'
     cd /boot
-    rm -f initrd
-    mkinitramfs
+    mkinitramfs 5.19.2
     exit
+EOF
     echo
     echo
     echo "Debug moment :D"

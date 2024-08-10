@@ -323,7 +323,7 @@ function INSTALL_CYDRA {
     ) | fdisk "${chosen_partition}"
     mkfs.ext4 -F "${chosen_partition}1"
     log "The partition ${chosen_partition}1 has been set to ext4 Partition."
-    mount -t ext4 "${chosen_partition}1" "/mnt/install"
+    mount -t ext4 "${chosen_partition}1" "/mnt/install" 2> /dev/null
     log "Copying the system into the main partition (${chosen_partition}1)"
     tar xf /usr/bin/system.tar.gz -C /mnt/install
     log "Configuring the system (${chosen_partition}1)"

@@ -325,7 +325,7 @@ function INSTALL_CYDRA {
     log "The partition ${chosen_partition}1 has been set to ext4 Partition."
     mount -t ext4 "${chosen_partition}1" "/mnt/install"
     log "Copying the system into the main partition (${chosen_partition}1)"
-    unsquashfs -f -d "/mnt/install" "/usr/bin/system.sfs"
+    unsquashfs -f -d "/mnt/install" "/usr/bin/system.sfs" 2>/dev/null
     log "Configuring the system (${chosen_partition}1)"
     chosen_partition_uuid=$(blkid -s UUID -o value ${chosen_partition})
     swap_partition_uuid=$(blkid -s UUID -o value ${swap_partition})

@@ -8,7 +8,7 @@ RESET_COLOR="\e[0m"
 
 #			VARS			#
 
-CONF_ON_INSTALLATION_STEP=0
+IS_BIOS=1
 IS_EFI=1
 SWAPUSED=0
 CORRECTDISK=0
@@ -170,6 +170,33 @@ function EFI_CONF {
                 fi
 }
 
+function BIOS_CONF {
+                clear
+	        log "Enter your BIOS partition \nhere the list of your partitions: ${partition_list[@]}"
+    	        echo -n "Input: "
+   	        read bios_partition
+		bios_partition_size_kb=$(df -k --output=size "${bios_partition}" | tail -n 1)
+    	   	bios_partition_size_gb=$((efi_chosen_partition_size_kb / 1048576))
+		for item in "${partition_list[@]}"; do
+    		    if [[ "$item" == "$bios_partition}" ]]; then
+                        IS_BIOS=0
+			if [ "3" -ge "${bios_partition_size_gb}" ]; then
+                            IS_BIOS=2
+                        fi
+                        break
+                    fi
+                done
+		if [[ ${IS_BIOS} == 2 ]]; then
+                    log "Error: BIOS partition has an error.. Partition too small. Restarting.."
+		    BIOS_CONF
+                fi
+		
+		if [[ ${IS_BIOS} == 1 ]]; then
+                   log "Error: BIOS partition has an error.. Bad values. Restarting"
+		   BIOS_CONF
+                fi
+}
+
 function DISK_PARTITION {
         clear
         section "DISK PARTITIONNING"
@@ -214,7 +241,15 @@ function DISK_PARTITION {
         if [ -d /sys/firmware/efi ]; then
                 EFI_CONF
 	        for i in "${!partition_list[@]}"; do
-                    if [ "${partition_list[i]}" = "${swap_partition}" ]; then
+                    if [ "${partition_list[i]}" = "${efi_partition}" ]; then
+                        unset 'partition_list[i]'
+                        break
+                    fi
+                done
+        else 
+                BIOS_CONF
+	        for i in "${!partition_list[@]}"; do
+                    if [ "${partition_list[i]}" = "${bios_partition}" ]; then
                         unset 'partition_list[i]'
                         break
                     fi
@@ -241,9 +276,21 @@ function GRUB_CONF {
 	if [ SWAPUSED = 0 ]; then
 	    swapPartitionUuid=$(blkid ${swap_partion})
         fi
-	CONF_ON_INSTALLATION_STEP=1
-        log "grub is going to be installed later on the installation.."
-	sleep 2
+	(
+        echo "n"
+	echo "p"
+	echo "1"
+	echo 
+        echo 
+	echo "w"
+        ) | fdisk "${bios_partition}"
+	log "The BOOT partition has been created on the device ${bios_partition}."
+	mkfs.vfat -F 32 $"${bios_partition}1"
+	log "The partition ${bios_partition}1 has been formatted as FAT32."
+	mkdir /mnt/efi
+ 	mount "${bios_partition}1" "/mnt/efi"
+        grub-install "${bios_partition}1" --root-directory=/mnt/efi --removable
+	rm -f "/mnt/efi/boot/grub/grub.cfg"
     else
         mainPartitionUuid=$(blkid ${chosen_partion})
 	if [ SWAPUSED = 0 ]; then
@@ -364,15 +411,6 @@ chroot /mnt/install /bin/bash << 'EOF'
     mkinitramfs 5.19.2 2> /dev/null
     exit
 EOF
-
-    echo "${chosen_partition}" >> /mnt/install/root/cache.log
-    if [[ ${CONF_ON_INSTALLATION_STEP} = 1 ]]; then
-chroot /mnt/install /bin/bash << 'EOF'
-    cd /boot
-    grub-install $(cat /root/cache.log)
-    exit
-EOF
-    fi
     echo
     echo
     echo "Debug moment :D"

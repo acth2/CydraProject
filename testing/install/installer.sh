@@ -8,7 +8,7 @@ RESET_COLOR="\e[0m"
 
 #			VARS			#
 
-IS_BIOS=1
+IS_BIOS=3
 IS_EFI=1
 SWAPUSED=0
 CORRECTDISK=0
@@ -161,11 +161,13 @@ function EFI_CONF {
                 done
 		if [[ ${IS_EFI} == 2 ]]; then
                     log "Error: EFI has an error.. Partition too small. Restarting.."
+		    sleep 3
 		    EFI_CONF
                 fi
 		
 		if [[ ${IS_EFI} == 1 ]]; then
                    log "Error: EFI has an error.. Bad values. Restarting"
+		   sleep 3
 		   EFI_CONF
                 fi
 }
@@ -179,7 +181,7 @@ function BIOS_CONF {
     	   	bios_partition_size_gb=$((efi_chosen_partition_size_kb / 1048576))
 		for item in "${partition_list[@]}"; do
     		    if [[ "$item" == "$bios_partition}" ]]; then
-                        IS_BIOS=0
+                        IS_BIOS=3
 			if [ "3" -ge "${bios_partition_size_gb}" ]; then
                             IS_BIOS=2
                         fi
@@ -188,11 +190,13 @@ function BIOS_CONF {
                 done
 		if [[ ${IS_BIOS} == 2 ]]; then
                     log "Error: BIOS partition has an error.. Partition too small. Restarting.."
+		    sleep 3
 		    BIOS_CONF
                 fi
 		
 		if [[ ${IS_BIOS} == 1 ]]; then
                    log "Error: BIOS partition has an error.. Bad values. Restarting"
+		   sleep 3
 		   BIOS_CONF
                 fi
 }

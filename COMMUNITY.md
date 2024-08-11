@@ -64,3 +64,4 @@ J'ai bientot fini l'installeur mais je me frappe a un mur je trouve pas de solut
 
 
 Modification du kernel pour tenté de fix mon err-
+J'ai galéré pendant une journé a fix l'iso qui juste refusait de marchait apres avoir modifié un fichier sfs de maniere moe je préfere ne pas en parlé mais sa marche l'iso devrais fonctionné suffis de modifier le fichier profile et sa devrais marché j'espere lol

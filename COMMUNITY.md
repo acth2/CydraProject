@@ -61,3 +61,7 @@ L'installeur fonctionne en UEFI mais je dois re construire un nouveau .sfs qui c
 RIP mon ordinateur j'en vais marre je l'ai transformé en serveur...
 
 J'ai bientot fini l'installeur mais je me frappe a un mur je trouve pas de solution a mon erreur ..
+
+
+Modification du kernel pour tenté de fix mon err-
+J'ai galéré pendant une journé a fix l'iso qui juste refusait de marchait apres avoir modifié un fichier sfs de maniere moe je préfere ne pas en parlé mais sa marche l'iso devrais fonctionné suffis de modifier le fichier profile et sa devrais marché j'espere lol

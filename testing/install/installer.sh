@@ -142,6 +142,65 @@ function GET_USER_INFOS {
 
 #		DISK PARTITION		#
 
+function EFI_CONF {
+	        log "Enter your EFI partition \nhere the list of your partitions: ${partition_list[@]}"
+    	        echo -n "Input: "
+   	        read efi_partition
+		efi_partition_size_kb=$(df -k --output=size "${efi_partition}" | tail -n 1)
+    	   	efi_partition_size_gb=$((efi_chosen_partition_size_kb / 1048576))
+		for item in "${partition_list[@]}"; do
+    		    if [[ "$item" == "${efi_partition}" ]]; then
+                        IS_EFI=0
+			if [ "3" -ge "${efi_partition_size_gb}" ]; then
+                            IS_EFI=2
+                        fi
+                        break
+                    fi
+                done
+		if [[ ${IS_EFI} == 2 ]]; then
+                    log "Error: EFI has an error.. Partition too small. Restarting.."
+		    EFI_CONF
+                fi
+		
+		if [[ ${IS_EFI} == 1 ]]; then
+                   log "Error: EFI has an error.. Bad values. Restarting"
+		   EFI_CONF
+                fi
+}
+
+function BOOT_CONF {
+                for i in "${!partition_list[@]}"; do
+                    if [ "${partition_list[i]}" = "${swap_partition}" ]; then
+                        unset 'partition_list[i]'
+                        break
+                    fi
+                done
+		clear
+	        log "Enter your BOOT partition \nhere the list of your partitions: ${partition_list[@]}"
+    	        echo -n "Input: "
+   	        read boot_partition
+		boot_partition_size_kb=$(df -k --output=size "${efi_partition}" | tail -n 1)
+    	   	boot_partition_size_gb=$((efi_chosen_partition_size_kb / 1048576))
+		for item in "${partition_list[@]}"; do
+    		    if [[ "$item" == "${efi_partition}" ]]; then
+                        IS_BOOTBALE=0
+			if [ "3" -ge "${efi_partition_size_gb}" ]; then
+                            IS_BOOTABLE=2
+                        fi
+                        break
+                    fi
+                done
+	        if [[ ${IS_BOOTABLE} == 2 ]]; then
+                    log "Error: The boot partiton has an error. Not enough space. Restarting"
+		    CONF_BOOT
+                fi
+		
+		if [[ ${IS_BOOTABLE} == 1 ]]; then
+                   log "Error: The boot partiton has an error. Bad values. Restarting"
+		   CONF_BOOT
+                fi
+}
+
 function DISK_PARTITION {
         clear
         section "DISK PARTITIONNING"
@@ -184,36 +243,23 @@ function DISK_PARTITION {
         fi
     
         if [ -d /sys/firmware/efi ]; then
-	    if dialog --title "Efi detected"  --yesno "EFI was been detected ! Do you want to create an EFI partition ?" 25 85 --stdout; then
-                for i in "${!partition_list[@]}"; do
+		clear
+                EFI_CONF
+	        for i in "${!partition_list[@]}"; do
                     if [ "${partition_list[i]}" = "${swap_partition}" ]; then
                         unset 'partition_list[i]'
                         break
                     fi
                 done
-		clear
-	        log "Enter your EFI partition \nhere the list of your partitions: ${partition_list[@]}"
-    	        echo -n "Input: "
-   	        read efi_partition
-		efi_partition_size_kb=$(df -k --output=size "${efi_partition}" | tail -n 1)
-    	   	efi_partition_size_gb=$((efi_chosen_partition_size_kb / 1048576))
-		for item in "${partition_list[@]}"; do
-    		    if [[ "$item" == "${efi_partition}" ]]; then
-                        IS_EFI=0
-			if [ "3" -ge "${efi_partition_size_gb}" ]; then
-                            IS_EFI=2
-                        fi
+        else
+	        clear
+	        BOOT_CONF
+	        for i in "${!partition_list[@]}"; do
+                    if [ "${partition_list[i]}" = "${swap_partition}" ]; then
+                        unset 'partition_list[i]'
                         break
                     fi
                 done
-	        if [[ ${IS_EFI} == 2 ]]; then
-                    log "Error: EFI will not be used.. Not enough space"
-                fi
-		
-		if [[ ${IS_EFI} == 1 ]]; then
-                   log "Error: EFI will not be used.. Bad values"
-                fi
-            fi
         fi
 }
 
@@ -236,16 +282,25 @@ function GRUB_CONF {
 	if [ SWAPUSED = 0 ]; then
 	    swapPartitionUuid=$(blkid ${swap_partion})
         fi
-	mount -t ext4 ${chosen_partition} "/mnt/install"
-        mkdir -p /mnt/install/boot
-        grub-install --root-directory=/mnt/install/boot ${chosen_partition}
+        (
+        echo "n"   
+        echo "1"   
+        echo "t"   
+        echo "4"   
+        echo "w"
+        ) | fdisk "${bios_partition}"
+	sudo mkfs.ext4 "${bios_partition}1"
+ 	mkdir /mnt/efi
+ 	mount "${bios_partition}1" "/mnt/efi"
+        grub-install "${bios_partition}1" --root-directory=/mnt/efi --removable
+	log "An BIOS BOOT partition has been created on the device ${boot_partition}."
     else
         mainPartitionUuid=$(blkid ${chosen_partion})
 	if [ SWAPUSED = 0 ]; then
 	    swapPartitionUuid=$(blkid ${swap_partion})
         fi
         efiPartitionUuid=$(blkid ${efi_partion})
-	mkdir /mnt/efi
+
 	if [[ "$efi_partition" =~ [0-9]$ ]]; then
   	     efi_device=$(echo "$efi_partition" | sed 's/[0-9]*$//')
   	     (
@@ -297,9 +352,9 @@ function GRUB_CONF {
     echo "" >> "/mnt/efi/boot/grub/grub.cfg"
     echo 'menuentry "GNU/Linux, CydraLite Release V2.0"  {' >> "/mnt/efi/boot/grub/grub.cfg"
     echo "  echo Loading GNU/Linux CydraLite V02..." >> "/mnt/efi/boot/grub/grub.cfg"
-    echo "  linux /boot/os root=UUID=${chosen_partition}1 ro quiet" >> "/mnt/efi/boot/grub/grub.cfg"
+    echo "  linux /boot/vmlinuz-5.19.2 root=${chosen_partition}1 ro" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "  echo Loading ramdisk..." >> "/mnt/efi/boot/grub/grub.cfg"
-    echo "  initrd /boot/initrd.img-no-kmods" >> "/mnt/efi/boot/grub/grub.cfg"
+    echo "  initrd /boot/initrd.img-5.19.2" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "}" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "menuentry "Firmware Setup" {" >> "/mnt/efi/boot/grub/grub.cfg"
@@ -323,9 +378,9 @@ function INSTALL_CYDRA {
     ) | fdisk "${chosen_partition}"
     mkfs.ext4 -F "${chosen_partition}1"
     log "The partition ${chosen_partition}1 has been set to ext4 Partition."
-    mount -t ext4 "${chosen_partition}1" "/mnt/install"
+    mount -t ext4 "${chosen_partition}1" "/mnt/install" 2> /dev/null
     log "Copying the system into the main partition (${chosen_partition}1)"
-    tar -xf /usr/bin/system.tar.gz -C /mnt/install
+    tar xf /root/system.tar.gz -C /mnt/install
     log "Configuring the system (${chosen_partition}1)"
     chosen_partition_uuid=$(blkid -s UUID -o value ${chosen_partition})
     swap_partition_uuid=$(blkid -s UUID -o value ${swap_partition})
@@ -349,14 +404,13 @@ function INSTALL_CYDRA {
     fi
     rm -f "/mnt/install/etc/wpa_supplicant.conf"
     cp -r "/etc/wpa_supplicant.conf" "/mnt/install/etc/wpa_supplicant.conf"
-    log "Generating the initrd (${chosen_partition}1)"
-    rm -f /mnt/install/boot/initrd
-    chroot /mnt/install /bin/bash
+    log "Generating the initramfs (${chosen_partition}1)"
+    rm -f /mnt/install/boot/initrd.img-5.19.2
+chroot /mnt/install /bin/bash << 'EOF'
     cd /boot
-    rm -f initrd
-    neofetch
-    mkinitramfs
+    mkinitramfs 5.19.2 2> /dev/null
     exit
+EOF
     echo
     echo
     echo "Debug moment :D"

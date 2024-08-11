@@ -8,6 +8,7 @@ RESET_COLOR="\e[0m"
 
 #			VARS			#
 
+CONF_ON_INSTALLATION_STEP=0
 IS_EFI=1
 SWAPUSED=0
 CORRECTDISK=0
@@ -241,10 +242,9 @@ function GRUB_CONF {
 	    swapPartitionUuid=$(blkid ${swap_partion})
         fi
         (
-        cd /boot
-	grub-install ${chosen_partition}
-        exit
-        ) | chroot "/mnt/install"
+	CONF_ON_INSTALLATION_STEP=1
+        log "grub is going to be installed later on the installation.."
+	sleep 2
     else
         mainPartitionUuid=$(blkid ${chosen_partion})
 	if [ SWAPUSED = 0 ]; then
@@ -365,10 +365,19 @@ chroot /mnt/install /bin/bash << 'EOF'
     mkinitramfs 5.19.2 2> /dev/null
     exit
 EOF
+
+    if [[ ${CONF_ON_INSTALLATION_STEP} = 1 ]]; then
+chroot /mnt/install /bin/bash << 'EOF'
+    cd /boot
+    grub-install ${chosen_partition}
+    exit
+EOF
+    fi
     echo
     echo
     echo "Debug moment :D"
     sleep 5
+
 }
 
 #		INIT SWAP		#

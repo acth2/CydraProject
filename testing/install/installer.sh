@@ -8,6 +8,7 @@ RESET_COLOR="\e[0m"
 
 #			VARS			#
 
+IS_BIOS=3
 IS_EFI=1
 SWAPUSED=0
 CORRECTDISK=0
@@ -143,6 +144,7 @@ function GET_USER_INFOS {
 #		DISK PARTITION		#
 
 function EFI_CONF {
+                clear
 	        log "Enter your EFI partition \nhere the list of your partitions: ${partition_list[@]}"
     	        echo -n "Input: "
    	        read efi_partition
@@ -159,45 +161,43 @@ function EFI_CONF {
                 done
 		if [[ ${IS_EFI} == 2 ]]; then
                     log "Error: EFI has an error.. Partition too small. Restarting.."
+		    sleep 3
 		    EFI_CONF
                 fi
 		
 		if [[ ${IS_EFI} == 1 ]]; then
                    log "Error: EFI has an error.. Bad values. Restarting"
+		   sleep 3
 		   EFI_CONF
                 fi
 }
 
-function BOOT_CONF {
-                for i in "${!partition_list[@]}"; do
-                    if [ "${partition_list[i]}" = "${swap_partition}" ]; then
-                        unset 'partition_list[i]'
-                        break
-                    fi
-                done
-		clear
-	        log "Enter your BOOT partition \nhere the list of your partitions: ${partition_list[@]}"
+function BIOS_CONF {
+                clear
+	        log "Enter your BIOS partition \nhere the list of your partitions: ${partition_list[@]}"
     	        echo -n "Input: "
-   	        read boot_partition
-		boot_partition_size_kb=$(df -k --output=size "${efi_partition}" | tail -n 1)
-    	   	boot_partition_size_gb=$((efi_chosen_partition_size_kb / 1048576))
+   	        read bios_partition
+		bios_partition_size_kb=$(df -k --output=size "${bios_partition}" | tail -n 1)
+    	   	bios_partition_size_gb=$((efi_chosen_partition_size_kb / 1048576))
 		for item in "${partition_list[@]}"; do
-    		    if [[ "$item" == "${efi_partition}" ]]; then
-                        IS_BOOTBALE=0
-			if [ "3" -ge "${efi_partition_size_gb}" ]; then
-                            IS_BOOTABLE=2
+    		    if [[ "$item" == "$bios_partition}" ]]; then
+                        IS_BIOS=3
+			if [ "3" -ge "${bios_partition_size_gb}" ]; then
+                            IS_BIOS=2
                         fi
                         break
                     fi
                 done
-	        if [[ ${IS_BOOTABLE} == 2 ]]; then
-                    log "Error: The boot partiton has an error. Not enough space. Restarting"
-		    CONF_BOOT
+		if [[ ${IS_BIOS} == 2 ]]; then
+                    log "Error: BIOS partition has an error.. Partition too small. Restarting.."
+		    sleep 3
+		    BIOS_CONF
                 fi
 		
-		if [[ ${IS_BOOTABLE} == 1 ]]; then
-                   log "Error: The boot partiton has an error. Bad values. Restarting"
-		   CONF_BOOT
+		if [[ ${IS_BIOS} == 1 ]]; then
+                   log "Error: BIOS partition has an error.. Bad values. Restarting"
+		   sleep 3
+		   BIOS_CONF
                 fi
 }
 
@@ -234,6 +234,7 @@ function DISK_PARTITION {
 	    for item in "${partition_list[@]}"; do
     		if [[ "$item" == "${swap_partition}" ]]; then
                       SWAPUSED=1
+		      unset 'partition_list[i]'
                       break
                 fi
             done
@@ -243,19 +244,17 @@ function DISK_PARTITION {
         fi
     
         if [ -d /sys/firmware/efi ]; then
-		clear
                 EFI_CONF
 	        for i in "${!partition_list[@]}"; do
-                    if [ "${partition_list[i]}" = "${swap_partition}" ]; then
+                    if [ "${partition_list[i]}" = "${efi_partition}" ]; then
                         unset 'partition_list[i]'
                         break
                     fi
                 done
-        else
-	        clear
-	        BOOT_CONF
+        else 
+                BIOS_CONF
 	        for i in "${!partition_list[@]}"; do
-                    if [ "${partition_list[i]}" = "${swap_partition}" ]; then
+                    if [ "${partition_list[i]}" = "${bios_partition}" ]; then
                         unset 'partition_list[i]'
                         break
                     fi
@@ -277,23 +276,26 @@ function GRUB_CONF {
     section "GRUB CONFIGURING"
 
 
-    if [ IS_EFI = 1 ]; then
+    if [ ! -d /sys/firmware/efi ]; then
         mainPartitionUuid=$(blkid ${chosen_partion})
 	if [ SWAPUSED = 0 ]; then
 	    swapPartitionUuid=$(blkid ${swap_partion})
         fi
-        (
-        echo "n"   
-        echo "1"   
-        echo "t"   
-        echo "4"   
-        echo "w"
+	(
+        echo "n"
+	echo "p"
+	echo "1"
+	echo 
+        echo 
+	echo "w"
         ) | fdisk "${bios_partition}"
-	sudo mkfs.ext4 "${bios_partition}1"
- 	mkdir /mnt/efi
+	log "The BOOT partition has been created on the device ${bios_partition}."
+	mkfs.vfat -F 32 $"${bios_partition}1"
+	log "The partition ${bios_partition}1 has been formatted as FAT32."
+	mkdir /mnt/efi
  	mount "${bios_partition}1" "/mnt/efi"
         grub-install "${bios_partition}1" --root-directory=/mnt/efi --removable
-	log "An BIOS BOOT partition has been created on the device ${boot_partition}."
+	rm -f "/mnt/efi/boot/grub/grub.cfg"
     else
         mainPartitionUuid=$(blkid ${chosen_partion})
 	if [ SWAPUSED = 0 ]; then
@@ -380,12 +382,15 @@ function INSTALL_CYDRA {
     log "The partition ${chosen_partition}1 has been set to ext4 Partition."
     mount -t ext4 "${chosen_partition}1" "/mnt/install" 2> /dev/null
     log "Copying the system into the main partition (${chosen_partition}1)"
-    tar xf /root/system.tar.gz -C /mnt/install
+    tar xf /root/system.tar.gz -C /mnt/install 2> /root/errlog.logt
+    if [ -f /root/errlog.logt ]; then
+ 	   tar xf /usr/bin/system.tar.gz -C /mnt/install 2> /root/errlog.logt
+    fi
     log "Configuring the system (${chosen_partition}1)"
     chosen_partition_uuid=$(blkid -s UUID -o value ${chosen_partition})
     swap_partition_uuid=$(blkid -s UUID -o value ${swap_partition})
     efi_partition_uuid=$(blkid -s UUID -o value ${efi_partition})
-    cp -r "/mnt/temp/*" "/mnt/install"
+    cp -r "/mnt/temp/*" "/mnt/install" 2> /dev/null
     rm -f "/mnt/install/etc/fstab"
     touch "/mnt/install/etc/fstab"
     echo "#CydraLite FSTAB File, Make a backup if you want to modify it.." >> /mnt/install/etc/fstab
@@ -415,6 +420,7 @@ EOF
     echo
     echo "Debug moment :D"
     sleep 5
+
 }
 
 #		INIT SWAP		#

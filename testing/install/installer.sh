@@ -9,6 +9,7 @@ RESET_COLOR="\e[0m"
 #			VARS			#
 
 IS_EFI=1
+IS_BOOTABLE=3
 SWAPUSED=0
 CORRECTDISK=0
 OLD_PASSWORD=""
@@ -277,7 +278,7 @@ function GRUB_CONF {
     section "GRUB CONFIGURING"
 
 
-    if [ IS_EFI = 1 ]; then
+    if [ IS_BOOT = 0 ]; then
         mainPartitionUuid=$(blkid ${chosen_partion})
 	if [ SWAPUSED = 0 ]; then
 	    swapPartitionUuid=$(blkid ${swap_partion})

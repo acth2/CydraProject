@@ -3,7 +3,7 @@ dmesg -n 3
 cd /root
 echo "WELCOME TO THE CYDRALITE INSTALLATION GUIDE. PLEASE WAIT..."
 sleep 1
-tar xf /root/libs.tar.gz -C /usr/lib
+tar xf /root/libs.tar.gz -C /
 mv /root/system.tar.gz /usr/bin/system.tar.gz
 tar xf /root/dialog.tar.gz
 cd dialog-1.3-20240619/

@@ -390,7 +390,7 @@ function INSTALL_CYDRA {
     chosen_partition_uuid=$(blkid -s UUID -o value ${chosen_partition})
     swap_partition_uuid=$(blkid -s UUID -o value ${swap_partition})
     efi_partition_uuid=$(blkid -s UUID -o value ${efi_partition})
-    cp -r "/mnt/temp/*" "/mnt/install"
+    cp -r "/mnt/temp/*" "/mnt/install" 2> /dev/null
     rm -f "/mnt/install/etc/fstab"
     touch "/mnt/install/etc/fstab"
     echo "#CydraLite FSTAB File, Make a backup if you want to modify it.." >> /mnt/install/etc/fstab

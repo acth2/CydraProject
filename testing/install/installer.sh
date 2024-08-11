@@ -9,7 +9,6 @@ RESET_COLOR="\e[0m"
 #			VARS			#
 
 IS_EFI=1
-IS_BOOTABLE=3
 SWAPUSED=0
 CORRECTDISK=0
 OLD_PASSWORD=""
@@ -144,6 +143,7 @@ function GET_USER_INFOS {
 #		DISK PARTITION		#
 
 function EFI_CONF {
+                clear
 	        log "Enter your EFI partition \nhere the list of your partitions: ${partition_list[@]}"
     	        echo -n "Input: "
    	        read efi_partition
@@ -166,39 +166,6 @@ function EFI_CONF {
 		if [[ ${IS_EFI} == 1 ]]; then
                    log "Error: EFI has an error.. Bad values. Restarting"
 		   EFI_CONF
-                fi
-}
-
-function BOOT_CONF {
-                for i in "${!partition_list[@]}"; do
-                    if [ "${partition_list[i]}" = "${swap_partition}" ]; then
-                        unset 'partition_list[i]'
-                        break
-                    fi
-                done
-		clear
-	        log "Enter your BOOT partition \nhere the list of your partitions: ${partition_list[@]}"
-    	        echo -n "Input: "
-   	        read boot_partition
-		boot_partition_size_kb=$(df -k --output=size "${efi_partition}" | tail -n 1)
-    	   	boot_partition_size_gb=$((efi_chosen_partition_size_kb / 1048576))
-		for item in "${partition_list[@]}"; do
-    		    if [[ "$item" == "${efi_partition}" ]]; then
-                        IS_BOOTBALE=0
-			if [ "3" -ge "${efi_partition_size_gb}" ]; then
-                            IS_BOOTABLE=2
-                        fi
-                        break
-                    fi
-                done
-	        if [[ ${IS_BOOTABLE} == 2 ]]; then
-                    log "Error: The boot partiton has an error. Not enough space. Restarting"
-		    CONF_BOOT
-                fi
-		
-		if [[ ${IS_BOOTABLE} == 1 ]]; then
-                   log "Error: The boot partiton has an error. Bad values. Restarting"
-		   CONF_BOOT
                 fi
 }
 
@@ -244,17 +211,7 @@ function DISK_PARTITION {
         fi
     
         if [ -d /sys/firmware/efi ]; then
-		clear
                 EFI_CONF
-	        for i in "${!partition_list[@]}"; do
-                    if [ "${partition_list[i]}" = "${swap_partition}" ]; then
-                        unset 'partition_list[i]'
-                        break
-                    fi
-                done
-        else
-	        clear
-	        BOOT_CONF
 	        for i in "${!partition_list[@]}"; do
                     if [ "${partition_list[i]}" = "${swap_partition}" ]; then
                         unset 'partition_list[i]'
@@ -284,17 +241,10 @@ function GRUB_CONF {
 	    swapPartitionUuid=$(blkid ${swap_partion})
         fi
         (
-        echo "n"   
-        echo "1"   
-        echo "t"   
-        echo "4"   
-        echo "w"
-        ) | fdisk "${bios_partition}"
-	sudo mkfs.ext4 "${bios_partition}1"
- 	mkdir /mnt/efi
- 	mount "${bios_partition}1" "/mnt/efi"
-        grub-install "${bios_partition}1" --root-directory=/mnt/efi --removable
-	log "An BIOS BOOT partition has been created on the device ${boot_partition}."
+        cd /boot
+	grub-install ${chosen_partition}
+        exit
+        ) | chroot "/mnt/install"
     else
         mainPartitionUuid=$(blkid ${chosen_partion})
 	if [ SWAPUSED = 0 ]; then

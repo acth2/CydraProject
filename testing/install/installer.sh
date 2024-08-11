@@ -234,6 +234,7 @@ function DISK_PARTITION {
 	    for item in "${partition_list[@]}"; do
     		if [[ "$item" == "${swap_partition}" ]]; then
                       SWAPUSED=1
+		      unset 'partition_list[i]'
                       break
                 fi
             done

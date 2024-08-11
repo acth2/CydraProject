@@ -365,10 +365,11 @@ chroot /mnt/install /bin/bash << 'EOF'
     exit
 EOF
 
+    echo "${chosen_partition}" >> /mnt/install/root/cache.log
     if [[ ${CONF_ON_INSTALLATION_STEP} = 1 ]]; then
 chroot /mnt/install /bin/bash << 'EOF'
     cd /boot
-    grub-install ${chosen_partition}
+    grub-install $(cat /root/cache.log)
     exit
 EOF
     fi

@@ -241,7 +241,6 @@ function GRUB_CONF {
 	if [ SWAPUSED = 0 ]; then
 	    swapPartitionUuid=$(blkid ${swap_partion})
         fi
-        (
 	CONF_ON_INSTALLATION_STEP=1
         log "grub is going to be installed later on the installation.."
 	sleep 2

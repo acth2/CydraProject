@@ -278,7 +278,7 @@ function GRUB_CONF {
     section "GRUB CONFIGURING"
 
 
-    if [ IS_BOOT = 0 ]; then
+    if [ ! -d /sys/firmware/efi ]; then
         mainPartitionUuid=$(blkid ${chosen_partion})
 	if [ SWAPUSED = 0 ]; then
 	    swapPartitionUuid=$(blkid ${swap_partion})

@@ -281,6 +281,7 @@ function GRUB_CONF {
         echo
         echo
         echo
+	echo
         echo "w"
 	) | fdisk "${bios_partition}"
         mkfs.ext4 "${bios_partition}1"

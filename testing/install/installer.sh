@@ -281,37 +281,21 @@ function GRUB_CONF {
         if [ SWAPUSED = 0 ]; then
             swapPartitionUuid=$(blkid ${swap_partition})
         fi
-
-        if [[ "$bios_partition" =~ [0-9]$ ]]; then
-            bios_device=$(echo "$bios_partition" | sed 's/[0-9]*$//')
-            (
-            echo "d"        
-            echo "n"        
-            echo "p"        
-            echo "1"        
-            echo            
-            echo            
-            echo "w"        
-            ) | fdisk "${bios_device}"
-            log "The partition ${bios_partition} has been set up for BIOS installation."
-        else
-            (
-            echo "n"        
-            echo "p"        
-            echo "1"        
-            echo            
-            echo            
-            echo "w"        
-            ) | fdisk "${bios_partition}"
-            log "A partition has been created on the device ${bios_partition}."
-        fi
+	
+        (
+	echo "o"
+        echo "n"
+        echo
+        echo
+        echo
+        echo "w"
+	) | fdisk "${bios_partition}"
         mkfs.ext4 "${bios_partition}1"
-        mkdir -p /mnt/efi
+	mkdir /mnt/efi
         mount "${bios_partition}1" "/mnt/efi"
-        log "The partition ${bios_partition}1 has been formatted as ext4."
-
-        grub-install --boot-directory=/mnt/efi/boot --target=i386-pc "${bios_device}"
-        log "GRUB has been installed on ${bios_device} for BIOS boot."
+	grub-install --root-directory=/mnt/efi "${bios_partition}"
+        log "GRUB has been installed on ${bios_partition} for BIOS boot."
+	sleep "debug :D"
     else
         mainPartitionUuid=$(blkid ${chosen_partion})
 	if [ SWAPUSED = 0 ]; then

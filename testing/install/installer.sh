@@ -234,7 +234,7 @@ function DISK_PARTITION {
 	    for item in "${partition_list[@]}"; do
     		if [[ "$item" == "${swap_partition}" ]]; then
                       SWAPUSED=1
-		      unset 'partition_list[i]'
+		      unset $partition_list[i]
                       break
                 fi
             done
@@ -390,11 +390,11 @@ function INSTALL_CYDRA {
     echo "#CydraLite FSTAB File, Make a backup if you want to modify it.." >> /mnt/install/etc/fstab
     echo "" >> /mnt/install/etc/fstab
     echo "UUID=${chosen_partition_uuid}     /            ext4    defaults            1     1" >> /mnt/install/etc/fstab
-    if [ SWAPUSED = 0 ]; then
+    if [ SWAPUSED = 1 ]; then
 	echo "UUID=${swap_partition_uuid}     swap         swap     pri=1               0     0" >> /mnt/install/etc/fstab
     fi
     
-    if [ IS_EFI = 0 ]; then
+    if [ -d /sys/firmware/efi ]; then
 	echo "UUID=${efi_partition_uuid} /boot/efi vfat codepage=437,iocharset=iso8859-1 0 1" >> /mnt/install/etc/fstab
     fi
     
@@ -420,7 +420,7 @@ EOF
 #		INIT SWAP		#
 
 function INIT_SWAP {
-    mkswap -f "${chosen_swap}"
+    mkswap -f "${swap_partition}"
 }
 
 #		CLEAN UP		#

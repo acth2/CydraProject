@@ -293,11 +293,11 @@ function GRUB_CONF {
 	echo "w"
         ) | fdisk "${bios_partition}"
 	log "The BOOT partition has been created on the device ${bios_partition}."
-	mkfs.vfat -F 32 $"${bios_partition}1"
-	log "The partition ${bios_partition}1 has been formatted as FAT32."
+	sudo mkfs.ext4 "${bios_partition}1"
+	log "The partition ${bios_partition}1 has been formatted to EXT4."
 	mkdir /mnt/efi
  	mount "${bios_partition}1" "/mnt/efi"
-        grub-install "${bios_partition}1" --root-directory=/mnt/efi --removable
+        grub-install --boot-directory=/mnt/efi "${bios_partition}1"
 	rm -f "/mnt/efi/boot/grub/grub.cfg"
     else
         mainPartitionUuid=$(blkid ${chosen_partion})

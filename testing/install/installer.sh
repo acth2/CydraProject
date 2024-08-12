@@ -289,8 +289,8 @@ function GRUB_CONF {
         mount "${bios_partition}1" "/mnt/efi"
 	grub-install --root-directory=/mnt/efi "${bios_partition}"
         log "GRUB has been installed on ${bios_partition} for BIOS boot."
-	echo "Jabuse moi aussi"
-        sleep 1000
+	echo "Debug timerrrrrrrrr (10s)"
+        sleep 10
     else
         mainPartitionUuid=$(blkid ${chosen_partion})
 	if [ SWAPUSED = 0 ]; then

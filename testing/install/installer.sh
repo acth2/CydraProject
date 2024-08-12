@@ -273,15 +273,8 @@ function DISK_INSTALL {
 #		GRUB CONFIGURATION		#
 
 function GRUB_CONF {
-        section "GRUB CONFIGURING"
-
-
-        if [ ! -d /sys/firmware/efi ]; then
-            mainPartitionUuid=$(blkid ${chosen_partition})
-        if [ SWAPUSED = 0 ]; then
-            swapPartitionUuid=$(blkid ${swap_partition})
-        fi
-	
+    section "GRUB CONFIGURING"
+    if [ ! -d /sys/firmware/efi ]; then
         (
 	echo "o"
         echo "n"
@@ -295,7 +288,8 @@ function GRUB_CONF {
         mount "${bios_partition}1" "/mnt/efi"
 	grub-install --root-directory=/mnt/efi "${bios_partition}"
         log "GRUB has been installed on ${bios_partition} for BIOS boot."
-	sleep "debug :D"
+	echo "Jabuse moi aussi"
+        sleep 1000
     else
         mainPartitionUuid=$(blkid ${chosen_partion})
 	if [ SWAPUSED = 0 ]; then

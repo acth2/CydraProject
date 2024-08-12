@@ -282,11 +282,14 @@ function GRUB_CONF {
 	    swapPartitionUuid=$(blkid ${swap_partion})
         fi
 	(
-        echo "n"
+        echo "o"
+	echo "n"
 	echo "p"
-	echo "1"
 	echo 
         echo 
+	echo 
+ 	echo "t"
+  	echo "4"
 	echo "w"
         ) | fdisk "${bios_partition}"
 	log "The BOOT partition has been created on the device ${bios_partition}."

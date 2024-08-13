@@ -288,6 +288,7 @@ function GRUB_CONF {
     fi
     rm -rf "/mnt/install/boot/grub/grub.cfg"
     rm -rf "/mnt/efi/boot/grub/grub.cf"
+    mkdir -p /mnt/efi/boot/grub
     touch "/mnt/efi/boot/grub/grub.cfg"
     local disk=$(echo "${chosen_partition}1" | sed -E 's|/dev/([a-z]+)[0-9]*|\1|')
     local partition_letter=$(echo "${chosen_partition}1" | grep -o '[0-9]*$')

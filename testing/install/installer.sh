@@ -182,9 +182,9 @@ function DISK_PARTITION {
     done <<< "$PARTITIONS"
 
     chosen_partition=$(dialog --clear \
-                    --backtitle "Sélecteur de partition" \
-                    --title "Sélectionnez un partition" \
-                    --menu "Partitions disponible:" 15 50 10 \
+                    --backtitle "Selecteur de partition" \
+                    --title "Selectionnez un partition" \
+                    --menu "Partitions disponibles:" 15 50 10 \
                     "${OPTIONS[@]}" \
                     3>&1 1>&2 2>&3 3>&-)
 

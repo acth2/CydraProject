@@ -171,10 +171,28 @@ function EFI_CONF {
                 fi
 }
 
+function GEN_PARTITION_LIST {
+    lsblk -np -o NAME,SIZE | grep -E "disk|part" | grep -v -E "/dev/sr0|/dev/loop0" | while IFS= read -r line; do
+        DEVICE=$(echo "$line" | awk '{print $1}')
+        SIZE=$(echo "$line" | awk '{print $2}')
+        OPTIONS+=("$DEVICE" "$SIZE")
+    done
+}
+
 function DISK_PARTITION {
+    GEN_PARTITION_LIST
+    OPTIONS=()
     PARTITIONS=$(lsblk -np -o NAME,SIZE | grep -E "part|disk")
 
-    OPTIONS=()
+    if [ ${#OPTIONS[@]} -eq 0 ]; then
+        echo "No valid disks or partitions found. Please insert a drive on your computer.."
+	sleep 3
+	stty -echo
+	export PS1="Exiting system..."
+	clear
+	halt
+    fi
+    
     while IFS= read -r line; do
         DEVICE=$(echo "$line" | awk '{print $1}')
         SIZE=$(echo "$line" | awk '{print $2}')
@@ -182,13 +200,13 @@ function DISK_PARTITION {
     done <<< "$PARTITIONS"
 
     chosen_partition=$(dialog --clear \
-                    --backtitle "Selecteur de partition" \
-                    --title "Selectionnez un partition" \
-                    --menu "Partitions disponibles:" 15 50 10 \
+                    --backtitle "Disk and Partition Selector" \
+                    --title "Select a Disk or Partition" \
+                    --menu "Available disks and partitions:" 15 50 10 \
                     "${OPTIONS[@]}" \
                     3>&1 1>&2 2>&3 3>&-)
 
-    if [ ! $? -eq 0 ]; then
+    if [ -z ${chosen_partition} ]; then
         echo "No partition selected. Restarting."
         sleep 3
         DISK_PARTITION

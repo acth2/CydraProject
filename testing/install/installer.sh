@@ -174,24 +174,21 @@ function EFI_CONF {
 function GEN_PARTITION_LIST {
     OPTIONS=()
     
-    lsblk -np -o NAME,SIZE | grep -E "disk|part" | grep -v -E "/dev/sr0|/dev/loop0" | while IFS= read -r line; do
+    lsblk -np -o NAME,SIZE | grep -v -E "/dev/sr0|/dev/loop0" | while IFS= read -r line; do
         DEVICE=$(echo "$line" | awk '{print $1}')
         SIZE=$(echo "$line" | awk '{print $2}')
-        OPTIONS+=("$DEVICE" "$SIZE")
+        if [[ -n "$DEVICE" && -n "$SIZE" ]]; then
+            OPTIONS+=("$DEVICE" "$SIZE")
+        else
+            echo "Failed to parse line: $line"
+        fi
     done
+
+    echo "OPTIONS: ${OPTIONS[@]}"
 }
 
 function DISK_PARTITION {
     GEN_PARTITION_LIST
-
-    if [ ${#OPTIONS[@]} -eq 0 ]; then
-        echo "No valid disks or partitions found. Please insert a drive on your computer."
-        sleep 3
-        stty -echo
-        export PS1="Exiting system..."
-        clear
-        halt
-    fi
     
     chosen_partition=$(dialog --clear \
                     --backtitle "Disk and Partition Selector" \

@@ -172,7 +172,7 @@ function EFI_CONF {
 }
 
 function get_devices {
-    awk 'NR>1 {if ($4 !~ /^(loop0|sr0)$/) {printf "%s %s (%.2f GB)\n", $4, $4, $3/1048576.0}}' /proc/partitions
+    awk 'NR>1 {if ($4 !~ /^(loop0|sr0|0.00GB)$/) {printf "%s %s (%.2f GB)\n", $4, $4, $3/1048576.0}}' /proc/partitions
 }
 
 function DISK_PARTITION {

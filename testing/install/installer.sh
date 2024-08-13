@@ -175,10 +175,14 @@ function get_devices {
     awk '{print $4}' /proc/partitions | grep -Ev '^(loop0|sr0|name)$'
 }
 
+function getefi_devices {
+    awk '{print $4}' /proc/partitions | grep -Ev "^(loop0|sr0|name|${chosen_partition})$"
+}
+
 function DISK_PARTITION {
-
+    
     devices=$(get_devices)
-
+    
     if [ -z "$devices" ]; then
         dialog --msgbox "No devices found.." 6 40
         exit 1
@@ -194,7 +198,19 @@ function DISK_PARTITION {
                     "${menu_entries[@]}" \
                     2>&1 >/dev/tty)
 
-    chosen_partition="/dev/${chosen_partition}"
+    if [ -d /sys/firmware/efi ]; then    
+        devices=$(getefi_devices)
+	menu_entries=()
+        while read -r device; do
+            menu_entries+=("$device" "$device")
+        done <<< "$devices"
+
+        efi_partition=$(dialog --no-cancel --clear --title "Select the EFI Device" \
+                        --menu "Choose the EFI device:" 15 50 4 \
+                        "${menu_entries[@]}" \
+                        2>&1 >/dev/tty)
+        fi
+        chosen_partition="/dev/${chosen_partition}"
 }
 
 function DISK_INSTALL {

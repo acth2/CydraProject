@@ -191,29 +191,6 @@ function DISK_PARTITION {
             DISK_PARTITION
         fi
 	
-        if dialog --yesno "Do you want to create a swap partition?" 25 85 --stdout; then
-            for i in "${!partition_list[@]}"; do
-                if [ "${partition_list[i]}" = "${chosen_partition}" ]; then
-                   unset 'partition_list[i]'
-                   break
-                fi
-            done
-	    clear
-	    log "Enter your swap partition \nhere the list of your partitions: ${partition_list[@]}"
-    	    echo -n "Input: "
-   	    read swap_partition
-	    for item in "${partition_list[@]}"; do
-    		if [[ "$item" == "${swap_partition}" ]]; then
-                      SWAPUSED=1
-		      unset $partition_list[i]
-                      break
-                fi
-            done
-	    if [[ ${SWAPUSED} == 0 ]]; then
-                log "Error: The SWAP will not be used.. Bad values"
-            fi
-        fi
-    
         if [ -d /sys/firmware/efi ]; then
                 EFI_CONF
 	        for i in "${!partition_list[@]}"; do
@@ -349,10 +326,7 @@ function INSTALL_CYDRA {
     echo "#CydraLite FSTAB File, Make a backup if you want to modify it.." >> /mnt/install/etc/fstab
     echo "" >> /mnt/install/etc/fstab
     echo "UUID=${chosen_partition_uuid}     /            ext4    defaults            1     1" >> /mnt/install/etc/fstab
-    if [ SWAPUSED = 1 ]; then
-	echo "UUID=${swap_partition_uuid}     swap         swap     pri=1               0     0" >> /mnt/install/etc/fstab
-    fi
-    
+    echo "/swapfile                         swap         swap    pri=1               0     0" >> /mnt/install/etc/fstab
     if [ -d /sys/firmware/efi ]; then
 	echo "UUID=${efi_partition_uuid} /boot/efi vfat codepage=437,iocharset=iso8859-1 0 1" >> /mnt/install/etc/fstab
     fi
@@ -375,15 +349,11 @@ EOF
         mv "/mnt/efi/boot/grub/grub.cfg" "/mnt/install/boot/grub/grub.cfg"
 	log "GRUB has been installed on ${chosen_partition} for BIOS boot."
     fi
+    dd if=/dev/zero of=/mnt/install/swapfile bs=1M count=2048
+    chmod 600 /mnt/install/swapfile
+    mkswap /mnt/install/swapfile
+    log "a 2GB swapfile is created.. (${chosen_partition}1)"
     sleep 3
-    
-
-}
-
-#		INIT SWAP		#
-
-function INIT_SWAP {
-    mkswap -f "${swap_partition}"
 }
 
 #		CLEAN UP		#
@@ -439,7 +409,6 @@ function main {
             		     DISK_INSTALL
 		   	     GRUB_CONF
             		     INSTALL_CYDRA
-            		     INIT_SWAP
 	    		     CLEAN_LIVE
 
 	     		     dialog --msgbox "Installation is finished, thanks for using CydraOS !" 0 0

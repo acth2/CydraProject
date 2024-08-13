@@ -286,24 +286,32 @@ function GRUB_CONF {
 function INSTALL_CYDRA {
     section "INSTALLING CYDRA"
 
-    mkdir "/mnt/install"
-    (
-    echo "n"        
-    echo "p"   
-    echo "1"   
-    echo       
-    echo    
-    echo "w" 
-    ) | fdisk "${chosen_partition}"
-    mkfs.ext4 -F "${chosen_partition}1"
-    log "The partition ${chosen_partition}1 has been set to ext4 Partition."
-    mount -t ext4 "${chosen_partition}1" "/mnt/install" 2> /dev/null
-    log "Copying the system into the main partition (${chosen_partition}1)"
+    if [[ ! $chosen_partition =~ [0-9] ]]; then
+        mkdir "/mnt/install"
+        (
+        echo "n"        
+        echo "p"   
+        echo "1"   
+        echo       
+        echo    
+        echo "w" 
+        ) | fdisk "${chosen_partition}"
+        mkfs.ext4 -F "${chosen_partition}1"
+    else
+        mkfs.ext4 -F "${chosen_partition}"
+    fi
+    log "The partition ${chosen_partition} has been set to ext4 Partition."
+    if [[ ! $chosen_partition =~ [0-9] ]]; then
+        mount -t ext4 "${chosen_partition}1" "/mnt/install" 2> /dev/null
+    else 
+        mount -t ext4 "${chosen_partition}" "/mnt/install" 2> /dev/null
+    fi
+    log "Copying the system into the main partition (${chosen_partition})"
     tar xf /root/system.tar.gz -C /mnt/install 2> /root/errlog.logt
     if [ -f /root/errlog.logt ]; then
  	   tar xf /usr/bin/system.tar.gz -C /mnt/install 2> /root/errlog.logt
     fi
-    log "Configuring the system (${chosen_partition}1)"
+    log "Configuring the system (${chosen_partition})"
     chosen_partition_uuid=$(blkid -s UUID -o value ${chosen_partition})
     swap_partition_uuid=$(blkid -s UUID -o value ${swap_partition})
     efi_partition_uuid=$(blkid -s UUID -o value ${efi_partition})
@@ -323,7 +331,7 @@ function INSTALL_CYDRA {
     fi
     rm -f "/mnt/install/etc/wpa_supplicant.conf"
     cp -r "/etc/wpa_supplicant.conf" "/mnt/install/etc/wpa_supplicant.conf"
-    log "Generating the initramfs (${chosen_partition}1)"
+    log "Generating the initramfs (${chosen_partition})"
     rm -f /mnt/install/boot/initrd.img-5.19.2
 chroot /mnt/install /bin/bash << 'EOF'
     cd /boot
@@ -339,7 +347,7 @@ EOF
     dd if=/dev/zero of=/mnt/install/swapfile bs=1M count=2048 2> /dev/null
     chmod 600 /mnt/install/swapfile 2> /dev/null
     mkswap /mnt/install/swapfile 2> /dev/null
-    log "a 2GB swapfile is created.. (${chosen_partition}1)"
+    log "a 2GB swapfile is created.. (${chosen_partition})"
     sleep 3
 }
 

@@ -172,7 +172,7 @@ function EFI_CONF {
 }
 
 function get_devices {
-    awk 'NR>1 {if ($4 !~ /^(loop0|sr0)$/) {printf "%s %s (%.2f GB)\n", $4, $4, $3/2048}}' /proc/partitions
+    awk 'NR>1 {if ($4 !~ /^(loop0|sr0)$/) {printf "%s %s (%.2f GB)\n", $4, $4, $3/1048576.0}}' /proc/partitions
 }
 
 function DISK_PARTITION {
@@ -185,7 +185,7 @@ function DISK_PARTITION {
 
     menu_entries=()
     while read -r line; do
-    d    evice=$(echo "$line" | awk '{print $1}')
+        device=$(echo "$line" | awk '{print $1}')
         size=$(echo "$line" | awk '{print substr($0, index($0,$2))}')
         menu_entries+=("$device" "$size")
     done <<< "$devices"
@@ -196,7 +196,7 @@ function DISK_PARTITION {
                     --no-cancel \
                     2>&1 >/dev/tty)
 
-    clear
+    chosen_partition="/dev/${chosen_partition}"
 
     if [ ! -n "$CHOICE" ]; then
         dialog --msgbox "No device selected." 6 40

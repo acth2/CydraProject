@@ -177,6 +177,7 @@ function GEN_PARTITION_LIST {
     lsblk -np -o NAME,SIZE | grep -v -E "/dev/sr0|/dev/loop0" | while IFS= read -r line; do
         DEVICE=$(echo "$line" | awk '{print $1}')
         SIZE=$(echo "$line" | awk '{print $2}')
+
         if [[ -n "$DEVICE" && -n "$SIZE" ]]; then
             OPTIONS+=("$DEVICE" "$SIZE")
         else
@@ -189,17 +190,31 @@ function GEN_PARTITION_LIST {
 
 function DISK_PARTITION {
     GEN_PARTITION_LIST
-    
+
+    if [ ${#OPTIONS[@]} -eq 0 ]; then
+        echo "No valid disks or partitions found. Please insert a drive on your computer."
+        sleep 3
+        stty -echo
+        export PS1="Exiting system..."
+        clear
+        halt
+    fi
+
+    DIALOG_OPTIONS=()
+    for ((i=0; i<${#OPTIONS[@]}; i+=2)); do
+        DEVICE=${OPTIONS[$i]}
+        SIZE=${OPTIONS[$i+1]}
+        DIALOG_OPTIONS+=("$DEVICE" "$SIZE")
+    done
+
     chosen_partition=$(dialog --clear \
                     --backtitle "Disk and Partition Selector" \
                     --title "Select a Disk or Partition" \
                     --menu "Available disks and partitions:" 15 50 10 \
-                    "${OPTIONS[@]}" \
+                    "${DIALOG_OPTIONS[@]}" \
                     3>&1 1>&2 2>&3 3>&-)
 
-    if [ $? -eq 0 ]; then
-        echo "You selected: $chosen_partition"
-    else
+    if [ ! $? -eq 0 ]; then
         echo "No partition selected. Restarting."
         sleep 3
         DISK_PARTITION

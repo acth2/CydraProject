@@ -211,6 +211,7 @@ function DISK_PARTITION {
                         2>&1 >/dev/tty)
         fi
         chosen_partition="/dev/${chosen_partition}"
+	efi_partition="/dev/${efi_partition}"
 }
 
 function DISK_INSTALL {

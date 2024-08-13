@@ -193,6 +193,8 @@ function DISK_PARTITION {
                     --menu "Choose a device:" 15 50 4 \
                     "${menu_entries[@]}" \
                     2>&1 >/dev/tty)
+
+    chosen_partition="/dev/${chosen_partition}"
 }
 
 function DISK_INSTALL {

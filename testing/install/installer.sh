@@ -370,12 +370,11 @@ chroot /mnt/install /bin/bash << 'EOF'
 EOF
     if [ ! -d /sys/firmware/efi ]; then   
         rm -rf /mnt/install/boot/grub
-	grub-install --boot-directory=/mnt/install/boot ${chosen_partition} --force
+	grub-install --boot-directory=/mnt/install/boot ${chosen_partition} --force 2> /root/grub.log
+        mv "/mnt/efi/boot/grub/grub.cfg" "/mnt/install/boot/grub/grub.cfg"
+	log "GRUB has been installed on ${chosen_partition} for BIOS boot."
     fi
-    echo
-    echo
-    echo "Debug moment :D"
-    sleep 10
+    sleep 3
     
 
 }

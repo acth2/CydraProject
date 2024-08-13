@@ -172,35 +172,6 @@ function EFI_CONF {
                 fi
 }
 
-function BIOS_CONF {
-                clear
-	        log "Enter your BIOS partition \nhere the list of your partitions: ${partition_list[@]}"
-    	        echo -n "Input: "
-   	        read bios_partition
-		bios_partition_size_kb=$(df -k --output=size "${bios_partition}" | tail -n 1)
-    	   	bios_partition_size_gb=$((efi_chosen_partition_size_kb / 1048576))
-		for item in "${partition_list[@]}"; do
-    		    if [[ "$item" == "$bios_partition}" ]]; then
-                        IS_BIOS=3
-			if [ "3" -ge "${bios_partition_size_gb}" ]; then
-                            IS_BIOS=2
-                        fi
-                        break
-                    fi
-                done
-		if [[ ${IS_BIOS} == 2 ]]; then
-                    log "Error: BIOS partition has an error.. Partition too small. Restarting.."
-		    sleep 3
-		    BIOS_CONF
-                fi
-		
-		if [[ ${IS_BIOS} == 1 ]]; then
-                   log "Error: BIOS partition has an error.. Bad values. Restarting"
-		   sleep 3
-		   BIOS_CONF
-                fi
-}
-
 function DISK_PARTITION {
         clear
         section "DISK PARTITIONNING"
@@ -274,23 +245,9 @@ function DISK_INSTALL {
 
 function GRUB_CONF {
     section "GRUB CONFIGURING"
-    if [ ! -d /sys/firmware/efi ]; then
-        (
-	echo "o"
-        echo "n"
-        echo
-        echo
-        echo
-	echo
-        echo "a"
-	echo    
-        echo "w"
-	) | fdisk "${bios_partition}"
-        mkfs.ext4 "${bios_partition}1"
-	mkdir /mnt/efi
-        mount "${bios_partition}1" "/mnt/efi"
-	grub-install --root-directory=/mnt/efi "${bios_partition}"
-        log "GRUB has been installed on ${bios_partition} for BIOS boot."
+    if [ ! -d /sys/firmware/efi ]; then    
+        log "GRUB will be installed on ${chosen_partition}/boot for BIOS boot."
+	sleep 2
     else
         mainPartitionUuid=$(blkid ${chosen_partion})
 	if [ SWAPUSED = 0 ]; then
@@ -411,10 +368,15 @@ chroot /mnt/install /bin/bash << 'EOF'
     mkinitramfs 5.19.2 2> /dev/null
     exit
 EOF
+    if [ ! -d /sys/firmware/efi ]; then   
+        rm -rf /mnt/install/boot/grub
+	grub-install --boot-directory=/mnt/install/boot ${chosen_partition}
+    fi
     echo
     echo
     echo "Debug moment :D"
-    sleep 5
+    sleep 10
+    
 
 }
 

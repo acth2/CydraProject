@@ -172,29 +172,36 @@ function EFI_CONF {
 }
 
 function get_devices {
-    awk '{print $4}' /proc/partitions | grep -Ev '^(loop0|sr0|name)$'
+    awk 'NR>1 {if ($4 !~ /^(loop0|sr0)$/) {printf "%s %s (%.2f GB)\n", $4, $4, $3/2048}}' /proc/partitions
 }
 
 function DISK_PARTITION {
-
     devices=$(get_devices)
 
     if [ -z "$devices" ]; then
-        dialog --msgbox "No devices found.." 6 40
+        dialog --msgbox "No devices found!" 6 40
         exit 1
     fi
 
     menu_entries=()
-    while read -r device; do
-        menu_entries+=("$device" "$device")
+    while read -r line; do
+    d    evice=$(echo "$line" | awk '{print $1}')
+        size=$(echo "$line" | awk '{print substr($0, index($0,$2))}')
+        menu_entries+=("$device" "$size")
     done <<< "$devices"
 
-    chosen_partition=$(dialog --no-cancel --clear --title "Select Device" \
-                    --menu "Choose a device:" 15 50 4 \
+    chosen_partition=$(dialog --clear --title "Select Device" \
+                    --menu "Choose a device:" 15 60 4 \
                     "${menu_entries[@]}" \
+                    --no-cancel \
                     2>&1 >/dev/tty)
 
-    chosen_partition="/dev/${chosen_partition}"
+    clear
+
+    if [ ! -n "$CHOICE" ]; then
+        dialog --msgbox "No device selected." 6 40
+        DISK_PARTITION
+    fi
 }
 
 function DISK_INSTALL {

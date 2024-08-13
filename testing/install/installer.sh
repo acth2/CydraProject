@@ -339,9 +339,6 @@ function INSTALL_CYDRA {
     echo "" >> /mnt/install/etc/fstab
     echo "UUID=${chosen_partition_uuid}     /            ext4    defaults            1     1" >> /mnt/install/etc/fstab
     echo "/swapfile                         swap         swap    pri=1               0     0" >> /mnt/install/etc/fstab
-    if [ -d /sys/firmware/efi ]; then
-	echo "UUID=${efi_partition_uuid} /boot/efi vfat codepage=437,iocharset=iso8859-1 0 1" >> /mnt/install/etc/fstab
-    fi
     
     if [[ ${WIRELESS} = 1 ]]; then
 	mv "/root/installdir/25-wireless.network" "/mnt/install/systemd/network/25-wireless.network"

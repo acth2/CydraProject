@@ -13,7 +13,6 @@ IS_EFI=1
 SWAPUSED=0
 CORRECTDISK=0
 OLD_PASSWORD=""
-partition_list=($(lsblk -nr -o NAME,TYPE | awk '$2 == "disk" {print "/dev/" $1}'));
 WIRELESS=0
 SYSKERNEL_VER="5.19.2"
 
@@ -172,94 +171,47 @@ function EFI_CONF {
                 fi
 }
 
-function BIOS_CONF {
-                clear
-	        log "Enter your BIOS partition \nhere the list of your partitions: ${partition_list[@]}"
-    	        echo -n "Input: "
-   	        read bios_partition
-		bios_partition_size_kb=$(df -k --output=size "${bios_partition}" | tail -n 1)
-    	   	bios_partition_size_gb=$((efi_chosen_partition_size_kb / 1048576))
-		for item in "${partition_list[@]}"; do
-    		    if [[ "$item" == "$bios_partition}" ]]; then
-                        IS_BIOS=3
-			if [ "3" -ge "${bios_partition_size_gb}" ]; then
-                            IS_BIOS=2
-                        fi
-                        break
-                    fi
-                done
-		if [[ ${IS_BIOS} == 2 ]]; then
-                    log "Error: BIOS partition has an error.. Partition too small. Restarting.."
-		    sleep 3
-		    BIOS_CONF
-                fi
-		
-		if [[ ${IS_BIOS} == 1 ]]; then
-                   log "Error: BIOS partition has an error.. Bad values. Restarting"
-		   sleep 3
-		   BIOS_CONF
-                fi
+function get_devices {
+    awk '{print $4}' /proc/partitions | grep -Ev '^(loop0|sr0|name)$'
+}
+
+function getefi_devices {
+    awk '{print $4}' /proc/partitions | grep -Ev "^(loop0|sr0|name|${chosen_partition})$"
 }
 
 function DISK_PARTITION {
-        clear
-        section "DISK PARTITIONNING"
-        log "Enter your system partition \nhere the list of your partitions: ${partition_list[@]}"
-        echo -n "Input: "
-        read chosen_partition
-        for item in "${partition_list[@]}"; do
-            if [[ "$item" == "${chosen_partition}" ]]; then
-                CORRECTDISK=1
-                break
-            fi
-        done
     
-        if [[ ${CORRECTDISK} == 0 ]]; then
-            log "Error: System disk not found.."
-	    sleep 2
-            DISK_PARTITION
-        fi
-	
-        if dialog --yesno "Do you want to create a swap partition?" 25 85 --stdout; then
-            for i in "${!partition_list[@]}"; do
-                if [ "${partition_list[i]}" = "${chosen_partition}" ]; then
-                   unset 'partition_list[i]'
-                   break
-                fi
-            done
-	    clear
-	    log "Enter your swap partition \nhere the list of your partitions: ${partition_list[@]}"
-    	    echo -n "Input: "
-   	    read swap_partition
-	    for item in "${partition_list[@]}"; do
-    		if [[ "$item" == "${swap_partition}" ]]; then
-                      SWAPUSED=1
-		      unset 'partition_list[i]'
-                      break
-                fi
-            done
-	    if [[ ${SWAPUSED} == 0 ]]; then
-                log "Error: The SWAP will not be used.. Bad values"
-            fi
-        fi
+    devices=$(get_devices)
     
-        if [ -d /sys/firmware/efi ]; then
-                EFI_CONF
-	        for i in "${!partition_list[@]}"; do
-                    if [ "${partition_list[i]}" = "${efi_partition}" ]; then
-                        unset 'partition_list[i]'
-                        break
-                    fi
-                done
-        else 
-                BIOS_CONF
-	        for i in "${!partition_list[@]}"; do
-                    if [ "${partition_list[i]}" = "${bios_partition}" ]; then
-                        unset 'partition_list[i]'
-                        break
-                    fi
-                done
+    if [ -z "$devices" ]; then
+        dialog --msgbox "No devices found.." 6 40
+        exit 1
+    fi
+
+    menu_entries=()
+    while read -r device; do
+        menu_entries+=("$device" "$device")
+    done <<< "$devices"
+
+    chosen_partition=$(dialog --no-cancel --clear --title "Select Device" \
+                    --menu "Choose a device:" 15 50 4 \
+                    "${menu_entries[@]}" \
+                    2>&1 >/dev/tty)
+
+    if [ -d /sys/firmware/efi ]; then    
+        devices=$(getefi_devices)
+	menu_entries=()
+        while read -r device; do
+            menu_entries+=("$device" "$device")
+        done <<< "$devices"
+
+        efi_partition=$(dialog --no-cancel --clear --title "Select the EFI Device" \
+                        --menu "Choose the EFI device:" 15 50 4 \
+                        "${menu_entries[@]}" \
+                        2>&1 >/dev/tty)
         fi
+        chosen_partition="/dev/${chosen_partition}"
+	efi_partition="/dev/${efi_partition}"
 }
 
 function DISK_INSTALL {
@@ -274,28 +226,9 @@ function DISK_INSTALL {
 
 function GRUB_CONF {
     section "GRUB CONFIGURING"
-
-
-    if [ ! -d /sys/firmware/efi ]; then
-        mainPartitionUuid=$(blkid ${chosen_partion})
-	if [ SWAPUSED = 0 ]; then
-	    swapPartitionUuid=$(blkid ${swap_partion})
-        fi
-	(
-        echo "n"
-	echo "p"
-	echo "1"
-	echo 
-        echo 
-	echo "w"
-        ) | fdisk "${bios_partition}"
-	log "The BOOT partition has been created on the device ${bios_partition}."
-	mkfs.vfat -F 32 $"${bios_partition}1"
-	log "The partition ${bios_partition}1 has been formatted as FAT32."
-	mkdir /mnt/efi
- 	mount "${bios_partition}1" "/mnt/efi"
-        grub-install "${bios_partition}1" --root-directory=/mnt/efi --removable
-	rm -f "/mnt/efi/boot/grub/grub.cfg"
+    if [ ! -d /sys/firmware/efi ]; then    
+        log "GRUB will be installed on ${chosen_partition}/boot for BIOS boot."
+	sleep 2
     else
         mainPartitionUuid=$(blkid ${chosen_partion})
 	if [ SWAPUSED = 0 ]; then
@@ -336,6 +269,7 @@ function GRUB_CONF {
     fi
     rm -rf "/mnt/install/boot/grub/grub.cfg"
     rm -rf "/mnt/efi/boot/grub/grub.cf"
+    mkdir -p /mnt/efi/boot/grub
     touch "/mnt/efi/boot/grub/grub.cfg"
     local disk=$(echo "${chosen_partition}1" | sed -E 's|/dev/([a-z]+)[0-9]*|\1|')
     local partition_letter=$(echo "${chosen_partition}1" | grep -o '[0-9]*$')
@@ -369,24 +303,32 @@ function GRUB_CONF {
 function INSTALL_CYDRA {
     section "INSTALLING CYDRA"
 
-    mkdir "/mnt/install"
-    (
-    echo "n"        
-    echo "p"   
-    echo "1"   
-    echo       
-    echo    
-    echo "w" 
-    ) | fdisk "${chosen_partition}"
-    mkfs.ext4 -F "${chosen_partition}1"
-    log "The partition ${chosen_partition}1 has been set to ext4 Partition."
-    mount -t ext4 "${chosen_partition}1" "/mnt/install" 2> /dev/null
-    log "Copying the system into the main partition (${chosen_partition}1)"
+    if [[ ! $chosen_partition =~ [0-9] ]]; then
+        mkdir "/mnt/install"
+        (
+        echo "n"        
+        echo "p"   
+        echo "1"   
+        echo       
+        echo    
+        echo "w" 
+        ) | fdisk "${chosen_partition}"
+        mkfs.ext4 -F "${chosen_partition}1"
+    else
+        mkfs.ext4 -F "${chosen_partition}"
+    fi
+    log "The partition ${chosen_partition} has been set to ext4 Partition."
+    if [[ ! $chosen_partition =~ [0-9] ]]; then
+        mount -t ext4 "${chosen_partition}1" "/mnt/install" 2> /dev/null
+    else 
+        mount -t ext4 "${chosen_partition}" "/mnt/install" 2> /dev/null
+    fi
+    log "Copying the system into the main partition (${chosen_partition})"
     tar xf /root/system.tar.gz -C /mnt/install 2> /root/errlog.logt
     if [ -f /root/errlog.logt ]; then
  	   tar xf /usr/bin/system.tar.gz -C /mnt/install 2> /root/errlog.logt
     fi
-    log "Configuring the system (${chosen_partition}1)"
+    log "Configuring the system (${chosen_partition})"
     chosen_partition_uuid=$(blkid -s UUID -o value ${chosen_partition})
     swap_partition_uuid=$(blkid -s UUID -o value ${swap_partition})
     efi_partition_uuid=$(blkid -s UUID -o value ${efi_partition})
@@ -396,37 +338,31 @@ function INSTALL_CYDRA {
     echo "#CydraLite FSTAB File, Make a backup if you want to modify it.." >> /mnt/install/etc/fstab
     echo "" >> /mnt/install/etc/fstab
     echo "UUID=${chosen_partition_uuid}     /            ext4    defaults            1     1" >> /mnt/install/etc/fstab
-    if [ SWAPUSED = 0 ]; then
-	echo "UUID=${swap_partition_uuid}     swap         swap     pri=1               0     0" >> /mnt/install/etc/fstab
-    fi
-    
-    if [ IS_EFI = 0 ]; then
-	echo "UUID=${efi_partition_uuid} /boot/efi vfat codepage=437,iocharset=iso8859-1 0 1" >> /mnt/install/etc/fstab
-    fi
+    echo "/swapfile                         swap         swap    pri=1               0     0" >> /mnt/install/etc/fstab
     
     if [[ ${WIRELESS} = 1 ]]; then
 	mv "/root/installdir/25-wireless.network" "/mnt/install/systemd/network/25-wireless.network"
     fi
     rm -f "/mnt/install/etc/wpa_supplicant.conf"
     cp -r "/etc/wpa_supplicant.conf" "/mnt/install/etc/wpa_supplicant.conf"
-    log "Generating the initramfs (${chosen_partition}1)"
+    log "Generating the initramfs (${chosen_partition})"
     rm -f /mnt/install/boot/initrd.img-5.19.2
 chroot /mnt/install /bin/bash << 'EOF'
     cd /boot
     mkinitramfs 5.19.2 2> /dev/null
     exit
 EOF
-    echo
-    echo
-    echo "Debug moment :D"
-    sleep 5
-
-}
-
-#		INIT SWAP		#
-
-function INIT_SWAP {
-    mkswap -f "${chosen_swap}"
+    if [ ! -d /sys/firmware/efi ]; then   
+        rm -rf /mnt/install/boot/grub
+	grub-install --boot-directory=/mnt/install/boot ${chosen_partition} --force 2> /root/grub.log
+        mv "/mnt/efi/boot/grub/grub.cfg" "/mnt/install/boot/grub/grub.cfg"
+	log "GRUB has been installed on ${chosen_partition} for BIOS boot."
+    fi
+    dd if=/dev/zero of=/mnt/install/swapfile bs=1M count=2048 2> /dev/null
+    chmod 600 /mnt/install/swapfile 2> /dev/null
+    mkswap /mnt/install/swapfile 2> /dev/null
+    log "a 2GB swapfile is created.. (${chosen_partition})"
+    sleep 3
 }
 
 #		CLEAN UP		#
@@ -482,7 +418,6 @@ function main {
             		     DISK_INSTALL
 		   	     GRUB_CONF
             		     INSTALL_CYDRA
-            		     INIT_SWAP
 	    		     CLEAN_LIVE
 
 	     		     dialog --msgbox "Installation is finished, thanks for using CydraOS !" 0 0

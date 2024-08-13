@@ -370,7 +370,7 @@ chroot /mnt/install /bin/bash << 'EOF'
 EOF
     if [ ! -d /sys/firmware/efi ]; then   
         rm -rf /mnt/install/boot/grub
-	grub-install --boot-directory=/mnt/install/boot ${chosen_partition}
+	grub-install --boot-directory=/mnt/install/boot ${chosen_partition} --force
     fi
     echo
     echo

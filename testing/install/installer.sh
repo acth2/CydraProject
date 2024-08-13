@@ -171,54 +171,28 @@ function EFI_CONF {
                 fi
 }
 
-function GEN_PARTITION_LIST {
-    OPTIONS=()
-    
-    lsblk -np -o NAME,SIZE | grep -v -E "/dev/sr0|/dev/loop0" | while IFS= read -r line; do
-        DEVICE=$(echo "$line" | awk '{print $1}')
-        SIZE=$(echo "$line" | awk '{print $2}')
-
-        if [[ -n "$DEVICE" && -n "$SIZE" ]]; then
-            OPTIONS+=("$DEVICE" "$SIZE")
-        else
-            echo "Failed to parse line: $line"
-        fi
-    done
-
-    echo "OPTIONS: ${OPTIONS[@]}"
+function get_devices {
+    awk '{print $4}' /proc/partitions | grep -Ev '^(loop0|sr0|name)$'
 }
 
 function DISK_PARTITION {
-    GEN_PARTITION_LIST
 
-    if [ ${#OPTIONS[@]} -eq 0 ]; then
-        echo "No valid disks or partitions found. Please insert a drive on your computer."
-        sleep 3
-        stty -echo
-        export PS1="Exiting system..."
-        clear
-        halt
+    devices=$(get_devices)
+
+    if [ -z "$devices" ]; then
+        dialog --msgbox "No devices found.." 6 40
+        exit 1
     fi
 
-    DIALOG_OPTIONS=()
-    for ((i=0; i<${#OPTIONS[@]}; i+=2)); do
-        DEVICE=${OPTIONS[$i]}
-        SIZE=${OPTIONS[$i+1]}
-        DIALOG_OPTIONS+=("$DEVICE" "$SIZE")
-    done
+    menu_entries=()
+    while read -r device; do
+        menu_entries+=("$device" "$device")
+    done <<< "$devices"
 
-    chosen_partition=$(dialog --clear \
-                    --backtitle "Disk and Partition Selector" \
-                    --title "Select a Disk or Partition" \
-                    --menu "Available disks and partitions:" 15 50 10 \
-                    "${DIALOG_OPTIONS[@]}" \
-                    3>&1 1>&2 2>&3 3>&-)
-
-    if [ ! $? -eq 0 ]; then
-        echo "No partition selected. Restarting."
-        sleep 3
-        DISK_PARTITION
-    fi
+    chosen_partition=$(dialog --no-cancel --clear --title "Select Device" \
+                    --menu "Choose a device:" 15 50 4 \
+                    "${menu_entries[@]}" \
+                    2>&1 >/dev/tty)
 }
 
 function DISK_INSTALL {

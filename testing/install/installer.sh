@@ -200,7 +200,9 @@ function DISK_PARTITION {
                     "${OPTIONS[@]}" \
                     3>&1 1>&2 2>&3 3>&-)
 
-    if [ ! $? -eq 0 ]; then
+    if [ $? -eq 0 ]; then
+        echo "You selected: $chosen_partition"
+    else
         echo "No partition selected. Restarting."
         sleep 3
         DISK_PARTITION

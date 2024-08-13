@@ -13,7 +13,6 @@ IS_EFI=1
 SWAPUSED=0
 CORRECTDISK=0
 OLD_PASSWORD=""
-partition_list=($(lsblk -nr -o NAME,TYPE | awk '$2 == "disk" {print "/dev/" $1}'));
 WIRELESS=0
 SYSKERNEL_VER="5.19.2"
 
@@ -173,41 +172,27 @@ function EFI_CONF {
 }
 
 function DISK_PARTITION {
-        clear
-        section "DISK PARTITIONNING"
-        log "Enter your system partition \nhere the list of your partitions: ${partition_list[@]}"
-        echo -n "Input: "
-        read chosen_partition
-        for item in "${partition_list[@]}"; do
-            if [[ "$item" == "${chosen_partition}" ]]; then
-                CORRECTDISK=1
-                break
-            fi
-        done
-    
-        if [[ ${CORRECTDISK} == 0 ]]; then
-            log "Error: System disk not found.."
-	    sleep 2
-            DISK_PARTITION
-        fi
-	
-        if [ -d /sys/firmware/efi ]; then
-                EFI_CONF
-	        for i in "${!partition_list[@]}"; do
-                    if [ "${partition_list[i]}" = "${efi_partition}" ]; then
-                        unset 'partition_list[i]'
-                        break
-                    fi
-                done
-        else 
-                BIOS_CONF
-	        for i in "${!partition_list[@]}"; do
-                    if [ "${partition_list[i]}" = "${bios_partition}" ]; then
-                        unset 'partition_list[i]'
-                        break
-                    fi
-                done
-        fi
+    PARTITIONS=$(lsblk -np -o NAME,SIZE | grep -E "part|disk")
+
+    OPTIONS=()
+    while IFS= read -r line; do
+        DEVICE=$(echo "$line" | awk '{print $1}')
+        SIZE=$(echo "$line" | awk '{print $2}')
+        OPTIONS+=("$DEVICE" "$SIZE")
+    done <<< "$PARTITIONS"
+
+    chosen_partition=$(dialog --clear \
+                    --backtitle "Sélecteur de partition" \
+                    --title "Sélectionnez un partition" \
+                    --menu "Partitions disponible:" 15 50 10 \
+                    "${OPTIONS[@]}" \
+                    3>&1 1>&2 2>&3 3>&-)
+
+    if [ ! $? -eq 0 ]; then
+        echo "No partition selected. Restarting."
+        sleep 3
+        DISK_PARTITION
+    fi
 }
 
 function DISK_INSTALL {

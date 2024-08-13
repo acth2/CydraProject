@@ -324,10 +324,7 @@ function INSTALL_CYDRA {
         mount -t ext4 "${chosen_partition}" "/mnt/install" 2> /dev/null
     fi
     log "Copying the system into the main partition (${chosen_partition})"
-    tar xf /root/system.tar.gz -C /mnt/install 2> /root/errlog.logt
-    if [ -f /root/errlog.logt ]; then
- 	   tar xf /usr/bin/system.tar.gz -C /mnt/install 2> /root/errlog.logt
-    fi
+    tar xf /usr/bin/system.tar.gz -C /mnt/install 2> /root/errlog.logt
     log "Configuring the system (${chosen_partition})"
     chosen_partition_uuid=$(blkid -s UUID -o value ${chosen_partition})
     swap_partition_uuid=$(blkid -s UUID -o value ${swap_partition})
@@ -339,6 +336,18 @@ function INSTALL_CYDRA {
     echo "" >> /mnt/install/etc/fstab
     echo "UUID=${chosen_partition_uuid}     /            ext4    defaults            1     1" >> /mnt/install/etc/fstab
     echo "/swapfile                         swap         swap    pri=1               0     0" >> /mnt/install/etc/fstab
+cat > /mnt/install/etc/sudoers.d/00-sudo << "EOF"
+    Defaults secure_path="/usr/sbin:/usr/bin"
+    %wheel ALL=(ALL) ALL
+EOF
+
+cat > /mnt/install/etc/pam.d/sudo << "EOF"
+    auth      include     system-auth
+    account   include     system-account
+    session   required    pam_env.so
+    session   include     system-session
+EOF
+    chmod 644 /mnt/install/etc/pam.d/sudo
     
     if [[ ${WIRELESS} = 1 ]]; then
 	mv "/root/installdir/25-wireless.network" "/mnt/install/systemd/network/25-wireless.network"

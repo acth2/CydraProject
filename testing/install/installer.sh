@@ -367,7 +367,6 @@ EOF
         mv "/mnt/efi/boot/grub/grub.cfg" "/mnt/install/boot/grub/grub.cfg"
 	log "GRUB has been installed on ${chosen_partition} for BIOS boot."
     fi
-    rm -f /mnt/install/swapfile
     dd if=/dev/zero of=/mnt/install/swapfile bs=1M count=2048 2> /dev/null
     chmod 600 /mnt/install/swapfile 2> /dev/null
     mkswap /mnt/install/swapfile 2> /dev/null

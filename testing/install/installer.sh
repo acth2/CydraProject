@@ -361,6 +361,21 @@ chroot /mnt/install /bin/bash << 'EOF'
     mkinitramfs 5.19.2 2> /dev/null
     exit
 EOF
+    log "Installing importants packages in the system.."
+    mv /root/sudo.tar.gz /mnt/install/sources/sudo.tar.gz
+    sleep 2
+chroot /mnt/install /bin/bash << 'EOF'
+    cd /sources
+    tar xf sudo.tar.gz
+    cd "sudo-1.9.15p5"
+    ./configure --prefix=/usr          \
+            --libexecdir=/usr/lib      \
+            --with-secure-path         \
+            --with-env-editor          \
+            --docdir=/usr/share/doc/sudo-1.9.15p5 \
+            --with-passprompt="[sudo] password for %p: " && make && make install
+    exit
+EOF
     if [ ! -d /sys/firmware/efi ]; then   
         rm -rf /mnt/install/boot/grub
 	grub-install --boot-directory=/mnt/install/boot ${chosen_partition} --force 2> /root/grub.log

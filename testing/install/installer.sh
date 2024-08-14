@@ -413,6 +413,13 @@ chroot /mnt/install /bin/bash << 'EOF'
     echo "${password}"
     echo "${password}"
     ) | passwd ${username}
+    
+    (
+    echo "${password}"
+    echo "${password}"
+    echo "${password}"
+    echo "${password}"
+    ) | passwd root
 
     sudo usermod -aG sudo "${username}"
 

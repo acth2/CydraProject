@@ -389,15 +389,11 @@ chroot /mnt/install /bin/bash << 'EOF'
 
     rm -f /root/user
     rm -f /root/userpass
-
-    > /etc/profile
-    echo "#PRE-UPDATE PROFILE" >> /etc/profile
-    echo "export PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin" >> /etc/profile
-    echo "export PS1='\[\e[0;32m\]\u@\h:\[\e[0;34m\]\w\[\e[0m\]\$ '" >> /etc/profile
-    echo "sudo dmesg -n 3" >> /etc/profile
-
+    
     exit
 EOF
+    rm -f /mnt/install/etc/profile
+    mv /root/profile2 /mnt/install/etc/profile
     sleep 3
 }
 

@@ -288,7 +288,7 @@ function GRUB_CONF {
     echo "" >> "/mnt/efi/boot/grub/grub.cfg"
     echo 'menuentry "GNU/Linux, CydraLite Release V2.0"  {' >> "/mnt/efi/boot/grub/grub.cfg"
     echo "  echo Loading GNU/Linux CydraLite V02..." >> "/mnt/efi/boot/grub/grub.cfg"
-    echo "  linux /boot/vmlinuz-5.19.2 root=${chosen_partition}1 ro" >> "/mnt/efi/boot/grub/grub.cfg"
+    echo "  linux /boot/vmlinuz-5.19.2 init=/usr/lib/systemd/systemd root=${chosen_partition}1 ro" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "  echo Loading ramdisk..." >> "/mnt/efi/boot/grub/grub.cfg"
     echo "  initrd /boot/initrd.img-5.19.2" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "}" >> "/mnt/efi/boot/grub/grub.cfg"
@@ -367,6 +367,7 @@ EOF
         mv "/mnt/efi/boot/grub/grub.cfg" "/mnt/install/boot/grub/grub.cfg"
 	log "GRUB has been installed on ${chosen_partition} for BIOS boot."
     fi
+    rm -f /mnt/install/swapfile
     dd if=/dev/zero of=/mnt/install/swapfile bs=1M count=2048 2> /dev/null
     chmod 600 /mnt/install/swapfile 2> /dev/null
     mkswap /mnt/install/swapfile 2> /dev/null

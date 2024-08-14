@@ -396,7 +396,7 @@ chroot /mnt/install /bin/bash << 'EOF'
     exit
 EOF
     fi
-    log "Creating your user"
+    log "Creating the guest user"
     rm -f /mnt/install/etc/hostname
     > /mnt/install/etc/hostname
     echo "${machine_name}" >> "/mnt/install/etc/hostname"

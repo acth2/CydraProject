@@ -394,7 +394,7 @@ chroot /mnt/install /bin/bash << 'EOF'
 EOF
     rm -f /mnt/install/etc/profile
     mv /root/profile2 /mnt/install/etc/profile
-    rm -rf /mnt/sources/*
+    rm -rf /mnt/install/sources/*
     sleep 3
 }
 

@@ -403,8 +403,8 @@ EOF
     echo "${username}" >> "/mnt/install/root/user"
     echo "${password}" >> "/mnt/install/root/userpass"
 chroot /mnt/install /bin/bash << 'EOF'
-    export username=$(cat /mnt/install/root/user)
-    export password=$(cat /mnt/install/root/userpass)
+    export username=$(cat /root/user)
+    export password=$(cat /root/userpass)
 
     useradd -m -s /bin/bash ${username}
     

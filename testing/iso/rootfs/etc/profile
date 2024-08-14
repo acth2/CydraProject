@@ -3,7 +3,6 @@ dmesg -n 3
 cd /root
 echo "WELCOME TO THE CYDRALITE INSTALLATION GUIDE. PLEASE WAIT..."
 sleep 1
-rm -f /root/root.sfs
 tar --overwrite -xzf /root/libs.tar.gz -C /
 cd ncurses-6.0/
 sed -i s/mawk// configure

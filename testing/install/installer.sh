@@ -126,35 +126,6 @@ function GET_USER_INFOS {
 
 #		DISK PARTITION		#
 
-function EFI_CONF {
-                clear
-	        log "Enter your EFI partition \nhere the list of your partitions: ${partition_list[@]}"
-    	        echo -n "Input: "
-   	        read efi_partition
-		efi_partition_size_kb=$(df -k --output=size "${efi_partition}" | tail -n 1)
-    	   	efi_partition_size_gb=$((efi_chosen_partition_size_kb / 1048576))
-		for item in "${partition_list[@]}"; do
-    		    if [[ "$item" == "${efi_partition}" ]]; then
-                        IS_EFI=0
-			if [ "3" -ge "${efi_partition_size_gb}" ]; then
-                            IS_EFI=2
-                        fi
-                        break
-                    fi
-                done
-		if [[ ${IS_EFI} == 2 ]]; then
-                    log "Error: EFI has an error.. Partition too small. Restarting.."
-		    sleep 3
-		    EFI_CONF
-                fi
-		
-		if [[ ${IS_EFI} == 1 ]]; then
-                   log "Error: EFI has an error.. Bad values. Restarting"
-		   sleep 3
-		   EFI_CONF
-                fi
-}
-
 function get_devices {
     awk '{print $4}' /proc/partitions | grep -Ev '^(loop0|sr0|name)$'
 }
@@ -177,8 +148,8 @@ function DISK_PARTITION {
         menu_entries+=("$device" "$device")
     done <<< "$devices"
 
-    chosen_partition=$(dialog --no-cancel --clear --title "Select Device" \
-                    --menu "Choose a device:" 15 50 4 \
+    chosen_partition=$(dialog --no-cancel --clear --title "Select The System Device" \
+                    --menu "Choose The System Device:" 15 50 4 \
                     "${menu_entries[@]}" \
                     2>&1 >/dev/tty)
 
@@ -397,14 +368,19 @@ chroot /mnt/install /bin/bash << 'EOF'
 EOF
     fi
     log "Creating the guest user"
-    rm -f /mnt/install/etc/hostname
     > /mnt/install/etc/hostname
     echo "${machine_name}" >> "/mnt/install/etc/hostname"
     echo "${username}" >> "/mnt/install/root/user"
     echo "${password}" >> "/mnt/install/root/userpass"
+    echo "debug:: $(cat /mnt/install/etc/hostname)"
+    sleep 3
 chroot /mnt/install /bin/bash << 'EOF'
     export username=$(cat /root/user)
     export password=$(cat /root/userpass)
+
+    echo "debug:: $(cat /root/user)"
+    echo "debug:: $(cat /root/userpass)"
+    sleep 100
 
     useradd -m -s /bin/bash ${username}
     
@@ -430,7 +406,6 @@ chroot /mnt/install /bin/bash << 'EOF'
 
     rm -f /root/user
     rm -f /root/userpass
-    sleep 1000
     exit
 EOF
     sleep 3

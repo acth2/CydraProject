@@ -378,34 +378,19 @@ chroot /mnt/install /bin/bash << 'EOF'
     export username=$(cat /root/user)
     export password=$(cat /root/userpass)
 
-    echo "debug:: $(cat /root/user)"
-    echo "debug:: $(cat /root/userpass)"
-    sleep 100
-
     useradd -m -s /bin/bash ${username}
-    
-    (
-    echo "${password}"
-    echo "${password}"
-    echo "${password}"
-    echo "${password}"
-    ) | passwd ${username}
-    
-    (
-    echo "${password}"
-    echo "${password}"
-    echo "${password}"
-    echo "${password}"
-    ) | passwd root
+
+    echo "${username}:${password}" | chpasswd
+
+    echo "root:${password}" | chpasswd
 
     touch "/etc/sudoers.d/${username}"
-    
     echo "${username} ALL=(ALL) NOPASSWD:ALL" >> "/etc/sudoers.d/${username}"
     echo "${username} ALL=(ALL) NOPASSWD:ALL" >> "/etc/sudoers"
-    
 
     rm -f /root/user
     rm -f /root/userpass
+
     exit
 EOF
     sleep 3

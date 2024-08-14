@@ -336,6 +336,8 @@ function INSTALL_CYDRA {
     echo "" >> /mnt/install/etc/fstab
     echo "UUID=${chosen_partition_uuid}     /            ext4    defaults            1     1" >> /mnt/install/etc/fstab
     echo "/swapfile                         swap         swap    pri=1               0     0" >> /mnt/install/etc/fstab
+    mkdir -p "/mnt/install/etc/sudoers.d/"
+    mkdir -p "/mnt/install/etc/pam.d/"
 cat > /mnt/install/etc/sudoers.d/00-sudo << "EOF"
     Defaults secure_path="/usr/sbin:/usr/bin"
     %wheel ALL=(ALL) ALL

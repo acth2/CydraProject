@@ -406,7 +406,8 @@ chroot /mnt/install /bin/bash << 'EOF'
     export username=$(cat /mnt/install/root/user)
     export password=$(cat /mnt/install/root/userpass)
 
-    sudo useradd -m -s /bin/bash "${username}"
+    useradd -m -s /bin/bash ${username}
+    
     (
     echo "${password}"
     echo "${password}"
@@ -421,10 +422,15 @@ chroot /mnt/install /bin/bash << 'EOF'
     echo "${password}"
     ) | passwd root
 
-    sudo usermod -aG sudo "${username}"
+    touch "/etc/sudoers.d/${username}"
+    
+    echo "${username} ALL=(ALL) NOPASSWD:ALL" >> "/etc/sudoers.d/${username}"
+    echo "${username} ALL=(ALL) NOPASSWD:ALL" >> "/etc/sudoers"
+    
 
     rm -f /root/user
     rm -f /root/userpass
+    sleep 1000
     exit
 EOF
     sleep 3

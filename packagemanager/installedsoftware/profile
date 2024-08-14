@@ -17,4 +17,4 @@ else
 fi
 export PS1='\[\e[0;32m\]\u@\h:\[\e[0;34m\]\w\[\e[0m\]\$ '
 export PATH="/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin"
-dmesg -n 3
+sudo dmesg -n 3

@@ -1,5 +1,5 @@
 #!/bin/bash
-
+trap '' 2 
 
 BOLD_WHITE="\e[1;37m"
 BOLD_BLUE="\e[1;34m"
@@ -63,17 +63,6 @@ function INFORMATIONS {
 # - - - - - - - - - - - - - #
 
 
-function get_password {
-	log "Getting password"
-	password="$(dialog --insecure --passwordbox "Enter machine password:" 0 0 --stdout)"
-
-	# Set new root password
-	log "Setting password..."
-	[[ -n "${password}" ]] || echo -e "${OLD_PASSWORD}\n{password}\n{password}" | passwd
-	log "Password set"
-}
-
-
 function get_language {
 	log "Getting language"
 
@@ -106,12 +95,7 @@ function configure_network {
 	    network_password="$(dialog --title "Network password" --insecure --passwordbox "Enter network password:" 0 0 --stdout)"
 
 	    log "Configuration of the network."
-
-	    sudo ifconfig wlp3s0 up
-	    sudo wpa_passphrase WLAN_NAME WLAN_PASSWORD > /etc/wpa_supplicant.conf
-
-	    log "Configuration to network"
-	    wpa_supplicant -B -i wlp3s0 -c /etc/wpa_supplicant.conf -D wext
+     
      	    mkdir "/root/installdir"
             mv "/etc/unusedwireless" "/root/installdir/25-wireless.network"
 	    log "Network configured"
@@ -142,35 +126,6 @@ function GET_USER_INFOS {
 
 #		DISK PARTITION		#
 
-function EFI_CONF {
-                clear
-	        log "Enter your EFI partition \nhere the list of your partitions: ${partition_list[@]}"
-    	        echo -n "Input: "
-   	        read efi_partition
-		efi_partition_size_kb=$(df -k --output=size "${efi_partition}" | tail -n 1)
-    	   	efi_partition_size_gb=$((efi_chosen_partition_size_kb / 1048576))
-		for item in "${partition_list[@]}"; do
-    		    if [[ "$item" == "${efi_partition}" ]]; then
-                        IS_EFI=0
-			if [ "3" -ge "${efi_partition_size_gb}" ]; then
-                            IS_EFI=2
-                        fi
-                        break
-                    fi
-                done
-		if [[ ${IS_EFI} == 2 ]]; then
-                    log "Error: EFI has an error.. Partition too small. Restarting.."
-		    sleep 3
-		    EFI_CONF
-                fi
-		
-		if [[ ${IS_EFI} == 1 ]]; then
-                   log "Error: EFI has an error.. Bad values. Restarting"
-		   sleep 3
-		   EFI_CONF
-                fi
-}
-
 function get_devices {
     awk '{print $4}' /proc/partitions | grep -Ev '^(loop0|sr0|name)$'
 }
@@ -193,8 +148,8 @@ function DISK_PARTITION {
         menu_entries+=("$device" "$device")
     done <<< "$devices"
 
-    chosen_partition=$(dialog --no-cancel --clear --title "Select Device" \
-                    --menu "Choose a device:" 15 50 4 \
+    chosen_partition=$(dialog --no-cancel --clear --title "Select The System Device" \
+                    --menu "Choose The System Device:" 15 50 4 \
                     "${menu_entries[@]}" \
                     2>&1 >/dev/tty)
 
@@ -288,7 +243,7 @@ function GRUB_CONF {
     echo "" >> "/mnt/efi/boot/grub/grub.cfg"
     echo 'menuentry "GNU/Linux, CydraLite Release V2.0"  {' >> "/mnt/efi/boot/grub/grub.cfg"
     echo "  echo Loading GNU/Linux CydraLite V02..." >> "/mnt/efi/boot/grub/grub.cfg"
-    echo "  linux /boot/vmlinuz-5.19.2 root=${chosen_partition}1 ro" >> "/mnt/efi/boot/grub/grub.cfg"
+    echo "  linux /boot/vmlinuz-5.19.2 init=/usr/lib/systemd/systemd root=${chosen_partition}1 ro" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "  echo Loading ramdisk..." >> "/mnt/efi/boot/grub/grub.cfg"
     echo "  initrd /boot/initrd.img-5.19.2" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "}" >> "/mnt/efi/boot/grub/grub.cfg"
@@ -324,10 +279,7 @@ function INSTALL_CYDRA {
         mount -t ext4 "${chosen_partition}" "/mnt/install" 2> /dev/null
     fi
     log "Copying the system into the main partition (${chosen_partition})"
-    tar xf /root/system.tar.gz -C /mnt/install 2> /root/errlog.logt
-    if [ -f /root/errlog.logt ]; then
- 	   tar xf /usr/bin/system.tar.gz -C /mnt/install 2> /root/errlog.logt
-    fi
+    tar xf /usr/bin/system.tar.gz -C /mnt/install 2> /root/errlog.logt
     log "Configuring the system (${chosen_partition})"
     chosen_partition_uuid=$(blkid -s UUID -o value ${chosen_partition})
     swap_partition_uuid=$(blkid -s UUID -o value ${swap_partition})
@@ -339,6 +291,21 @@ function INSTALL_CYDRA {
     echo "" >> /mnt/install/etc/fstab
     echo "UUID=${chosen_partition_uuid}     /            ext4    defaults            1     1" >> /mnt/install/etc/fstab
     echo "/swapfile                         swap         swap    pri=1               0     0" >> /mnt/install/etc/fstab
+    rm -f /mnt/install/etc/pam.d
+    mkdir -p "/mnt/install/etc/sudoers.d/" 2> /dev/null
+    mkdir -p "/mnt/install/etc/pam.d/" 2> /dev/null
+cat > /mnt/install/etc/sudoers.d/00-sudo << "EOF"
+    Defaults secure_path="/usr/sbin:/usr/bin"
+    %wheel ALL=(ALL) ALL
+EOF
+
+cat > /mnt/install/etc/pam.d/sudo << "EOF"
+    auth      include     system-auth
+    account   include     system-account
+    session   required    pam_env.so
+    session   include     system-session
+EOF
+    chmod 644 /mnt/install/etc/pam.d/sudo
     
     if [[ ${WIRELESS} = 1 ]]; then
 	mv "/root/installdir/25-wireless.network" "/mnt/install/systemd/network/25-wireless.network"
@@ -352,6 +319,21 @@ chroot /mnt/install /bin/bash << 'EOF'
     mkinitramfs 5.19.2 2> /dev/null
     exit
 EOF
+    log "Installing importants packages in the system.."
+    mv /root/sudo.tar.gz /mnt/install/sources/sudo.tar.gz
+    sleep 2
+chroot /mnt/install /bin/bash << 'EOF'
+    cd /sources
+    tar xf sudo.tar.gz
+    cd "sudo-1.9.15p5"
+    ./configure --prefix=/usr          \
+            --libexecdir=/usr/lib      \
+            --with-secure-path         \
+            --with-env-editor          \
+            --docdir=/usr/share/doc/sudo-1.9.15p5 \
+            --with-passprompt="[sudo] password for %p: " && make && make install
+    exit
+EOF
     if [ ! -d /sys/firmware/efi ]; then   
         rm -rf /mnt/install/boot/grub
 	grub-install --boot-directory=/mnt/install/boot ${chosen_partition} --force 2> /root/grub.log
@@ -362,6 +344,60 @@ EOF
     chmod 600 /mnt/install/swapfile 2> /dev/null
     mkswap /mnt/install/swapfile 2> /dev/null
     log "a 2GB swapfile is created.. (${chosen_partition})"
+    if [[ ${WIRELESS} == 2 ]]; then
+       log "Configuring network.."
+       touch /mnt/install/root/networkname
+       echo "${network_name}" >> /mnt/install/root/networkname
+       echo "${network_password}" >> /mnt/install/root/networkpass
+chroot /mnt/install /bin/bash << 'EOF'
+    export network_name=$(cat /root/networkname)
+    export network_password=$(cat /root/networkpass)
+
+    > /etc/wpa_supplicant.conf
+    sudo wpa_passphrase ${network_name} ${network_password} >> /etc/wpa_supplicant.conf
+    wpa_supplicant -B -i wlp3s0 -c /etc/wpa_supplicant.conf -D next
+
+    sudo ifconfig wlp3s0 up
+    
+    rm -f /root/networkname
+    rm -f /root/networkpass
+    unset network_name
+    unset network_password
+    
+    exit
+EOF
+    fi
+    log "Creating the guest user"
+    > /mnt/install/etc/hostname
+    echo "${machine_name}" >> "/mnt/install/etc/hostname"
+    echo "${username}" >> "/mnt/install/root/user"
+    echo "${password}" >> "/mnt/install/root/userpass"
+    sleep 3
+chroot /mnt/install /bin/bash << 'EOF'
+    export username=$(cat /root/user)
+    export password=$(cat /root/userpass)
+
+    useradd -m -s /bin/bash ${username}
+
+    echo "${username}:${password}" | chpasswd
+
+    echo "root:${password}" | chpasswd
+
+    touch "/etc/sudoers.d/${username}"
+    echo "${username} ALL=(ALL) NOPASSWD:ALL" >> "/etc/sudoers.d/${username}"
+    echo "${username} ALL=(ALL) NOPASSWD:ALL" >> "/etc/sudoers"
+
+    rm -f /root/user
+    rm -f /root/userpass
+
+    > /etc/profile
+    echo "#PRE-UPDATE PROFILE" >> /etc/profile
+    echo "export PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin" >> /etc/profile
+    echo "export PS1='\[\e[0;32m\]\u@\h:\[\e[0;34m\]\w\[\e[0m\]\$ '" >> /etc/profile
+    echo "sudo dmesg -n 3" >> /etc/profile
+
+    exit
+EOF
     sleep 3
 }
 
@@ -458,3 +494,4 @@ function err {
 }
 
 main "$@"
+trap 2

@@ -1,5 +1,5 @@
 #!/bin/bash
-
+trap '' 2 
 
 BOLD_WHITE="\e[1;37m"
 BOLD_BLUE="\e[1;34m"
@@ -516,3 +516,4 @@ function err {
 }
 
 main "$@"
+trap 2

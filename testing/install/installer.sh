@@ -372,7 +372,6 @@ EOF
     echo "${machine_name}" >> "/mnt/install/etc/hostname"
     echo "${username}" >> "/mnt/install/root/user"
     echo "${password}" >> "/mnt/install/root/userpass"
-    echo "debug:: $(cat /mnt/install/etc/hostname)"
     sleep 3
 chroot /mnt/install /bin/bash << 'EOF'
     export username=$(cat /root/user)
@@ -390,6 +389,12 @@ chroot /mnt/install /bin/bash << 'EOF'
 
     rm -f /root/user
     rm -f /root/userpass
+
+    > /etc/profile
+    echo "#PRE-UPDATE PROFILE" >>
+    echo "export PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin" >> /etc/profile
+    echo "export PS1='\[\e[0;32m\]\u@\h:\[\e[0;34m\]\w\[\e[0m\]\$ '" >> /etc/profile
+    echo "sudo dmesg -n 3" >> /etc/profile
 
     exit
 EOF

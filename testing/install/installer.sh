@@ -63,17 +63,6 @@ function INFORMATIONS {
 # - - - - - - - - - - - - - #
 
 
-function get_password {
-	log "Getting password"
-	password="$(dialog --insecure --passwordbox "Enter machine password:" 0 0 --stdout)"
-
-	# Set new root password
-	log "Setting password..."
-	[[ -n "${password}" ]] || echo -e "${OLD_PASSWORD}\n{password}\n{password}" | passwd
-	log "Password set"
-}
-
-
 function get_language {
 	log "Getting language"
 
@@ -106,12 +95,7 @@ function configure_network {
 	    network_password="$(dialog --title "Network password" --insecure --passwordbox "Enter network password:" 0 0 --stdout)"
 
 	    log "Configuration of the network."
-
-	    sudo ifconfig wlp3s0 up
-	    sudo wpa_passphrase WLAN_NAME WLAN_PASSWORD > /etc/wpa_supplicant.conf
-
-	    log "Configuration to network"
-	    wpa_supplicant -B -i wlp3s0 -c /etc/wpa_supplicant.conf -D wext
+     
      	    mkdir "/root/installdir"
             mv "/etc/unusedwireless" "/root/installdir/25-wireless.network"
 	    log "Network configured"
@@ -389,6 +373,53 @@ EOF
     chmod 600 /mnt/install/swapfile 2> /dev/null
     mkswap /mnt/install/swapfile 2> /dev/null
     log "a 2GB swapfile is created.. (${chosen_partition})"
+    if [[ ${WIRELESS} == 2 ]]; then
+       log "Configuring network.."
+       touch /mnt/install/root/networkname
+       echo "${network_name}" >> /mnt/install/root/networkname
+       echo "${network_password}" >> /mnt/install/root/networkpass
+chroot /mnt/install /bin/bash << 'EOF'
+    export network_name=$(cat /root/networkname)
+    export network_password=$(cat /root/networkpass)
+
+    > /etc/wpa_supplicant.conf
+    sudo wpa_passphrase ${network_name} ${network_password} >> /etc/wpa_supplicant.conf
+    wpa_supplicant -B -i wlp3s0 -c /etc/wpa_supplicant.conf -D next
+
+    sudo ifconfig wlp3s0 up
+    
+    rm -f /root/networkname
+    rm -f /root/networkpass
+    unset network_name
+    unset network_password
+    
+    exit
+EOF
+    fi
+    log "Creating your user"
+    rm -f /mnt/install/etc/hostname
+    > /mnt/install/etc/hostname
+    echo "${machine_name}" >> "/mnt/install/etc/hostname"
+    echo "${username}" >> "/mnt/install/root/user"
+    echo "${password}" >> "/mnt/install/root/userpass"
+chroot /mnt/install /bin/bash << 'EOF'
+    export username=$(cat /mnt/install/root/user)
+    export password=$(cat /mnt/install/root/userpass)
+
+    sudo useradd -m -s /bin/bash "${username}"
+    (
+    echo "${password}"
+    echo "${password}"
+    echo "${password}"
+    echo "${password}"
+    ) | passwd ${username}
+
+    sudo usermod -aG sudo "${username}"
+
+    rm -f /root/user
+    rm -f /root/userpass
+    exit
+EOF
     sleep 3
 }
 

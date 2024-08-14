@@ -40,6 +40,8 @@ efibootmgr-18
 freetype-2.13.2
 grub-2.12 
 Sudo-1.9.15p5 
+ALL GPG
+Pacman
 
 Le disque dur de mon pc perso a été corrompu, j'ai du donc faire un bon vieux mkfs pour remettre le tout en ordre ce qui ma obligé de donc refaire une installation complete de manjaro linux sa va retardé le développement de l'os d'un jour le temps que je conf virtualbox re mette une sauvegarde que j'avais faite de ma vm contenant l'os ( ouf ) et surtout ! installé firefox je pense bien que c'est l'étape la plus éprouvante a laquel je vais avoir a faire malheureusement ...
 

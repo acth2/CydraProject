@@ -18,16 +18,12 @@ make
 make install
 rm -rf /root/dialog-1.3-20240619/
 cd /root
-tar xf whois-5.4.3.tar.gz
-cd whois-5.4.3/
-make
-make prefix=/usr install-whois
-make prefix=/usr install-mkpasswd
-make prefix=/usr install-pos
+clear
 echo "THE INSTALLATION GUIDE IS STARTING SOON!"
 sleep 3
 /usr/bin/installer
 clear
 echo "You can remove the cydralite installation guide from your computer and reboot!"
-sleep 5
+read nerd
+
 reboot

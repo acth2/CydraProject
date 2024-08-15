@@ -1,12 +1,12 @@
 #!/bin/bash
-trap '' 2 
+trap '' 2
 
 BOLD_WHITE="\e[1;37m"
 BOLD_BLUE="\e[1;34m"
 BOLD_PURPLE="\e[1;35m"
 RESET_COLOR="\e[0m"
 
-#			VARS			#
+#                       VARS                    #
 
 IS_BIOS=3
 IS_EFI=1
@@ -17,11 +17,11 @@ WIRELESS=0
 SYSKERNEL_VER="5.19.2"
 
 log() {
-	echo -e "[${BOLD_BLUE}LOG${RESET_COLOR}] $*"
+        echo -e "[${BOLD_BLUE}LOG${RESET_COLOR}] $*"
 }
 
 section() {
-	echo -e "[${BOLD_PURPLE}${1}${RESET_COLOR}] Entering '${BOLD_WHITE}${1}${RESET_COLOR}' process"
+        echo -e "[${BOLD_PURPLE}${1}${RESET_COLOR}] Entering '${BOLD_WHITE}${1}${RESET_COLOR}' process"
 }
 
 # - - - - - - - - - - - - - #
@@ -32,31 +32,34 @@ section() {
 
 
 
-#		INFORMATIONS		#
+#               INFORMATIONS            #
 
 function welcome_menu {
-	log "Welcome menu"
-	dialog --msgbox "Welcome into CydraProject (Lite) installation guide!" 15 50
+        log "Welcome menu"
+        dialog --msgbox "Welcome into CydraProject (Lite) installation guide!" 15 50
 }
 
 function print_licences {
-	log "Showing licenses"
-	dialog --msgbox "Licenses on: https://github.com/acth2/CydraProject/blob/main/LICENSE" 15 50
+        log "Showing licenses"
+        dialog --msgbox "Licenses on: https://github.com/acth2/CydraProject/blob/main/LICENSE" 15 50
 }
 
 
 function print_credits {
-	log "Showing credits"
-	dialog --msgbox "Thanks to AinTea for the installer !\n Here the github of AinTea: https://github.com/AinTEAsports\n Here the github of CydraProject: https://github.com/acth2/CydraProject" 15 50
+        log "Showing credits"
+        dialog --msgbox "Thanks to AinTea for the installer !" 15 50
+        dialog --msgbox "Thanks to Emmett Syazwan for the LFS iso template" 15 50
+        dialog --msgbox "Thanks to the LFS & BLFS team for everything !" 15 50
+        dialog --msgbox "Thanks to YOU for installing CydraLite !" 15 50
 }
 
 
 function INFORMATIONS {
-	section "INFORMATIONS"
+        section "INFORMATIONS"
 
-	welcome_menu
-	print_licences
-	print_credits
+        welcome_menu
+        print_licences
+        print_credits
 }
 
 
@@ -64,58 +67,58 @@ function INFORMATIONS {
 
 
 function get_language {
-	log "Getting language"
+        log "Getting language"
 
-	language="$(dialog --title "Dialog title" --inputbox "Enter language name (fr / us):" 0 0 --stdout)"
+        language="$(dialog --title "Dialog title" --inputbox "Enter language name (fr / us):" 0 0 --stdout)"
         if [[ -n "${language}" ]]; then
-	    loadkeys "${language}"
+            loadkeys "${language}"
             log "Language set to '${language}'"
         else
             log "Empty output, US by default.."
-	    sleep 2
+            sleep 2
         fi
 
 }
 
 function get_informations {
-	log "Getting machine name"
-	machine_name="$(dialog --title "System informations" --inputbox "Enter machine name:" 0 0 --stdout)"
+        log "Getting machine name"
+        machine_name="$(dialog --title "System informations" --inputbox "Enter machine name:" 0 0 --stdout)"
         username="$(dialog --title "System informations" --inputbox "Enter your username:" 0 0 --stdout)"
         password="$(dialog --title "System informations" --insecure --passwordbox "Enter machine password" 0 0 --stdout)"
 }
 
 
 function configure_network {
-	if dialog --yesno "Does the system should use Wireless connection?" 0 0 --stdout; then
+        if dialog --yesno "Does the system should use Wireless connection?" 0 0 --stdout; then
             WIRELESS=1
-	    log "Configuring network"
+            log "Configuring network"
 
-	    log "Getting network name and password"
-	    network_name="$(dialog --title "Network name" --inputbox "Enter network name:" 0 0 --stdout)"
-	    network_password="$(dialog --title "Network password" --insecure --passwordbox "Enter network password:" 0 0 --stdout)"
+            log "Getting network name and password"
+            network_name="$(dialog --title "Network name" --inputbox "Enter network name:" 0 0 --stdout)"
+            network_password="$(dialog --title "Network password" --insecure --passwordbox "Enter network password:" 0 0 --stdout)"
 
-	    log "Configuration of the network."
-     
-     	    mkdir "/root/installdir"
+            log "Configuration of the network."
+
+            mkdir "/root/installdir"
             mv "/etc/unusedwireless" "/root/installdir/25-wireless.network"
-	    log "Network configured"
+            log "Network configured"
             sleep 2
         else
             rm -f "/etc/unusedwirless"
-	    log "Network configured"
+            log "Network configured"
             sleep 2
         fi
 }
 
 
 function GET_USER_INFOS {
-	section "GET USER INFOS"
+        section "GET USER INFOS"
 
-	get_language
-	get_informations
-	configure_network
+        get_language
+        get_informations
+        configure_network
 
-	echo -e "\n"
+        echo -e "\n"
 }
 
 
@@ -124,7 +127,7 @@ function GET_USER_INFOS {
 
 
 
-#		DISK PARTITION		#
+#               DISK PARTITION          #
 
 function get_devices {
     awk '{print $4}' /proc/partitions | grep -Ev '^(loop0|sr0|name)$'
@@ -135,9 +138,9 @@ function getefi_devices {
 }
 
 function DISK_PARTITION {
-    
+
     devices=$(get_devices)
-    
+
     if [ -z "$devices" ]; then
         dialog --msgbox "No devices found.." 6 40
         exit 1
@@ -153,9 +156,9 @@ function DISK_PARTITION {
                     "${menu_entries[@]}" \
                     2>&1 >/dev/tty)
 
-    if [ -d /sys/firmware/efi ]; then    
+    if [ -d /sys/firmware/efi ]; then
         devices=$(getefi_devices)
-	menu_entries=()
+        menu_entries=()
         while read -r device; do
             menu_entries+=("$device" "$device")
         done <<< "$devices"
@@ -166,7 +169,7 @@ function DISK_PARTITION {
                         2>&1 >/dev/tty)
         fi
         chosen_partition="/dev/${chosen_partition}"
-	efi_partition="/dev/${efi_partition}"
+        efi_partition="/dev/${efi_partition}"
 }
 
 function DISK_INSTALL {
@@ -177,50 +180,50 @@ function DISK_INSTALL {
     mkfs.ext4 -F ${chosen_partition}
 }
 
-#		GRUB CONFIGURATION		#
+#               GRUB CONFIGURATION              #
 
 function GRUB_CONF {
     section "GRUB CONFIGURING"
-    if [ ! -d /sys/firmware/efi ]; then    
+    if [ ! -d /sys/firmware/efi ]; then
         log "GRUB will be installed on ${chosen_partition}/boot for BIOS boot."
-	sleep 2
+        sleep 2
     else
         mainPartitionUuid=$(blkid ${chosen_partion})
-	if [ SWAPUSED = 0 ]; then
-	    swapPartitionUuid=$(blkid ${swap_partion})
+        if [ SWAPUSED = 0 ]; then
+            swapPartitionUuid=$(blkid ${swap_partion})
         fi
         efiPartitionUuid=$(blkid ${efi_partion})
 
-	if [[ "$efi_partition" =~ [0-9]$ ]]; then
-  	     efi_device=$(echo "$efi_partition" | sed 's/[0-9]*$//')
-  	     (
-  	     echo "d"        
-             echo "n"   
-             echo "p"   
-             echo "1"   
-             echo       
-             echo    
-             echo "w" 
+        if [[ "$efi_partition" =~ [0-9]$ ]]; then
+             efi_device=$(echo "$efi_partition" | sed 's/[0-9]*$//')
+             (
+             echo "d"
+             echo "n"
+             echo "p"
+             echo "1"
+             echo
+             echo
+             echo "w"
              ) | fdisk "${efi_partition}"
-  	     log "The partition ${efi_partition} has been set to EFI System Partition."
+             log "The partition ${efi_partition} has been set to EFI System Partition."
 
-	else
+        else
               (
-              echo "n"   
-              echo "p"   
-              echo "1"   
-              echo       
-              echo    
+              echo "n"
+              echo "p"
+              echo "1"
+              echo
+              echo
               echo "w"
               ) | fdisk "${efi_partition}"
- 	      log "An EFI partition has been created on the device ${efi_partition}."
-	fi
+              log "An EFI partition has been created on the device ${efi_partition}."
+        fi
         mkfs.vfat -F 32 "${efi_partition}1"
-	mkdir /mnt/efi
- 	mount "${efi_partition}1" "/mnt/efi"
-	log "The partition ${efi_partition}1 has been formatted as FAT32."
+        mkdir /mnt/efi
+        mount "${efi_partition}1" "/mnt/efi"
+        log "The partition ${efi_partition}1 has been formatted as FAT32."
         grub-install "${efi_partition}1" --root-directory=/mnt/efi --target=x86_64-efi --removable
-	rm -f "/mnt/efi/boot/grub/grub.cfg"
+        rm -f "/mnt/efi/boot/grub/grub.cfg"
     fi
     rm -rf "/mnt/install/boot/grub/grub.cfg"
     rm -rf "/mnt/efi/boot/grub/grub.cf"
@@ -253,7 +256,7 @@ function GRUB_CONF {
     echo "}" >> "/mnt/efi/boot/grub/grub.cfg"
 }
 
-#		CYDRA INSTALLATION		#
+#               CYDRA INSTALLATION              #
 
 function INSTALL_CYDRA {
     section "INSTALLING CYDRA"
@@ -261,12 +264,12 @@ function INSTALL_CYDRA {
     if [[ ! $chosen_partition =~ [0-9] ]]; then
         mkdir "/mnt/install"
         (
-        echo "n"        
-        echo "p"   
-        echo "1"   
-        echo       
-        echo    
-        echo "w" 
+        echo "n"
+        echo "p"
+        echo "1"
+        echo
+        echo
+        echo "w"
         ) | fdisk "${chosen_partition}"
         mkfs.ext4 -F "${chosen_partition}1"
     else
@@ -275,11 +278,11 @@ function INSTALL_CYDRA {
     log "The partition ${chosen_partition} has been set to ext4 Partition."
     if [[ ! $chosen_partition =~ [0-9] ]]; then
         mount -t ext4 "${chosen_partition}1" "/mnt/install" 2> /dev/null
-    else 
+    else
         mount -t ext4 "${chosen_partition}" "/mnt/install" 2> /dev/null
     fi
     log "Copying the system into the main partition (${chosen_partition})"
-    tar xf /usr/bin/system.tar.gz -C /mnt/install 2> /root/errlog.logt
+    tar xf /root/system.tar.gz -C /mnt/install 2> /root/errlog.logt
     log "Configuring the system (${chosen_partition})"
     chosen_partition_uuid=$(blkid -s UUID -o value ${chosen_partition})
     swap_partition_uuid=$(blkid -s UUID -o value ${swap_partition})
@@ -306,9 +309,9 @@ cat > /mnt/install/etc/pam.d/sudo << "EOF"
     session   include     system-session
 EOF
     chmod 644 /mnt/install/etc/pam.d/sudo
-    
+
     if [[ ${WIRELESS} = 1 ]]; then
-	mv "/root/installdir/25-wireless.network" "/mnt/install/systemd/network/25-wireless.network"
+        mv "/root/installdir/25-wireless.network" "/mnt/install/systemd/network/25-wireless.network"
     fi
     rm -f "/mnt/install/etc/wpa_supplicant.conf"
     cp -r "/etc/wpa_supplicant.conf" "/mnt/install/etc/wpa_supplicant.conf"
@@ -334,11 +337,11 @@ chroot /mnt/install /bin/bash << 'EOF'
             --with-passprompt="[sudo] password for %p: " && make && make install
     exit
 EOF
-    if [ ! -d /sys/firmware/efi ]; then   
+    if [ ! -d /sys/firmware/efi ]; then
         rm -rf /mnt/install/boot/grub
-	grub-install --boot-directory=/mnt/install/boot ${chosen_partition} --force 2> /root/grub.log
+        grub-install --boot-directory=/mnt/install/boot ${chosen_partition} --force 2> /root/grub.log
         mv "/mnt/efi/boot/grub/grub.cfg" "/mnt/install/boot/grub/grub.cfg"
-	log "GRUB has been installed on ${chosen_partition} for BIOS boot."
+        log "GRUB has been installed on ${chosen_partition} for BIOS boot."
     fi
     dd if=/dev/zero of=/mnt/install/swapfile bs=1M count=2048 2> /dev/null
     chmod 600 /mnt/install/swapfile 2> /dev/null
@@ -358,16 +361,16 @@ chroot /mnt/install /bin/bash << 'EOF'
     wpa_supplicant -B -i wlp3s0 -c /etc/wpa_supplicant.conf -D next
 
     sudo ifconfig wlp3s0 up
-    
+
     rm -f /root/networkname
     rm -f /root/networkpass
     unset network_name
     unset network_password
-    
+
     exit
 EOF
     fi
-    log "Creating the guest user"
+    log "Creating and configuring the guest user"
     > /mnt/install/etc/hostname
     echo "${machine_name}" >> "/mnt/install/etc/hostname"
     echo "${username}" >> "/mnt/install/root/user"
@@ -390,18 +393,26 @@ chroot /mnt/install /bin/bash << 'EOF'
     rm -f /root/user
     rm -f /root/userpass
 
-    > /etc/profile
-    echo "#PRE-UPDATE PROFILE" >> /etc/profile
-    echo "export PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin" >> /etc/profile
-    echo "export PS1='\[\e[0;32m\]\u@\h:\[\e[0;34m\]\w\[\e[0m\]\$ '" >> /etc/profile
-    echo "sudo dmesg -n 3" >> /etc/profile
-
     exit
 EOF
+    rm -f /mnt/install/etc/profile
+    cp -r /root/sys/postprofile /mnt/install/etc/profile
+    cp -r /root/sys/postprofile /mnt/install/root/.bashrc
+    cp -r /root/sys/postprofile /mnt/install/${username}/.bashrc
+    mkdir -p /mnt/install/etc/profile.d
+    mv /root/sys/bashcompletion /mnt/install/etc/profile.d/bash_completion.sh
+    install --directory --mode=0755 --owner=root --group=root /mnt/install/etc/profile.d
+    install --directory --mode=0755 --owner=root --group=root /mnt/install/etc/bash_completion.d
+    mv /root/sys/dircolors /mnt/install/etc/profile.d/dircolors.sh
+    mv /root/sys/extrapaths /mnt/install/etc/profile.d/extrapaths.sh
+    mv /root/sys/readline /mnt/install/etc/profile.d/readline.sh
+    mv /root/sys/umask /mnt/install/etc/profile.d/umask.sh
+    mv /root/sys/bashrc /mnt/install/etc/bashrc.sh
+    rm -rf /mnt/install/sources/*
     sleep 3
 }
 
-#		CLEAN UP		#
+#               CLEAN UP                #
 
 function CLEAN_LIVE {
     section "CLEANING LIVECD BEFORE REBOOTING"
@@ -417,80 +428,80 @@ function CLEAN_LIVE {
 
 
 function main {
-	section "INSTALLATION"
-	INFORMATIONS
-	GET_USER_INFOS
-	DISK_PARTITION
+        section "INSTALLATION"
+        INFORMATIONS
+        GET_USER_INFOS
+        DISK_PARTITION
 
 
-	if dialog --yesno "The Installation will start. Continue?" 25 85 --stdout; then
+        if dialog --yesno "The Installation will start. Continue?" 25 85 --stdout; then
 
-		if [[ -z "${password}" || -z "${username}" || -z "${machine_name}" || -z "${chosen_partition}" ]]; then
-			err  "$@"
+                if [[ -z "${password}" || -z "${username}" || -z "${machine_name}" || -z "${chosen_partition}" ]]; then
+                        err  "$@"
                         unset "IS_EFI"
-			unset "SWAPUSED"
-	                unset "CORRECTDISK"
-			unset "OLD_PASSWORD"
-	                unset "partition_list"
-			unset "WIRELESS"
-	                unset "AVAILIBLE_LANGUAGES"
+                        unset "SWAPUSED"
+                        unset "CORRECTDISK"
+                        unset "OLD_PASSWORD"
+                        unset "partition_list"
+                        unset "WIRELESS"
+                        unset "AVAILIBLE_LANGUAGES"
                         /usr/bin/install
-		elif [[ ${WIRELESS} = 1 ]]; then
+                elif [[ ${WIRELESS} = 1 ]]; then
                      if [[ -z "${network_name}" || -z "${network_password}" ]]; then
-        		     err  "$@"
-	        	     unset "IS_EFI"
-			     unset "SWAPUSED"
-	                     unset "CORRECTDISK"
-			     unset "OLD_PASSWORD"
-	                     unset "partition_list"
-			     unset "WIRELESS"
-	                     unset "AVAILIBLE_LANGUAGES"
+                             err  "$@"
+                             unset "IS_EFI"
+                             unset "SWAPUSED"
+                             unset "CORRECTDISK"
+                             unset "OLD_PASSWORD"
+                             unset "partition_list"
+                             unset "WIRELESS"
+                             unset "AVAILIBLE_LANGUAGES"
                              /usr/bin/install
-                     fi	
+                     fi
                 else
-       			log "installation on '${chosen_partition}'"
-	                if dialog --yesno "!! WARNING !! \n\nEVERY DATA ON THE DISK WILL BE ERASED.\nDo you want to continue ?" 25 85 --stdout; then
-		             mkdir -p ""
-            		     DISK_INSTALL
-		   	     GRUB_CONF
-            		     INSTALL_CYDRA
-	    		     CLEAN_LIVE
+                        log "installation on '${chosen_partition}'"
+                        if dialog --yesno "!! WARNING !! \n\nEVERY DATA ON THE DISK WILL BE ERASED.\nDo you want to continue ?" 25 85 --stdout; then
+                             mkdir -p ""
+                             DISK_INSTALL
+                             GRUB_CONF
+                             INSTALL_CYDRA
+                             CLEAN_LIVE
 
-	     		     dialog --msgbox "Installation is finished, thanks for using CydraOS !" 0 0
-	     	             stty -echo
-	                     export PS1="Exiting system..."
-			     clear
-			     halt
-	                else
-  			     if dialog --yesno "Do you want to exit the Installation ?" 15 35 --stdout; then
-	                          stty -echo
-	                          export PS1="Exiting system..."
-			          clear
-			          halt
+                             dialog --msgbox "Installation is finished, thanks for using CydraOS !" 0 0
+                             stty -echo
+                             export PS1="Exiting system..."
+                             clear
+                             halt
+                        else
+                             if dialog --yesno "Do you want to exit the Installation ?" 15 35 --stdout; then
+                                  stty -echo
+                                  export PS1="Exiting system..."
+                                  clear
+                                  halt
                              else
-			          log "Cleaning the vars.."
-	                          sleep 1
-	                          unset "IS_EFI"
-			          unset "SWAPUSED"
-	                          unset "CORRECTDISK"
-			          unset "OLD_PASSWORD"
-	                          unset "partition_list"
-			          unset "WIRELESS"
-	                          unset "AVAILIBLE_LANGUAGES"
-			          log "vars cleaned, restarting installation.."
-			          sleep 2
+                                  log "Cleaning the vars.."
+                                  sleep 1
+                                  unset "IS_EFI"
+                                  unset "SWAPUSED"
+                                  unset "CORRECTDISK"
+                                  unset "OLD_PASSWORD"
+                                  unset "partition_list"
+                                  unset "WIRELESS"
+                                  unset "AVAILIBLE_LANGUAGES"
+                                  log "vars cleaned, restarting installation.."
+                                  sleep 2
                                   /usr/bin/install
-	                     fi
+                             fi
                         fi
-			exit 0
-		fi
-	else
-		main "$@"
-	fi
+                        exit 0
+                fi
+        else
+                main "$@"
+        fi
 }
 
 function err {
-	dialog --msgbox "The installation failed. The user did not gived all of the needed informations for the installation." 15 100
+        dialog --msgbox "The installation failed. The user did not gived all of the needed informations for the installation." 15 100
 }
 
 main "$@"

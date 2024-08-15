@@ -47,7 +47,10 @@ function print_licences {
 
 function print_credits {
         log "Showing credits"
-        dialog --msgbox "Thanks to AinTea for the installer !\n Here the github of AinTea: https://github.com/AinTEAsports\n Here the github of CydraProject: https://github.com/acth2/CydraProject" 15 50
+        dialog --msgbox "Thanks to AinTea for the installer !" 15 50
+        dialog --msgbox "Thanks to Emmett Syazwan for the LFS iso template" 15 50
+        dialog --msgbox "Thanks to the LFS & BLFS team for everything !" 15 50
+        dialog --msgbox "Thanks to YOU for installing CydraLite !" 15 50
 }
 
 
@@ -405,6 +408,7 @@ EOF
     mv /root/sys/readline /mnt/install/etc/profile.d/readline.sh
     mv /root/sys/umask /mnt/install/etc/profile.d/umask.sh
     mv /root/sys/bashrc /mnt/install/etc/bashrc.sh
+    rm -rf /mnt/install/sources/*
     sleep 3
 }
 

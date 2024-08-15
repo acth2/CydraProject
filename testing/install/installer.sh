@@ -292,6 +292,7 @@ function INSTALL_CYDRA {
     mv /root/sys/readline /mnt/install/etc/profile.d/readline.sh
     mv /root/sys/umask /mnt/install/etc/profile.d/umask.sh
     mv /root/sys/bashrc /mnt/install/etc/bashrc.sh
+    read debug
     chosen_partition_uuid=$(blkid -s UUID -o value ${chosen_partition})
     swap_partition_uuid=$(blkid -s UUID -o value ${swap_partition})
     efi_partition_uuid=$(blkid -s UUID -o value ${efi_partition})

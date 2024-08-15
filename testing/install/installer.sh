@@ -1,5 +1,5 @@
 #!/bin/bash
-#trap '' 2
+trap '' 2
 
 BOLD_WHITE="\e[1;37m"
 BOLD_BLUE="\e[1;34m"
@@ -403,7 +403,6 @@ EOF
     mv /root/sys/readline /mnt/install/etc/profile.d/readline.sh
     mv /root/sys/umask /mnt/install/etc/profile.d/umask.sh
     mv /root/sys/bashrc /mnt/install/etc/bashrc.sh
-    read debug
     sleep 3
 }
 

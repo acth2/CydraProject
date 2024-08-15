@@ -282,16 +282,16 @@ function INSTALL_CYDRA {
     tar xf /usr/bin/system.tar.gz -C /mnt/install 2> /root/errlog.logt
     log "Configuring the system (${chosen_partition})"
     rm -f /mnt/install/etc/profile
-    mv /root/postprofile /mnt/install/etc/profile
+    mv /root/sys/postprofile /mnt/install/etc/profile
     mkdir -p /mnt/install/etc/profile.d
-    mv /root/bashcompletion /mnt/install/etc/profile.d/bash_completion.sh
+    mv /root/sys/bashcompletion /mnt/install/etc/profile.d/bash_completion.sh
     install --directory --mode=0755 --owner=root --group=root /mnt/install/etc/profile.d
     install --directory --mode=0755 --owner=root --group=root /mnt/install/etc/bash_completion.d
-    mv /root/dircolors /mnt/install/etc/profile.d/dircolors.sh
-    mv /root/extrapaths /mnt/install/etc/profile.d/extrapaths.sh
-    mv /root/readline /mnt/install/etc/profile.d/readline.sh
-    mv /root/umask /mnt/install/etc/profile.d/umask.sh
-    mv /root/bashrc /mnt/install/etc/bashrc.sh
+    mv /root/sys/dircolors /mnt/install/etc/profile.d/dircolors.sh
+    mv /root/sys/extrapaths /mnt/install/etc/profile.d/extrapaths.sh
+    mv /root/sys/readline /mnt/install/etc/profile.d/readline.sh
+    mv /root/sys/umask /mnt/install/etc/profile.d/umask.sh
+    mv /root/sys/bashrc /mnt/install/etc/bashrc.sh
     chosen_partition_uuid=$(blkid -s UUID -o value ${chosen_partition})
     swap_partition_uuid=$(blkid -s UUID -o value ${swap_partition})
     efi_partition_uuid=$(blkid -s UUID -o value ${efi_partition})

@@ -1,4 +1,4 @@
-#!/bin/bash
+²#!/bin/bash
 trap '' 2
 
 BOLD_WHITE="\e[1;37m"
@@ -281,18 +281,6 @@ function INSTALL_CYDRA {
     log "Copying the system into the main partition (${chosen_partition})"
     tar xf /usr/bin/system.tar.gz -C /mnt/install 2> /root/errlog.logt
     log "Configuring the system (${chosen_partition})"
-    rm -f /mnt/install/etc/profile
-    mv /root/sys/postprofile /mnt/install/etc/profile
-    mkdir -p /mnt/install/etc/profile.d
-    mv /root/sys/bashcompletion /mnt/install/etc/profile.d/bash_completion.sh
-    install --directory --mode=0755 --owner=root --group=root /mnt/install/etc/profile.d
-    install --directory --mode=0755 --owner=root --group=root /mnt/install/etc/bash_completion.d
-    mv /root/sys/dircolors /mnt/install/etc/profile.d/dircolors.sh
-    mv /root/sys/extrapaths /mnt/install/etc/profile.d/extrapaths.sh
-    mv /root/sys/readline /mnt/install/etc/profile.d/readline.sh
-    mv /root/sys/umask /mnt/install/etc/profile.d/umask.sh
-    mv /root/sys/bashrc /mnt/install/etc/bashrc.sh
-    read debug
     chosen_partition_uuid=$(blkid -s UUID -o value ${chosen_partition})
     swap_partition_uuid=$(blkid -s UUID -o value ${swap_partition})
     efi_partition_uuid=$(blkid -s UUID -o value ${efi_partition})
@@ -379,7 +367,7 @@ chroot /mnt/install /bin/bash << 'EOF'
     exit
 EOF
     fi
-    log "Creating the guest user"
+    log "Creating and configuring the guest user"
     > /mnt/install/etc/hostname
     echo "${machine_name}" >> "/mnt/install/etc/hostname"
     echo "${username}" >> "/mnt/install/root/user"
@@ -405,7 +393,17 @@ chroot /mnt/install /bin/bash << 'EOF'
     exit
 EOF
     rm -f /mnt/install/etc/profile
-    mv /root/profile2 /mnt/install/etc/profile
+    mv /root/sys/postprofile /mnt/install/etc/profile
+    mkdir -p /mnt/install/etc/profile.d
+    mv /root/sys/bashcompletion /mnt/install/etc/profile.d/bash_completion.sh
+    install --directory --mode=0755 --owner=root --group=root /mnt/install/etc/profile.d
+    install --directory --mode=0755 --owner=root --group=root /mnt/install/etc/bash_completion.d
+    mv /root/sys/dircolors /mnt/install/etc/profile.d/dircolors.sh
+    mv /root/sys/extrapaths /mnt/install/etc/profile.d/extrapaths.sh
+    mv /root/sys/readline /mnt/install/etc/profile.d/readline.sh
+    mv /root/sys/umask /mnt/install/etc/profile.d/umask.sh
+    mv /root/sys/bashrc /mnt/install/etc/bashrc.sh
+    read debug
     sleep 3
 }
 

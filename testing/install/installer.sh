@@ -393,7 +393,9 @@ chroot /mnt/install /bin/bash << 'EOF'
     exit
 EOF
     rm -f /mnt/install/etc/profile
-    mv /root/sys/postprofile /mnt/install/etc/profile
+    cp -r /root/sys/postprofile /mnt/install/etc/profile
+    cp -r /root/sys/postprofile /mnt/install/root/.bashrc
+    cp -r /root/sys/postprofile /mnt/install/${username}/.bashrc
     mkdir -p /mnt/install/etc/profile.d
     mv /root/sys/bashcompletion /mnt/install/etc/profile.d/bash_completion.sh
     install --directory --mode=0755 --owner=root --group=root /mnt/install/etc/profile.d

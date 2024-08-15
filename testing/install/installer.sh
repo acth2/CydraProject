@@ -1,5 +1,5 @@
-²#!/bin/bash
-trap '' 2
+#!/bin/bash
+#trap '' 2
 
 BOLD_WHITE="\e[1;37m"
 BOLD_BLUE="\e[1;34m"
@@ -279,7 +279,7 @@ function INSTALL_CYDRA {
         mount -t ext4 "${chosen_partition}" "/mnt/install" 2> /dev/null
     fi
     log "Copying the system into the main partition (${chosen_partition})"
-    tar xf /usr/bin/system.tar.gz -C /mnt/install 2> /root/errlog.logt
+    tar xf /root/system.tar.gz -C /mnt/install 2> /root/errlog.logt
     log "Configuring the system (${chosen_partition})"
     chosen_partition_uuid=$(blkid -s UUID -o value ${chosen_partition})
     swap_partition_uuid=$(blkid -s UUID -o value ${swap_partition})

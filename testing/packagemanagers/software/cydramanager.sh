@@ -330,24 +330,6 @@ function install_packet {
     softwareListed=("$(ls "/usr/cydramanager/pkgt/$EXTRACTED_ARCHIVE")")
     cp -r /usr/cydramanager/pkgt/"${EXTRACTED_ARCHIVE}"/* /usr/cydramanager/currentSoftware/"${PKG_NAME}"
     rm -rf /usr/cydramanager/pkgt/*
-    PKG_COUNTER_MAX=$(find "/usr/cydramanager/currentSoftware/${PKG_NAME}" -type f | wc -l)
-    PERCENT=$(( (i+1) * 100 / PKG_COUNTER_MAX ))
-    PKG_COUNTER_MAX=$(find "/usr/cydramanager/currentSoftware/${PKG_NAME}" -type f | wc -l)
-    if [ "$VERBOSE" = false ]; then
-        for ((i=0; i<PKG_COUNTER_MAX; i++)); do
-            PERCENT=$(( (i+1) * 100 / PKG_COUNTER_MAX ))
-            printf "[${PKG_NAME}] Progression : ["
-            for ((j=0; j<50; j+=2)); do
-                if [ $j -lt $((PERCENT/2)) ]; then
-                    printf "#"
-                else
-                    printf " "
-                fi
-            done
-            printf "] %d%%\r" "$PERCENT"
-        done
-        echo
-    fi
     for potentialexecutable in $(find "/usr/cydramanager/currentSoftware/${PKG_NAME}" -type f); do
         if [[ -x ${potentialexecutable} ]]; then
            ln -sf "${potentialexecutable}" "/usr/bin"
@@ -395,20 +377,6 @@ function install_deps {
         wget "${POOL_DL}/${DEPS_ARCHIVE}" -P ${INSTALL_DIR} --no-check-certificate -q
 
         chmod +rwx "${INSTALL_DIR}${DEPS_ARCHIVE}"
-
-        if [ "$VERBOSE" = false ]; then
-            unset PERCENT
-            PERCENT=$(( (i+1) * 100 / DEPS_NUMBER ))
-            printf "[${DEPS_NAME}] Progression : ["
-            for ((j=0; j<50; j+=2)); do
-                if [ $j -lt $((PERCENT/2)) ]; then
-                  printf "#"
-                else
-                  printf " "
-                fi
-            done
-            printf "] %d%%\n" "$PERCENT"
-        fi
 
         tar xf "${INSTALL_DIR}${DEPS_ARCHIVE}" -C /
 

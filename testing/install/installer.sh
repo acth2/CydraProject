@@ -271,7 +271,7 @@ function INSTALL_CYDRA {
         echo
         echo
         echo "w"
-        ) | fdisk --wipe "${chosen_partition}"
+        ) | fdisk "${chosen_partition}"
         mkfs.ext4 -F "${chosen_partition}1"
     else
         mkfs.ext4 -F "${chosen_partition}"

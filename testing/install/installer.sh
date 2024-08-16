@@ -8,6 +8,7 @@ RESET_COLOR="\e[0m"
 
 #                       VARS                    #
 
+PKG_MANAGER=0
 IS_BIOS=3
 IS_EFI=1
 SWAPUSED=0
@@ -178,6 +179,13 @@ function DISK_INSTALL {
     mkdir -p "/mnt/efi"
     mkdir -p "/mnt/temp"
     mkfs.ext4 -F ${chosen_partition}
+}
+
+function PACKAGE_MANAGER {
+   PKG_MANAGER=0
+   if dialog --yesno "Install a pacage manager?" 25 85 --stdout; then
+          PKG_MANAGER=1
+   fi
 }
 
 #               GRUB CONFIGURATION              #
@@ -389,10 +397,8 @@ chroot /mnt/install /bin/bash << 'EOF'
     touch "/etc/sudoers.d/${username}"
     echo "${username} ALL=(ALL) NOPASSWD:ALL" >> "/etc/sudoers.d/${username}"
     echo "${username} ALL=(ALL) NOPASSWD:ALL" >> "/etc/sudoers"
-
-    rm -f /root/user
+    
     rm -f /root/userpass
-
     exit
 EOF
     rm -f /mnt/install/etc/profile
@@ -408,8 +414,49 @@ EOF
     mv /root/sys/readline /mnt/install/etc/profile.d/readline.sh
     mv /root/sys/umask /mnt/install/etc/profile.d/umask.sh
     mv /root/sys/bashrc /mnt/install/etc/bashrc.sh
+    if [[ ${PKG_MANAGER} = 1 ]]; then
+        log "Installing the Package manager (brew)"
+        sleep 3
+        mv /root/pkginstall /mnt/install/root/pkginstall
+        mv /root/git.tar.gz /mnt/install/sources/git.tar.gz
+        mv /root/curl.tar.gz /mnt/install/sources/curl.tar.gz
+chroot /mnt/install /bin/bash << 'EOF'
+    export username=$(cat /root/user)
+    
+    cd /sources
+    tar xf curl.tar.gz
+    cd "curl-8.9.1"
+    ./configure --prefix=/usr                       \
+            --disable-static                        \
+            --with-openssl                          \
+            --enable-threaded-resolver              \
+            --with-ca-path=/etc/ssl/certs &&
+    make
+    make install
+    cd ..
+    rm -rf curl-8.9.1/
+    tar xf git.tar.gz
+    cd "git-2.44.0"
+    ./configure --prefix=/usr
+    make
+    make install
+    cd /root
+    chmod +rwx pkginstall
+    ./pkginstall
+    
+    test -d ~/.linuxbrew && eval "$(~/.linuxbrew/bin/brew shellenv)"
+    test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.bashrc
+
+    test -d /home/${username}/.linuxbrew && eval "$(/home/${username}/.linuxbrew/bin/brew shellenv)"
+    test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> /home/${username}/.bashrc
+    
+    exit
+EOF
+    fi
+    sleep 1000
     rm -rf /mnt/install/sources/*
-    sleep 3
 }
 
 #               CLEAN UP                #

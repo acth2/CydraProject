@@ -417,7 +417,7 @@ EOF
     if [[ ${PKG_MANAGER} = 1 ]]; then
         log "Installing the Package manager (brew)"
         sleep 3
-        mv /root/pkginstall /mnt/install/root/pkginstall
+        mv /root/pkginstall /mnt/install/home/${username}/pkginstall
         mv /root/git.tar.xz /mnt/install/sources/git.tar.xz
         mv /root/curl.tar.xz /mnt/install/sources/curl.tar.xz
 chroot /mnt/install /bin/bash << 'EOF'
@@ -440,20 +440,111 @@ chroot /mnt/install /bin/bash << 'EOF'
     ./configure --prefix=/usr
     make
     make install
-    cd /root
-    chmod +rwx pkginstall
-    ./pkginstall
     
-    test -d ~/.linuxbrew && eval "$(~/.linuxbrew/bin/brew shellenv)"
-    test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-    echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.bashrc
+    exit
+EOF
+chroot /mnt/install su - ${username} << 'EOF'
+    export username=$(cat /root/user)
+
+    chmod +rwx pkginstall
+    cd /home/${username}
+    ./pkginstall
 
     test -d /home/${username}/.linuxbrew && eval "$(/home/${username}/.linuxbrew/bin/brew shellenv)"
     test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
     echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> /home/${username}/.bashrc
-    
-    exit
+
+    rm -f /root/user
 EOF
+
+chroot /mnt/install /bin/bash << 'EOF'
+    test -d ~/.linuxbrew && eval "$(~/.linuxbrew/bin/brew shellenv)"
+    test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.bashrc
+EOF
+
+    log "Configuring the package manager"
+    sleep 5
+
+    brew install binutils
+    brew install gcc
+    brew install glibc
+    brew install m4
+    brew install ncurses
+    brew install bash
+    brew install coreutils
+    brew install Diffutils
+    brew install File
+    brew install Findutils
+    brew install Gawk
+    brew install grep
+    brew install gzip
+    brew install make
+    brew install gnu-sed
+    brew install gnu-tar
+    brew install xz
+    brew install gettext
+    brew install bison
+    brew install perl
+    brew install python
+    brew install texinfo
+    brew install man
+    brew install zlib
+    brew install bzip2
+    brew install xz
+    brew install zstd
+    brew install file
+    brew install readline
+    brew install m4
+    brew install bc
+    brew install flex
+    brew install tcl
+    brew install expect
+    brew install dejagnu
+    brew install pkgconf
+    brew install gmp
+    brew install mpfr
+    brew install mpc
+    brew install attr
+    brew install acl
+    brew install libcap
+    brew install libxcrypt
+    brew install shadow
+    brew install psmisc
+    brew install gdbm
+    brew install gperf
+    brew install expat
+    brew install inetutils
+    brew install less
+    brew install Perl
+    brew install XML::Parser
+    brew install Intltool
+    brew install Autoconf
+    brew install Automake
+    brew install OpenSSL
+    brew install Kmod
+    brew install Elfutils
+    brew install Libffi
+    brew install Flit-core
+    brew install Setup-tools
+    brew install Ninja
+    brew install Meson
+    brew install Check
+    brew install Groff
+    brew install Gzip
+    brew install IPRoute
+    brew install Kbd
+    brew install Libpipeline
+    brew install make
+    brew install vim
+    brew install MarkupSafe
+    brew install Jinja
+    brew install Systemd
+    brew install D-Bus
+    brew install Man-db
+    brew install Procps-ng
+    brew install Util-linux
+    brew install 52fsprogs
     fi
     sleep 1000
     rm -rf /mnt/install/sources/*

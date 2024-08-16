@@ -478,7 +478,7 @@ cat > /mnt/install/etc/profile << "EOF"
 
     if [ ! -f "$FIRST_BOOT_FILE" ]; then
         echo "Welcome! The package manager (brew) wont work until you update it !!\n(brew update)"
-        touch "$FIRST_BOOT_FILE"
+        sudo touch "$FIRST_BOOT_FILE"
     fi
 EOF
     chmod +x /mnt/install/usr/cydraliteem

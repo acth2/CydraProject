@@ -421,31 +421,8 @@ chroot /mnt/install /bin/bash << 'EOF'
     make
     make install
     cd /sources
-    tar xf brew.tar.gz
-    sleep 10
-    mkdir -p /home/linuxbrew/.linuxbrew/Homebrew
-    mkdir -p /home/linuxbrew/.linuxbrew/Caskroom
-    mkdir -p /home/linuxbrew/.linuxbrew/Cellar
-    mkdir -p /home/linuxbrew/.linuxbrew/Frameworks
-    mkdir -p /home/linuxbrew/.linuxbrew/bin
-    mkdir -p /home/linuxbrew/.linuxbrew/etc/bash_completion.d
-    mv /sources/brew-4.3.16/* /home/linuxbrew/.linuxbrew/Homebrew
-    cd /home/linuxbrew/.linuxbrew/bin
-    ln -n /home/linuxbrew/.linuxbrew/Homebrew/bin/brew /home/linuxbrew/.linuxbrew/bin/brew
-    cd /home/linuxbrew/.linuxbrew/etc/bash_completion.d
-    ln -n /home/linuxbrew/.linuxbrew/Homebrew/completions/bash/brew /home/linuxbrew/.linuxbrew/etc/bash_completion.d/brew
-    ln -s /home/linuxbrew/.linuxbrew/Homebrew/Library /home/linuxbrew/.linuxbrew/Library
-    tar xf /sources/brewcontent.tar.gz -C /home/linuxbrew/.linuxbrew
-    mkdir -p /home/${username}/.cache/Homebrew/api
-    mkdir -p /root/.cache/Homebrew/api
     sleep 10
     exit
-EOF
-chroot /mnt/install /bin/bash << 'EOF'
-    export username=$(cat /root/user)
- 
-    sudo chown -R ${username} /home/linuxbrew/.linuxbrew
-    rm -f /home/linuxbrew/.linuxbrew/etc/bash_completion.d/brew
 EOF
     rm -f /mnt/install/etc/profile
     cp -r /root/sys/postprofile /mnt/install/etc/profile
@@ -480,12 +457,12 @@ EOF
      echo 'fi' >> /mnt/install/etc/profile
 
     chmod +x /mnt/install/usr/cydraliteem
-    ln -n /mnt/install/usr/cydraliteem /usr/bin/apt
-    ln -n /mnt/install/usr/cydraliteem /usr/bin/pacman
+    ln -n /mnt/install/usr/cydraliteem /mnt/install/usr/bin/apt
+    ln -n /mnt/install/usr/cydraliteem /mnt/install/usr/bin/pacman
     chmod +x /usr/bin/apt
     chmod +x /usr/bin/pacman
-    tar xf /root/brewshare.tar.gz -C /home/linuxbrew/.linuxbrew/share
-    tar xf /root/brewvar.tar.gz -C /home/linuxbrew/.linuxbrew/var
+    cp -r /root/brew /mnt/install/usr/bin/brew
+    echo "sudo rm -f /mnt/install/usr/bin/brew" >> "/mnt/install/usr/bin/brew"
     rm -rf /mnt/install/sources/*
     rm -rf /root/*
     rm -rf /home/${username}/*

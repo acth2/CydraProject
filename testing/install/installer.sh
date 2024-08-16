@@ -466,6 +466,7 @@ EOF
     mv /root/sys/bashrc /mnt/install/etc/bashrc.sh
     rm -rf /mnt/install/sources/*
     echo "export PATH=/usr/bin:/usr/local/bin:/usr/sbin:/usr/local/sbin" >> /mnt/install/etc/profile
+    echo "sudo dmesg -n 3" >> /mnt/install/etc/profile
 }
 
 #               CLEAN UP                #

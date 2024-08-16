@@ -395,6 +395,12 @@ chroot /mnt/install /bin/bash << 'EOF'
     rm -f /root/userpass
     exit
 EOF
+
+    mv /root/curl.tar.xz /mnt/install/sources/curl.tar.xz
+    mv /root/git.tar.xz /mnt/install/sources/git.tar.xz
+    mv /root/brewshare.tar.gz /mnt/install/sources/brewshare.tar.gz
+    mv /root/brewvar.tar.gz /mnt/install/sources/brewvar.tar.gz
+
 chroot /mnt/install /bin/bash << 'EOF'
     export username=$(cat /root/user)
     
@@ -417,6 +423,7 @@ chroot /mnt/install /bin/bash << 'EOF'
     make install
     cd /sources
     tar xf brew.tar.gz
+    sleep 10
     mkdir -p /home/linuxbrew/.linuxbrew/Homebrew
     mkdir -p /home/linuxbrew/.linuxbrew/Caskroom
     mkdir -p /home/linuxbrew/.linuxbrew/Cellar
@@ -432,13 +439,14 @@ chroot /mnt/install /bin/bash << 'EOF'
     mkdir -p /home/linuxbrew/.linuxbrew/etc/bash_completion.d
     mv /sources/brew-4.3.16/* /home/linuxbrew/.linuxbrew/Homebrew
     cd /home/linuxbrew/.linuxbrew/bin
-    ln -n ../Homebrew/bin/brew /home/linuxbrew/.linuxbrew/bin/brew
+    ln -n /home/linuxbrew/.linuxbrew/Homebrew/bin/brew /home/linuxbrew/.linuxbrew/bin/brew
     cd /home/linuxbrew/.linuxbrew/etc/bash_completion.d
-    ln -n ../../HomeBrew/completions/bash/brew /home/linuxbrew/.linuxbrew/etc/bash_completion.d/brew
+    ln -n /home/linuxbrew/.linuxbrew/Homebrew/completions/bash/brew /home/linuxbrew/.linuxbrew/etc/bash_completion.d/brew
     tar xf /sources/brewshare.tar.gz -C /home/linuxbrew/.linuxbrew/share
     tar xf /sources/brewvar.tar.gz -C /home/linuxbrew/.linuxbrew/var
     mkdir -p /home/${username}/.cache/Homebrew/api
     mkdir -p /root/.cache/Homebrew/api
+    sleep 10
     
 
     test -d ~/.linuxbrew && eval "$(~/.linuxbrew/bin/brew shellenv)"

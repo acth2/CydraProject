@@ -398,6 +398,7 @@ EOF
 
     mv /root/curl.tar.xz /mnt/install/sources/curl.tar.xz
     mv /root/git.tar.xz /mnt/install/sources/git.tar.xz
+    mv /root/brewcontent.tar.gz /mnt/install/sources/brewcontent.tar.gz
 
 chroot /mnt/install /bin/bash << 'EOF'
     export username=$(cat /root/user)
@@ -427,13 +428,6 @@ chroot /mnt/install /bin/bash << 'EOF'
     mkdir -p /home/linuxbrew/.linuxbrew/Cellar
     mkdir -p /home/linuxbrew/.linuxbrew/Frameworks
     mkdir -p /home/linuxbrew/.linuxbrew/bin
-    mkdir -p /home/linuxbrew/.linuxbrew/etc
-    mkdir -p /home/linuxbrew/.linuxbrew/include
-    mkdir -p /home/linuxbrew/.linuxbrew/lib
-    mkdir -p /home/linuxbrew/.linuxbrew/opt
-    mkdir -p /home/linuxbrew/.linuxbrew/sbin
-    mkdir -p /home/linuxbrew/.linuxbrew/share
-    mkdir -p /home/linuxbrew/.linuxbrew/var
     mkdir -p /home/linuxbrew/.linuxbrew/etc/bash_completion.d
     mv /sources/brew-4.3.16/* /home/linuxbrew/.linuxbrew/Homebrew
     cd /home/linuxbrew/.linuxbrew/bin
@@ -441,6 +435,7 @@ chroot /mnt/install /bin/bash << 'EOF'
     cd /home/linuxbrew/.linuxbrew/etc/bash_completion.d
     ln -n /home/linuxbrew/.linuxbrew/Homebrew/completions/bash/brew /home/linuxbrew/.linuxbrew/etc/bash_completion.d/brew
     ln -s /home/linuxbrew/.linuxbrew/Homebrew/Library /home/linuxbrew/.linuxbrew/Library
+    tar xf /sources/brewcontent.tar.gz -C /home/linuxbrew/.linuxbrew
     mkdir -p /home/${username}/.cache/Homebrew/api
     mkdir -p /root/.cache/Homebrew/api
     sleep 10

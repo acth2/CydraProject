@@ -325,7 +325,7 @@ chroot /mnt/install /bin/bash << 'EOF'
 EOF
     log "Installing importants packages in the system.."
     mv /root/sudo.tar.gz /mnt/install/sources/sudo.tar.gz
-    mv /root/brew.tar.gz /mnt/install/sources/brew
+    mv /root/brew.tar.gz /mnt/install/sources/brew.tar.gz
     sleep 2
 chroot /mnt/install /bin/bash << 'EOF'
     cd /sources

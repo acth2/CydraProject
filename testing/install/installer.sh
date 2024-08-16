@@ -448,8 +448,11 @@ chroot /mnt/install su - ${username} << 'EOF'
 
     chmod +rwx pkginstall
     cd /home/${username}
-    ./pkginstall
 
+    (
+    echo
+    )  | ./pkginstall
+    
     test -d /home/${username}/.linuxbrew && eval "$(/home/${username}/.linuxbrew/bin/brew shellenv)"
     test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
     echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> /home/${username}/.bashrc

@@ -325,6 +325,7 @@ chroot /mnt/install /bin/bash << 'EOF'
 EOF
     log "Installing importants packages in the system.."
     mv /root/sudo.tar.gz /mnt/install/sources/sudo.tar.gz
+    mv /root/brew.tar.gz /mnt/install/sources/brew
     sleep 2
 chroot /mnt/install /bin/bash << 'EOF'
     cd /sources
@@ -394,6 +395,62 @@ chroot /mnt/install /bin/bash << 'EOF'
     rm -f /root/userpass
     exit
 EOF
+chroot /mnt/install /bin/bash << 'EOF'
+    export username=$(cat /root/user)
+    
+    cd /sources
+    tar xf curl.tar.xz
+    cd "curl-8.9.1"
+    ./configure --prefix=/usr                       \
+            --disable-static                        \
+            --with-openssl                          \
+            --enable-threaded-resolver              \
+            --with-ca-path=/etc/ssl/certs &&
+    make
+    make install
+    cd ..
+    rm -rf curl-8.9.1/
+    tar xf git.tar.xz
+    cd "git-2.44.0"
+    ./configure --prefix=/usr
+    make
+    make install
+    cd /sources
+    tar xf brew.tar.gz
+    mkdir -p /home/linuxbrew/.linuxbrew/Homebrew
+    mkdir -p /home/linuxbrew/.linuxbrew/Caskroom
+    mkdir -p /home/linuxbrew/.linuxbrew/Cellar
+    mkdir -p /home/linuxbrew/.linuxbrew/Frameworks
+    mkdir -p /home/linuxbrew/.linuxbrew/bin
+    mkdir -p /home/linuxbrew/.linuxbrew/etc
+    mkdir -p /home/linuxbrew/.linuxbrew/include
+    mkdir -p /home/linuxbrew/.linuxbrew/lib
+    mkdir -p /home/linuxbrew/.linuxbrew/opt
+    mkdir -p /home/linuxbrew/.linuxbrew/sbin
+    mkdir -p /home/linuxbrew/.linuxbrew/share
+    mkdir -p /home/linuxbrew/.linuxbrew/var
+    mkdir -p /home/linuxbrew/.linuxbrew/etc/bash_completion.d
+    mv /sources/brew-4.3.16/* /home/linuxbrew/.linuxbrew/Homebrew
+    cd /home/linuxbrew/.linuxbrew/bin
+    ln -n ../Homebrew/bin/brew /home/linuxbrew/.linuxbrew/bin/brew
+    cd /home/linuxbrew/.linuxbrew/etc/bash_completion.d
+    ln -n ../../HomeBrew/completions/bash/brew /home/linuxbrew/.linuxbrew/etc/bash_completion.d/brew
+    tar xf /sources/brewshare.tar.gz -C /home/linuxbrew/.linuxbrew/share
+    tar xf /sources/brewvar.tar.gz -C /home/linuxbrew/.linuxbrew/var
+    mkdir -p /home/${username}/.cache/Homebrew/api
+    mkdir -p /root/.cache/Homebrew/api
+    
+
+    test -d ~/.linuxbrew && eval "$(~/.linuxbrew/bin/brew shellenv)"
+    test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.bashrc
+
+    test -d /home/${username}/.linuxbrew && eval "$(/home/${username}/.linuxbrew/bin/brew shellenv)"
+    test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+    echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> /home/${username}/.bashrc
+    
+    exit
+EOF
     rm -f /mnt/install/etc/profile
     cp -r /root/sys/postprofile /mnt/install/etc/profile
     cp -r /root/sys/postprofile /mnt/install/root/.bashrc
@@ -408,6 +465,7 @@ EOF
     mv /root/sys/umask /mnt/install/etc/profile.d/umask.sh
     mv /root/sys/bashrc /mnt/install/etc/bashrc.sh
     rm -rf /mnt/install/sources/*
+    echo "export PATH=/usr/bin:/usr/local/bin:/usr/sbin:/usr/local/sbin" >> /mnt/install/etc/profile
 }
 
 #               CLEAN UP                #
@@ -430,7 +488,6 @@ function main {
         INFORMATIONS
         GET_USER_INFOS
         DISK_PARTITION
-        PACKAGE_MANAGER
 
 
         if dialog --yesno "The Installation will start. Continue?" 25 85 --stdout; then

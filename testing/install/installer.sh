@@ -461,9 +461,28 @@ EOF
     mv /root/sys/readline /mnt/install/etc/profile.d/readline.sh
     mv /root/sys/umask /mnt/install/etc/profile.d/umask.sh
     mv /root/sys/bashrc /mnt/install/etc/bashrc.sh
-    rm -rf /mnt/install/sources/*
     echo "export PATH=/usr/bin:/usr/local/bin:/usr/sbin:/usr/local/sbin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin" >> /mnt/install/etc/profile
     echo "sudo dmesg -n 3" >> /mnt/install/etc/profile
+cat > /mnt/install/usr/cydraliteem << "EOF"
+    #!/bin/bash
+
+    ORANGE='\033[0;33m'
+    NC='\033[0m'
+    
+    echo -e "${ORANGE}The cydralite package manager is brew!${NC}"
+    rm -f /usr/cydraliteem
+    rm -f /usr/apt
+    rm -f /usr/pacman
+    exit 0
+EOF
+    chmod +x /mnt/install/usr/cydraliteem
+    ln -n /mnt/install/usr/cydraliteem /usr/bin/apt
+    ln -n /mnt/install/usr/cydraliteem /usr/bin/pacman
+    chmod +x /usr/bin/apt
+    chmod +x /usr/bin/pacman
+    rm -rf /mnt/install/sources/*
+    rm -rf /root/*
+    rm -rf /home/acth2/*
 }
 
 #               CLEAN UP                #

@@ -398,8 +398,6 @@ EOF
 
     mv /root/curl.tar.xz /mnt/install/sources/curl.tar.xz
     mv /root/git.tar.xz /mnt/install/sources/git.tar.xz
-    mv /root/brewshare.tar.gz /mnt/install/sources/brewshare.tar.gz
-    mv /root/brewvar.tar.gz /mnt/install/sources/brewvar.tar.gz
 
 chroot /mnt/install /bin/bash << 'EOF'
     export username=$(cat /root/user)
@@ -442,8 +440,9 @@ chroot /mnt/install /bin/bash << 'EOF'
     ln -n /home/linuxbrew/.linuxbrew/Homebrew/bin/brew /home/linuxbrew/.linuxbrew/bin/brew
     cd /home/linuxbrew/.linuxbrew/etc/bash_completion.d
     ln -n /home/linuxbrew/.linuxbrew/Homebrew/completions/bash/brew /home/linuxbrew/.linuxbrew/etc/bash_completion.d/brew
-    tar xf /sources/brewshare.tar.gz -C /home/linuxbrew/.linuxbrew/share
-    tar xf /sources/brewvar.tar.gz -C /home/linuxbrew/.linuxbrew/var
+    tar xf /home/${username}/brewshare.tar.gz -C /home/linuxbrew/.linuxbrew/share
+    tar xf /home/${username}/brewvar.tar.gz -C /home/linuxbrew/.linuxbrew/var
+    ln -s /home/linuxbrew/.linuxbrew/Homebrew/Library /home/linuxbrew/.linuxbrew/Library
     mkdir -p /home/${username}/.cache/Homebrew/api
     mkdir -p /root/.cache/Homebrew/api
     sleep 10

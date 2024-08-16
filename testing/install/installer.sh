@@ -471,16 +471,14 @@ cat > /mnt/install/usr/cydraliteem << "EOF"
     echo -e "${ORANGE}The cydralite package manager is brew!${NC}"
     exit 0
 EOF
+     echo "" >> /mnt/install/etc/profile
+     echo 'FIRST_BOOT_FILE="/var/log/.firstbooted"' >> /mnt/install/etc/profile
+     echo "" >> /mnt/install/etc/profile
+     echo 'if [ ! -f "$FIRST_BOOT_FILE" ]; then' >> /mnt/install/etc/profile
+     echo   'echo "Welcome! The package manager (brew) wont work until you update it !!"' >> /mnt/install/etc/profile
+     echo   'sudo touch "$FIRST_BOOT_FILE"' >> /mnt/install/etc/profile
+     echo 'fi' >> /mnt/install/etc/profile
 
-cat > /mnt/install/etc/profile << "EOF"
-
-    FIRST_BOOT_FILE="/var/log/.firstbooted"
-
-    if [ ! -f "$FIRST_BOOT_FILE" ]; then
-        echo "Welcome! The package manager (brew) wont work until you update it !!\n(brew update)"
-        sudo touch "$FIRST_BOOT_FILE"
-    fi
-EOF
     chmod +x /mnt/install/usr/cydraliteem
     ln -n /mnt/install/usr/cydraliteem /usr/bin/apt
     ln -n /mnt/install/usr/cydraliteem /usr/bin/pacman

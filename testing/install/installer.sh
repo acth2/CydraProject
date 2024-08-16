@@ -479,6 +479,7 @@ function main {
         INFORMATIONS
         GET_USER_INFOS
         DISK_PARTITION
+        PACKAGE_MANAGER
 
 
         if dialog --yesno "The Installation will start. Continue?" 25 85 --stdout; then

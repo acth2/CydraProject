@@ -441,6 +441,12 @@ chroot /mnt/install /bin/bash << 'EOF'
     sleep 10
     exit
 EOF
+chroot /mnt/install /bin/bash << 'EOF'
+    export username=$(cat /root/user)
+ 
+    sudo chown -R ${username} /home/linuxbrew/.linuxbrew
+    rm -f /home/linuxbrew/.linuxbrew/etc/bash_completion.d/brew
+EOF
     rm -f /mnt/install/etc/profile
     cp -r /root/sys/postprofile /mnt/install/etc/profile
     cp -r /root/sys/postprofile /mnt/install/root/.bashrc
@@ -463,10 +469,17 @@ cat > /mnt/install/usr/cydraliteem << "EOF"
     NC='\033[0m'
     
     echo -e "${ORANGE}The cydralite package manager is brew!${NC}"
-    rm -f /usr/cydraliteem
-    rm -f /usr/apt
-    rm -f /usr/pacman
     exit 0
+EOF
+
+cat > /mnt/install/etc/profile << "EOF"
+
+    FIRST_BOOT_FILE="/var/log/.firstbooted"
+
+    if [ ! -f "$FIRST_BOOT_FILE" ]; then
+        echo "Welcome! The package manager (brew) wont work until you update it !!\n(brew update)"
+        touch "$FIRST_BOOT_FILE"
+    fi
 EOF
     chmod +x /mnt/install/usr/cydraliteem
     ln -n /mnt/install/usr/cydraliteem /usr/bin/apt

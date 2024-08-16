@@ -446,16 +446,6 @@ chroot /mnt/install /bin/bash << 'EOF'
     mkdir -p /home/${username}/.cache/Homebrew/api
     mkdir -p /root/.cache/Homebrew/api
     sleep 10
-    
-
-    test -d ~/.linuxbrew && eval "$(~/.linuxbrew/bin/brew shellenv)"
-    test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-    echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> ~/.bashrc
-
-    test -d /home/${username}/.linuxbrew && eval "$(/home/${username}/.linuxbrew/bin/brew shellenv)"
-    test -d /home/linuxbrew/.linuxbrew && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-    echo "eval \"\$($(brew --prefix)/bin/brew shellenv)\"" >> /home/${username}/.bashrc
-    
     exit
 EOF
     rm -f /mnt/install/etc/profile
@@ -472,7 +462,7 @@ EOF
     mv /root/sys/umask /mnt/install/etc/profile.d/umask.sh
     mv /root/sys/bashrc /mnt/install/etc/bashrc.sh
     rm -rf /mnt/install/sources/*
-    echo "export PATH=/usr/bin:/usr/local/bin:/usr/sbin:/usr/local/sbin" >> /mnt/install/etc/profile
+    echo "export PATH=/usr/bin:/usr/local/bin:/usr/sbin:/usr/local/sbin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin" >> /mnt/install/etc/profile
     echo "sudo dmesg -n 3" >> /mnt/install/etc/profile
 }
 

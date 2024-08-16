@@ -183,7 +183,7 @@ function DISK_INSTALL {
 
 function PACKAGE_MANAGER {
    PKG_MANAGER=0
-   if dialog --yesno "Install a pacage manager?" 25 85 --stdout; then
+   if dialog --yesno "Install a package manager?" 25 85 --stdout; then
           PKG_MANAGER=1
    fi
 }

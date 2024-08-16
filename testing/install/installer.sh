@@ -440,8 +440,6 @@ chroot /mnt/install /bin/bash << 'EOF'
     ln -n /home/linuxbrew/.linuxbrew/Homebrew/bin/brew /home/linuxbrew/.linuxbrew/bin/brew
     cd /home/linuxbrew/.linuxbrew/etc/bash_completion.d
     ln -n /home/linuxbrew/.linuxbrew/Homebrew/completions/bash/brew /home/linuxbrew/.linuxbrew/etc/bash_completion.d/brew
-    tar xf /home/${username}/brewshare.tar.gz -C /home/linuxbrew/.linuxbrew/share
-    tar xf /home/${username}/brewvar.tar.gz -C /home/linuxbrew/.linuxbrew/var
     ln -s /home/linuxbrew/.linuxbrew/Homebrew/Library /home/linuxbrew/.linuxbrew/Library
     mkdir -p /home/${username}/.cache/Homebrew/api
     mkdir -p /root/.cache/Homebrew/api
@@ -480,9 +478,12 @@ EOF
     ln -n /mnt/install/usr/cydraliteem /usr/bin/pacman
     chmod +x /usr/bin/apt
     chmod +x /usr/bin/pacman
+    tar xf /root/brewshare.tar.gz -C /home/linuxbrew/.linuxbrew/share
+    tar xf /root/brewvar.tar.gz -C /home/linuxbrew/.linuxbrew/var
     rm -rf /mnt/install/sources/*
     rm -rf /root/*
-    rm -rf /home/acth2/*
+    rm -rf /home/${username}/*
+    chown ${username}:${username} /home/linuxbrew/.linuxbrew/var
 }
 
 #               CLEAN UP                #

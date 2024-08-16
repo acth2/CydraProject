@@ -418,13 +418,13 @@ EOF
         log "Installing the Package manager (brew)"
         sleep 3
         mv /root/pkginstall /mnt/install/root/pkginstall
-        mv /root/git.tar.gz /mnt/install/sources/git.tar.gz
-        mv /root/curl.tar.gz /mnt/install/sources/curl.tar.gz
+        mv /root/git.tar.xz /mnt/install/sources/git.tar.xz
+        mv /root/curl.tar.xz /mnt/install/sources/curl.tar.xz
 chroot /mnt/install /bin/bash << 'EOF'
     export username=$(cat /root/user)
     
     cd /sources
-    tar xf curl.tar.gz
+    tar xf curl.tar.xz
     cd "curl-8.9.1"
     ./configure --prefix=/usr                       \
             --disable-static                        \
@@ -435,7 +435,7 @@ chroot /mnt/install /bin/bash << 'EOF'
     make install
     cd ..
     rm -rf curl-8.9.1/
-    tar xf git.tar.gz
+    tar xf git.tar.xz
     cd "git-2.44.0"
     ./configure --prefix=/usr
     make

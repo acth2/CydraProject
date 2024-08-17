@@ -11,8 +11,6 @@ RESET_COLOR="\e[0m"
 IS_BIOS=3
 IS_EFI=1
 SWAPUSED=0
-CORRECTDISK=0
-OLD_PASSWORD=""
 WIRELESS=0
 SYSKERNEL_VER="5.19.2"
 
@@ -324,6 +322,7 @@ chroot /mnt/install /bin/bash << 'EOF'
 EOF
     log "Installing importants packages in the system.."
     mv /root/sudo.tar.gz /mnt/install/sources/sudo.tar.gz
+    mv /root/brew.tar.gz /mnt/install/sources/brew.tar.gz
     sleep 2
 chroot /mnt/install /bin/bash << 'EOF'
     cd /sources
@@ -389,10 +388,37 @@ chroot /mnt/install /bin/bash << 'EOF'
     touch "/etc/sudoers.d/${username}"
     echo "${username} ALL=(ALL) NOPASSWD:ALL" >> "/etc/sudoers.d/${username}"
     echo "${username} ALL=(ALL) NOPASSWD:ALL" >> "/etc/sudoers"
-
-    rm -f /root/user
+    
     rm -f /root/userpass
+    exit
+EOF
 
+    mv /root/curl.tar.xz /mnt/install/sources/curl.tar.xz
+    mv /root/git.tar.xz /mnt/install/sources/git.tar.xz
+    mv /root/brewcontent.tar.gz /mnt/install/sources/brewcontent.tar.gz
+
+chroot /mnt/install /bin/bash << 'EOF'
+    export username=$(cat /root/user)
+    
+    cd /sources
+    tar xf curl.tar.xz
+    cd "curl-8.9.1"
+    ./configure --prefix=/usr                       \
+            --disable-static                        \
+            --with-openssl                          \
+            --enable-threaded-resolver              \
+            --with-ca-path=/etc/ssl/certs &&
+    make
+    make install
+    cd ..
+    rm -rf curl-8.9.1/
+    tar xf git.tar.xz
+    cd "git-2.44.0"
+    ./configure --prefix=/usr
+    make
+    make install
+    cd /sources
+    sleep 10
     exit
 EOF
     rm -f /mnt/install/etc/profile
@@ -408,8 +434,66 @@ EOF
     mv /root/sys/readline /mnt/install/etc/profile.d/readline.sh
     mv /root/sys/umask /mnt/install/etc/profile.d/umask.sh
     mv /root/sys/bashrc /mnt/install/etc/bashrc.sh
+    echo "export PATH=/usr/bin:/usr/local/bin:/usr/sbin:/usr/local/sbin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin" >> /mnt/install/etc/profile
+    echo "export PATH=/usr/bin:/usr/local/bin:/usr/sbin:/usr/local/sbin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin" >> /mnt/install/root/.bashrc
+    echo "export PATH=/usr/bin:/usr/local/bin:/usr/sbin:/usr/local/sbin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin" >> /mnt/install/${username}/.bashrc
+    echo "sudo dmesg -n 3" >> /mnt/install/etc/profile
+cat > /mnt/install/usr/cydraliteem << "EOF"
+    #!/bin/bash
+
+    ORANGE='\033[0;33m'
+    NC='\033[0m'
+    
+    echo -e "${ORANGE}The cydralite package manager is brew!${NC}"
+    sudo rm -f /usr/bin/apt
+    sudo rm -f /usr/bin/pacman
+    sudo rm -f /usr/cydraliteem
+    exit 0
+EOF
+
+cat > /mnt/install/usr/bin/firstbootmsg << "EOF"
+#!/bin/bash
+FIRST_BOOT_FILE="/var/log/.firstbooted"
+if [ ! -f "$FIRST_BOOT_FILE" ]; then
+    echo "Welcome! The package manager (brew) wont work until you update it !!"
+    sudo touch "$FIRST_BOOT_FILE"
+fi
+EOF
+
+    echo "" >> /mnt/install/etc/profile
+    echo "sudo bash /usr/bin/firstbootmsg" >> /mnt/install/etc/profile
+    chmod +x /mnt/install/usr/cydraliteem
+    ln -n /mnt/install/usr/cydraliteem /mnt/install/usr/bin/apt
+    ln -n /mnt/install/usr/cydraliteem /mnt/install/usr/bin/pacman
+    chmod +x /usr/bin/apt
+    chmod +x /usr/bin/pacman
+cat > /mnt/install/usr/bin/brew << "EOF"
+#!/bin/bash
+wget -q --spider http://google.com
+if [ $? -eq 0 ]; then
+    (
+    echo ""
+    ) | brewexec
+    /usr/bin/brewupdate
+    sudo rm -f /usr/bin/brew
+    sudo rm -f /usr/bin/brewupdate
+    sudo rm -f /usr/bin/brewexec
+    echo "Logoff to apply changes.."
+    exit 0
+else
+    echo "Cant process, your computer does not have network!"
+    exit 1
+fi
+EOF
+    cp -r /root/brew /mnt/install/usr/bin/brewexec
+    cp -r /root/brewupdate /mnt/install/usr/bin/brewupdate
+    chmod +rwx /mnt/install/usr/bin/brew
+    chmod +rwx /mnt/install/usr/bin/brewexec
+    chmod +rwx /mnt/install/usr/bin/brewupdate
     rm -rf /mnt/install/sources/*
-    sleep 3
+    rm -rf /root/*
+    rm -rf /home/${username}/*
+    chown ${username}:${username} /home/linuxbrew/.linuxbrew/var
 }
 
 #               CLEAN UP                #
@@ -438,25 +522,11 @@ function main {
 
                 if [[ -z "${password}" || -z "${username}" || -z "${machine_name}" || -z "${chosen_partition}" ]]; then
                         err  "$@"
-                        unset "IS_EFI"
-                        unset "SWAPUSED"
-                        unset "CORRECTDISK"
-                        unset "OLD_PASSWORD"
-                        unset "partition_list"
-                        unset "WIRELESS"
-                        unset "AVAILIBLE_LANGUAGES"
-                        /usr/bin/install
+                        exit 1
                 elif [[ ${WIRELESS} = 1 ]]; then
                      if [[ -z "${network_name}" || -z "${network_password}" ]]; then
                              err  "$@"
-                             unset "IS_EFI"
-                             unset "SWAPUSED"
-                             unset "CORRECTDISK"
-                             unset "OLD_PASSWORD"
-                             unset "partition_list"
-                             unset "WIRELESS"
-                             unset "AVAILIBLE_LANGUAGES"
-                             /usr/bin/install
+                             reboot
                      fi
                 else
                         log "installation on '${chosen_partition}'"
@@ -479,18 +549,7 @@ function main {
                                   clear
                                   halt
                              else
-                                  log "Cleaning the vars.."
-                                  sleep 1
-                                  unset "IS_EFI"
-                                  unset "SWAPUSED"
-                                  unset "CORRECTDISK"
-                                  unset "OLD_PASSWORD"
-                                  unset "partition_list"
-                                  unset "WIRELESS"
-                                  unset "AVAILIBLE_LANGUAGES"
-                                  log "vars cleaned, restarting installation.."
-                                  sleep 2
-                                  /usr/bin/install
+                                  reboot
                              fi
                         fi
                         exit 0

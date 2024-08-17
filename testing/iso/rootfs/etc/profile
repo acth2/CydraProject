@@ -25,6 +25,7 @@ sleep 3
 /usr/bin/installer
 clear
 echo "You can remove the cydralite installation guide from your computer and reboot!"
+echo "--> Press ENTER to Reboot"
 read nerd
 trap 2
 reboot

@@ -8,12 +8,10 @@ RESET_COLOR="\e[0m"
 
 #                       VARS                    #
 
-PKG_MANAGER=0
 IS_BIOS=3
 IS_EFI=1
 SWAPUSED=0
 CORRECTDISK=0
-OLD_PASSWORD=""
 WIRELESS=0
 SYSKERNEL_VER="5.19.2"
 
@@ -524,25 +522,11 @@ function main {
 
                 if [[ -z "${password}" || -z "${username}" || -z "${machine_name}" || -z "${chosen_partition}" ]]; then
                         err  "$@"
-                        unset "IS_EFI"
-                        unset "SWAPUSED"
-                        unset "CORRECTDISK"
-                        unset "OLD_PASSWORD"
-                        unset "partition_list"
-                        unset "WIRELESS"
-                        unset "AVAILIBLE_LANGUAGES"
-                        /usr/bin/install
+                        exit 1
                 elif [[ ${WIRELESS} = 1 ]]; then
                      if [[ -z "${network_name}" || -z "${network_password}" ]]; then
                              err  "$@"
-                             unset "IS_EFI"
-                             unset "SWAPUSED"
-                             unset "CORRECTDISK"
-                             unset "OLD_PASSWORD"
-                             unset "partition_list"
-                             unset "WIRELESS"
-                             unset "AVAILIBLE_LANGUAGES"
-                             /usr/bin/install
+                             reboot
                      fi
                 else
                         log "installation on '${chosen_partition}'"
@@ -565,18 +549,7 @@ function main {
                                   clear
                                   halt
                              else
-                                  log "Cleaning the vars.."
-                                  sleep 1
-                                  unset "IS_EFI"
-                                  unset "SWAPUSED"
-                                  unset "CORRECTDISK"
-                                  unset "OLD_PASSWORD"
-                                  unset "partition_list"
-                                  unset "WIRELESS"
-                                  unset "AVAILIBLE_LANGUAGES"
-                                  log "vars cleaned, restarting installation.."
-                                  sleep 2
-                                  /usr/bin/install
+                                  reboot
                              fi
                         fi
                         exit 0

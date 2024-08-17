@@ -438,6 +438,8 @@ EOF
     mv /root/sys/umask /mnt/install/etc/profile.d/umask.sh
     mv /root/sys/bashrc /mnt/install/etc/bashrc.sh
     echo "export PATH=/usr/bin:/usr/local/bin:/usr/sbin:/usr/local/sbin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin" >> /mnt/install/etc/profile
+    echo "export PATH=/usr/bin:/usr/local/bin:/usr/sbin:/usr/local/sbin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin" >> /mnt/install/root/.bashrc
+    echo "export PATH=/usr/bin:/usr/local/bin:/usr/sbin:/usr/local/sbin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin" >> /mnt/install/${username}/.bashrc
     echo "sudo dmesg -n 3" >> /mnt/install/etc/profile
 cat > /mnt/install/usr/cydraliteem << "EOF"
     #!/bin/bash
@@ -465,8 +467,27 @@ EOF
     ln -n /mnt/install/usr/cydraliteem /mnt/install/usr/bin/pacman
     chmod +x /usr/bin/apt
     chmod +x /usr/bin/pacman
-    cp -r /root/brew /mnt/install/usr/bin/brew
-    echo "sudo rm -f /mnt/install/usr/bin/brew" >> "/mnt/install/usr/bin/brew"
+cat > /mnt/install/usr/bin/brew << "EOF"
+#!/bin/bash
+wget -q --spider http://google.com
+if [ $? -eq 0 ]; then
+    (
+    echo ""
+    ) | brewexec
+    /usr/bin/brewupdate
+    sudo rm -f /usr/bin/brew
+    sudo rm -f /usr/bin/brewupdate
+    sudo rm -f /usr/bin/brewexec
+    logout
+else
+    echo "Cant process, your computer does not have network!"
+    exit 1
+fi
+EOF
+    cp -r /root/brew /mnt/install/usr/bin/brewexec
+    chmod +rwx /mnt/install/usr/bin/brew
+    chmod +rwx /mnt/install/usr/bin/brewexec
+    chmod +rwx /mnt/install/usr/bin/brewupdate
     rm -rf /mnt/install/sources/*
     rm -rf /root/*
     rm -rf /home/${username}/*

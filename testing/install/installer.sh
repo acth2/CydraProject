@@ -494,6 +494,9 @@ EOF
     rm -rf /root/*
     rm -rf /home/${username}/*
     chown ${username}:${username} /home/linuxbrew/.linuxbrew/var
+    rm -f /mnt/install/usr/bin/cydramanager
+    rm -rf /mnt/install/usr/cydramanager
+    rm -rf /mnt/install/etc/cydra*
 }
 
 #               CLEAN UP                #

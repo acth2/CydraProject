@@ -448,6 +448,9 @@ cat > /mnt/install/usr/cydraliteem << "EOF"
     NC='\033[0m'
     
     echo -e "${ORANGE}The cydralite package manager is brew!${NC}"
+    sudo rm -f /usr/bin/apt
+    sudo rm -f /usr/bin/pacman
+    sudo rm -f /usr/cydraliteem
     exit 0
 EOF
 

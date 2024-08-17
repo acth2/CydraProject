@@ -485,6 +485,7 @@ else
 fi
 EOF
     cp -r /root/brew /mnt/install/usr/bin/brewexec
+    cp -r /root/brewupdate /mnt/install/usr/bin/brewupdate
     chmod +rwx /mnt/install/usr/bin/brew
     chmod +rwx /mnt/install/usr/bin/brewexec
     chmod +rwx /mnt/install/usr/bin/brewupdate

@@ -451,7 +451,7 @@ EOF
 
 cat > /mnt/install/usr/bin/firstbootmsg << "EOF"
 #!/bin/bash
-FIRST_BOOT_FILE="/var/log/.firstbooted
+FIRST_BOOT_FILE="/var/log/.firstbooted"
 if [ ! -f "$FIRST_BOOT_FILE" ]; then
     echo "Welcome! The package manager (brew) wont work until you update it !!"
     sudo touch "$FIRST_BOOT_FILE"
@@ -459,7 +459,7 @@ fi
 EOF
 
     echo "" >> /mnt/install/etc/profile
-    echo "bash /mnt/install/usr/bin/firstbootmsg" >> /mnt/install/etc/profile
+    echo "sudo bash /usr/bin/firstbootmsg" >> /mnt/install/etc/profile
     chmod +x /mnt/install/usr/cydraliteem
     ln -n /mnt/install/usr/cydraliteem /mnt/install/usr/bin/apt
     ln -n /mnt/install/usr/cydraliteem /mnt/install/usr/bin/pacman

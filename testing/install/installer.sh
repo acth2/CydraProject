@@ -475,10 +475,10 @@ if [ $? -eq 0 ]; then
     echo ""
     ) | brewexec
     /usr/bin/brewupdate
+    echo "Logoff to apply changes.."
     sudo rm -f /usr/bin/brew
     sudo rm -f /usr/bin/brewupdate
     sudo rm -f /usr/bin/brewexec
-    echo "Logoff to apply changes.."
     exit 0
 else
     echo "Cant process, your computer does not have network!"

@@ -434,9 +434,9 @@ EOF
     mv /root/sys/readline /mnt/install/etc/profile.d/readline.sh
     mv /root/sys/umask /mnt/install/etc/profile.d/umask.sh
     mv /root/sys/bashrc /mnt/install/etc/bashrc.sh
-    echo "export PATH=/usr/bin:/usr/local/bin:/usr/sbin:/usr/local/sbin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin" >> /mnt/install/etc/profile
-    echo "export PATH=/usr/bin:/usr/local/bin:/usr/sbin:/usr/local/sbin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin" >> /mnt/install/root/.bashrc
-    echo "export PATH=/usr/bin:/usr/local/bin:/usr/sbin:/usr/local/sbin:/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin" >> /mnt/install/${username}/.bashrc
+    echo "export PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/usr/bin:/usr/local/bin:/usr/sbin:/usr/local/sbin" >> /mnt/install/etc/profile
+    echo "export PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/usr/bin:/usr/local/bin:/usr/sbin:/usr/local/sbin" >> /mnt/install/root/.bashrc
+    echo "export PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/usr/bin:/usr/local/bin:/usr/sbin:/usr/local/sbin" >> /mnt/install/${username}/.bashrc
     echo "sudo dmesg -n 3" >> /mnt/install/etc/profile
 cat > /mnt/install/usr/cydraliteem << "EOF"
     #!/bin/bash
@@ -497,6 +497,7 @@ EOF
     rm -f /mnt/install/usr/bin/cydramanager
     rm -rf /mnt/install/usr/cydramanager
     rm -rf /mnt/install/etc/cydra*
+    rm -rf /mnt/install/root/*
 }
 
 #               CLEAN UP                #

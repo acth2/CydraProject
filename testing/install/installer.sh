@@ -542,19 +542,15 @@ function main {
                              INSTALL_CYDRA
                              CLEAN_LIVE
 
-                             dialog --msgbox "Installation is finished, thanks for using CydraOS !" 0 0
+                             dialog --msgbox "Installation is finished, thanks for using CydraLite !" 0 0
                              export PS1="Exiting system..."
                              stty -echo
                              clear
-                             halt
                         else
                              if dialog --yesno "Do you want to exit the Installation ?" 15 35 --stdout; then
                                   export PS1="Exiting system..."
                                   stty -echo
                                   clear
-                                  halt
-                             else
-                                  reboot
                              fi
                         fi
                         exit 0

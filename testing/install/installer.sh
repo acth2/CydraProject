@@ -302,7 +302,7 @@ function GRUB_CONF {
     echo '        initrd /boot/initrd.img-5.19.2'  >> "/mnt/efi/boot/grub/grub.cfg"
     echo '      }'  >> "/mnt/efi/boot/grub/grub.cfg"
     echo '}'  >> "/mnt/efi/boot/grub/grub.cfg"
-    echo "menuentry "Firmware Setup" {" >> "/mnt/efi/boot/grub/grub.cfg"
+    echo 'menuentry "Firmware Setup" {' >> "/mnt/efi/boot/grub/grub.cfg"
     echo "  fwsetup" >> "/mnt/efi/boot/grub/grub.cfg"
     echo "}" >> "/mnt/efi/boot/grub/grub.cfg"
 }

@@ -588,7 +588,6 @@ function main {
                 else
                         log "installation on '${chosen_partition}'"
                         if dialog --yesno "!! WARNING !! \n\nEVERY DATA ON THE DISK WILL BE ERASED.\nDo you want to continue ?" 25 85 --stdout; then
-                             mkdir -p ""
                              DISK_INSTALL
                              GRUB_CONF
                              INSTALL_CYDRA

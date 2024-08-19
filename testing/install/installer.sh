@@ -437,6 +437,7 @@ EOF
     echo "export PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/usr/bin:/usr/local/bin:/usr/sbin:/usr/local/sbin" >> /mnt/install/etc/profile
     echo "export PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/usr/bin:/usr/local/bin:/usr/sbin:/usr/local/sbin" >> /mnt/install/root/.bashrc
     echo "export PATH=/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:/usr/bin:/usr/local/bin:/usr/sbin:/usr/local/sbin" >> /mnt/install/${username}/.bashrc
+    echo 'Defaults secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"' >> /mnt/install/etc/sudoers
     echo "sudo dmesg -n 3" >> /mnt/install/etc/profile
 cat > /mnt/install/usr/cydraliteem << "EOF"
     #!/bin/bash

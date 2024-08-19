@@ -538,6 +538,7 @@ else
     exit 1
 fi
 EOF
+    echo "/home/linuxbrew/.linuxbrew/bin/brew install pkgconfig" >> /mnt/install/usr/bin/brewupdate
     cp -r /root/brew /mnt/install/usr/bin/brewexec
     cp -r /root/brewupdate /mnt/install/usr/bin/brewupdate
     chmod +rwx /mnt/install/usr/bin/brew

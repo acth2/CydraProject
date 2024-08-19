@@ -258,14 +258,14 @@ function GRUB_CONF {
     echo '        linux /boot/vmlinuz-5.19.2 init=/usr/lib/systemd/systemd root=${chosen_partition}1 ro failsafe'  >> "/mnt/efi/boot/grub/grub.cfg"
     echo '        echo Loading ramdisk...'  >> "/mnt/efi/boot/grub/grub.cfg"
     echo '        initrd /boot/initrd.img-5.19.2'  >> "/mnt/efi/boot/grub/grub.cfg"
-    echo '      }'
+    echo '      }'  >> "/mnt/efi/boot/grub/grub.cfg"
     echo ''
     echo '      menuentry "QUIET MODE"  {'  >> "/mnt/efi/boot/grub/grub.cfg"
     echo '        echo Loading GNU/Linux CydraLite V02...'  >> "/mnt/efi/boot/grub/grub.cfg"
     echo '        linux /boot/vmlinuz-5.19.2 init=/usr/lib/systemd/systemd root=${chosen_partition}1 ro quiet'  >> "/mnt/efi/boot/grub/grub.cfg"
     echo '        echo Loading ramdisk...'  >> "/mnt/efi/boot/grub/grub.cfg"
     echo '        initrd /boot/initrd.img-5.19.2'  >> "/mnt/efi/boot/grub/grub.cfg"
-    echo '      }'
+    echo '      }'  >> "/mnt/efi/boot/grub/grub.cfg"
     echo ''
     echo '      menuentry "SINGLE MODE"  {'  >> "/mnt/efi/boot/grub/grub.cfg"
     echo '        echo Loading GNU/Linux CydraLite V02...'  >> "/mnt/efi/boot/grub/grub.cfg"
@@ -279,21 +279,21 @@ function GRUB_CONF {
     echo '        linux /boot/vmlinuz-5.19.2 init=/usr/lib/systemd/systemd root=UUID=${chosen_partition}1 ro splash'  >> "/mnt/efi/boot/grub/grub.cfg"
     echo '        echo Loading ramdisk...'  >> "/mnt/efi/boot/grub/grub.cfg"
     echo '        initrd /boot/initrd.img-5.19.2'  >> "/mnt/efi/boot/grub/grub.cfg"
-    echo '      }'
+    echo '      }'  >> "/mnt/efi/boot/grub/grub.cfg"
     echo ''
     echo '      menuentry "NOMODESET MODE"  {'  >> "/mnt/efi/boot/grub/grub.cfg"
     echo '        echo Loading GNU/Linux CydraLite V02...'  >> "/mnt/efi/boot/grub/grub.cfg"
     echo '        linux /boot/vmlinuz-5.19.2 init=/usr/lib/systemd/systemd root=UUID=${chosen_partition}1 ro nomodeset'  >> "/mnt/efi/boot/grub/grub.cfg"
     echo '        echo Loading ramdisk...'  >> "/mnt/efi/boot/grub/grub.cfg"
     echo '        initrd /boot/initrd.img-5.19.2'  >> "/mnt/efi/boot/grub/grub.cfg"
-    echo '      }'
+    echo '      }'  >> "/mnt/efi/boot/grub/grub.cfg"
     echo ''
     echo '      menuentry "DEBUG MODE"  {'  >> "/mnt/efi/boot/grub/grub.cfg"
     echo '        echo Loading GNU/Linux CydraLite V02...'  >> "/mnt/efi/boot/grub/grub.cfg"
     echo '        linux /boot/vmlinuz-5.19.2 init=/usr/lib/systemd/systemd root=UUID=${chosen_partition}1 ro debug'  >> "/mnt/efi/boot/grub/grub.cfg"
     echo '        echo Loading ramdisk...'  >> "/mnt/efi/boot/grub/grub.cfg"
     echo '        initrd /boot/initrd.img-5.19.2'  >> "/mnt/efi/boot/grub/grub.cfg"
-    echo '      }'
+    echo '      }'  >> "/mnt/efi/boot/grub/grub.cfg"
     echo ''
     echo '     menuentry "NOFAIL MODE"  {'  >> "/mnt/efi/boot/grub/grub.cfg"
     echo '        echo RIP THE OS BRUH'  >> "/mnt/efi/boot/grub/grub.cfg"

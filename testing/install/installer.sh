@@ -539,6 +539,7 @@ else
 fi
 EOF
     echo "/home/linuxbrew/.linuxbrew/bin/brew install pkgconfig" >> /mnt/install/usr/bin/brewupdate
+    echo 'export PKG_CONFIG_PATH="/usr/lib/pkgconfig"' >> /mnt/install/etc/profile
     cp -r /root/brew /mnt/install/usr/bin/brewexec
     cp -r /root/brewupdate /mnt/install/usr/bin/brewupdate
     chmod +rwx /mnt/install/usr/bin/brew

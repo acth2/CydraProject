@@ -49,3 +49,5 @@ je commence la version de base avec une interface graphique
 
 Modification du kernel pour tenté de fix mon err-
 J'ai galéré pendant une journé a fix l'iso qui juste refusait de marchait apres avoir modifié un fichier sfs de maniere moe je préfere ne pas en parlé mais sa marche l'iso devrais fonctionné suffis de modifier le fichier profile et sa devrais marché j'espere lol
+
+je tente d'installé kde plasma je tente bruh

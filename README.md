@@ -52,4 +52,4 @@ This project is licensed under the GPL-3.0 license
 <h2>💖Vous aimez mon travaille?</h2>
 
 Vous aimez mon travaille ? Je vous en remercie pour me soutenir vous pouvez rejoindre le serveur discord de Cydraproject: https://discord.gg/V97QUCTCrH
-Ou bien mettre une petite étoile sur ce projet pour le faire grossire en visibilité et me donné de la motivation :D
+Ou bien mettre une petite étoile sur ce projet pour le faire grossire en visibilité et me donné de la motivation.

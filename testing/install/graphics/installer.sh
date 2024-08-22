@@ -605,7 +605,6 @@ if [ $? -eq 0 ]; then
     /home/linuxbrew/.linuxbrew/bin/brew install vim
     /home/linuxbrew/.linuxbrew/bin/brew install MarkupSafe
     /home/linuxbrew/.linuxbrew/bin/brew install Jinja
-    /home/linuxbrew/.linuxbrew/bin/brew install Systemd
     /home/linuxbrew/.linuxbrew/bin/brew install D-Bus
     /home/linuxbrew/.linuxbrew/bin/brew install Man-db
     /home/linuxbrew/.linuxbrew/bin/brew install Procps-ng

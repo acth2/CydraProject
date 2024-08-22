@@ -37,7 +37,6 @@ install_from_source "https://bitmath.org/code/mtdev/mtdev-1.1.6.tar.bz2" "
     make &&
     sudo make install
 "
-read -p "Nerd debug (mtdev)" nerderr
 
 export CFLAGS=""
 install_from_source "https://www.freedesktop.org/software/libevdev/libevdev-1.13.0.tar.xz" "
@@ -47,7 +46,6 @@ install_from_source "https://www.freedesktop.org/software/libevdev/libevdev-1.13
     ninja &&
     sudo ninja install
 "
-read -p "Nerd debug (libevdev)" nerderr
 
 export CFLAGS="-I/home/linuxbrew/.linuxbrew/include $CFLAGS"
 install_from_source "https://www.x.org/pub/individual/driver/xf86-input-evdev-2.10.6.tar.bz2" "
@@ -55,7 +53,6 @@ install_from_source "https://www.x.org/pub/individual/driver/xf86-input-evdev-2.
     make &&
     sudo make install
 "
-read -p "Nerd debug (xf86-input-evdev)" nerderr
 
 install_from_source "https://gitlab.freedesktop.org/libinput/libinput/-/archive/1.21.0/libinput-1.21.0.tar.gz" "
     mkdir build &&
@@ -64,35 +61,30 @@ install_from_source "https://gitlab.freedesktop.org/libinput/libinput/-/archive/
     ninja &&
     sudo ninja install
 "
-read -p "Nerd debug (libinput-1.21.0)" nerderr
 
 install_from_source "https://www.x.org/pub/individual/driver/xf86-input-libinput-1.2.1.tar.xz" "
     ./configure $XORG_CONFIG &&
     make &&
     sudo make install
 "
-read -p "Nerd debug (xf86-input-libinput-1.2.1)" nerderr
 
 install_from_source "https://www.x.org/pub/individual/driver/xf86-input-synaptics-1.9.2.tar.xz" "
     ./configure $XORG_CONFIG &&
     make &&
     sudo make install
 "
-read -p "Nerd debug (xf86-input-synaptics-1.9.2)" nerderr
 
 install_from_source "https://github.com/linuxwacom/xf86-input-wacom/releases/download/xf86-input-wacom-1.1.0/xf86-input-wacom-1.1.0.tar.bz2" "
     ./configure $XORG_CONFIG &&
     make &&
     sudo make install
 "
-read -p "Nerd debug (xf86-input-wacom-1.1.0)" nerderr
 
 install_from_source "https://www.x.org/pub/individual/driver/xf86-video-fbdev-0.5.0.tar.bz2" "
     ./configure $XORG_CONFIG &&
     make &&
     sudo make install
 "
-read -p "Nerd debug (xf86-video-fbdev-0.5.0)" nerderr
 
 GPU_VENDOR=$(lspci | grep -e VGA -e 3D | grep -oP '(AMD|NVIDIA|Intel|VMware)')
 
@@ -106,7 +98,6 @@ case $GPU_VENDOR in
             make &&
             sudo make install
         "
-        read -p "Nerd debug (xf86-video-ati-19.1.0)" nerderr
         ;;
     NVIDIA)
         install_from_source "https://www.x.org/pub/individual/driver/xf86-video-nouveau-1.0.17.tar.bz2" "
@@ -115,7 +106,6 @@ case $GPU_VENDOR in
             make &&
             sudo make install
         "
-        read -p "Nerd debug (xf86-video-nouveau)" nerderr
         ;;
     Intel)
         install_from_source "https://anduin.linuxfromscratch.org/BLFS/xf86-video-intel/xf86-video-intel-20210222.tar.xz" "
@@ -125,7 +115,6 @@ case $GPU_VENDOR in
             mv -v /usr/share/man/man4/intel-virtual-output.4 /usr/share/man/man1/intel-virtual-output.1 &&
             sed -i '/\.TH/s/4/1/' /usr/share/man/man1/intel-virtual-output.1
         "
-        read -p "Nerd debug (xf86-video-intel-20210222)" nerderr
         ;;
     VMware)
         install_from_source "https://www.x.org/pub/individual/driver/xf86-video-vmware-13.3.0.tar.bz2" "
@@ -134,7 +123,6 @@ case $GPU_VENDOR in
             make &&
             sudo make install
         "
-        read -p "Nerd debug (xf86-video-vmware-13.3.0)" nerderr
         ;;
     *)
         echo "Unknown or unsupported GPU vendor. Please install the drivers manually. (The supported drivers are VMware, Intel, NVIDIA, AMD)"

@@ -127,8 +127,20 @@ case $GPU_VENDOR in
         ;;
     *)
         echo "Unknown or unsupported GPU vendor. Please install the drivers manually. (The supported drivers are VMware, Intel, NVIDIA, AMD)"
+        sleep 5
         exit 1
         ;;
 esac
 
-echo "Installation complete!"
+wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/install/graphics/xorg.conf.d/xorg.zip"
+
+sudo rm -rf /etc/X11
+sudo mkdir -p /etc/X11/xorg.conf.d
+sudo "/home/linuxbrew/.linuxbrew/bin/unzip" "xorg.zip" -d "/etc/X11/xorg.conf.d"
+
+sudo rm -rf /home/linuxbrew/.linuxbrew/etc/X11
+sudo mkdir -p /home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d
+sudo "/home/linuxbrew/.linuxbrew/bin/unzip" "xorg.zip" -d "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d"
+
+read -p "Nerd debug (xorg conf)"
+sudo reboot

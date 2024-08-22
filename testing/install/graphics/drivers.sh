@@ -6,8 +6,9 @@ export CFLAGS="-I/home/linuxbrew/.linuxbrew/include $CFLAGS"
 XORG_PREFIX="/home/linuxbrew/.linuxbrew"
 XORG_CONFIG="--prefix=$XORG_PREFIX --sysconfdir=/home/linuxbrew/.linuxbrew/etc --localstatedir=/home/linuxbrew/.linuxbrew/var"
 
-brew install xorg-server
-brew install xcb-util
+/usr/bin/brew
+/home/linuxbrew/.linuxbrew/bin/brew install xorg-server
+/home/linuxbrew/.linuxbrew/bin/brew install xcb-util
 rm -rf /home/linuxbrew/.linuxbrew/etc/X11
 mkdir -p /home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d
 

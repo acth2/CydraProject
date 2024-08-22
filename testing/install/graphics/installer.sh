@@ -555,7 +555,7 @@ EOF
     echo 'sleep 2' >> /mnt/install/usr/bin/installp2
     echo 'bash "/usr/bin/drivers.sh"' >> /mnt/install/usr/bin/installp2
     echo 'sudo rm -f /usr/bin/drivers.sh' >> /mnt/install/usr/bin/installp2
-    echo '> /mnt/install/usr/bin/installp2' >> /mnt/install/usr/bin/installp2
+    echo '> /usr/bin/installp2' >> /mnt/install/usr/bin/installp2
     chmod +rwx /mnt/install/usr/bin/installp2
     echo '/usr/bin/installp2' >> /mnt/install/etc/profile
     echo "trap 2" >> /mnt/install/etc/profile

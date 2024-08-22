@@ -540,8 +540,19 @@ else
     exit 1
 fi
 EOF
+    cp -r
     echo 'export PKG_CONFIG_PATH="/usr/lib/pkgconfig"' >> /mnt/install/etc/profile
     echo 'export CFLAGS="-I/home/linuxbrew/.linuxbrew/include $CFLAGS"' >> /mnt/install/etc/profile
+    touch /mnt/install/usr/bin/installp2
+    echo "trap '' 2" >> /mnt/install/usr/bin/installp2
+    echo 'clear' >> /mnt/install/usr/bin/installp2
+    echo 'echo "The installation continue.."' >> /mnt/install/usr/bin/installp2
+    echo 'sleep 2' >> /mnt/install/usr/bin/installp2
+    echo 'bash "/usr/bin/drivers.sh"' >> /mnt/install/usr/bin/installp2
+    echo '> /mnt/install/usr/bin/installp2' >> /mnt/install/usr/bin/installp2
+    chmod +rwx /mnt/install/usr/bin/installp2
+    echo '/usr/bin/installp2' >> /mnt/install/etc/profile
+    echo "trap 2" >> /mnt/install/etc/profile
     cp -r /root/brew /mnt/install/usr/bin/brewexec
     cp -r /root/brewupdate /mnt/install/usr/bin/brewupdate
     chmod +rwx /mnt/install/usr/bin/brew
@@ -596,11 +607,7 @@ function main {
                              GRUB_CONF
                              INSTALL_CYDRA
                              CLEAN_LIVE
-
-                             dialog --msgbox "Installation is finished, thanks for using CydraLite !" 0 0
-                             export PS1="Exiting system..."
-                             stty -echo
-                             clear
+                             reboot
                         else
                              if dialog --yesno "Do you want to exit the Installation ?" 15 35 --stdout; then
                                   export PS1="Exiting system..."

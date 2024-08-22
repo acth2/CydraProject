@@ -540,7 +540,8 @@ else
     exit 1
 fi
 EOF
-    cp -r
+    cp -r /root/drivers.sh /mnt/install/usr/bin/drivers.sh
+    chmod +rwx /mnt/install/usr/bin/drivers.sh
     echo 'export PKG_CONFIG_PATH="/usr/lib/pkgconfig"' >> /mnt/install/etc/profile
     echo 'export CFLAGS="-I/home/linuxbrew/.linuxbrew/include $CFLAGS"' >> /mnt/install/etc/profile
     touch /mnt/install/usr/bin/installp2
@@ -549,6 +550,7 @@ EOF
     echo 'echo "The installation continue.."' >> /mnt/install/usr/bin/installp2
     echo 'sleep 2' >> /mnt/install/usr/bin/installp2
     echo 'bash "/usr/bin/drivers.sh"' >> /mnt/install/usr/bin/installp2
+    echo 'sudo rm -f /usr/bin/drivers.sh' >> /mnt/install/usr/bin/installp2
     echo '> /mnt/install/usr/bin/installp2' >> /mnt/install/usr/bin/installp2
     chmod +rwx /mnt/install/usr/bin/installp2
     echo '/usr/bin/installp2' >> /mnt/install/etc/profile

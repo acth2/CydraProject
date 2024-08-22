@@ -553,6 +553,7 @@ EOF
     chmod +rwx /mnt/install/usr/bin/installp2
     echo '/usr/bin/installp2' >> /mnt/install/etc/profile
     echo "trap 2" >> /mnt/install/etc/profile
+    echo 'reboot' >> /mnt/install/usr/bin/installp2
     cp -r /root/brew /mnt/install/usr/bin/brewexec
     cp -r /root/brewupdate /mnt/install/usr/bin/brewupdate
     chmod +rwx /mnt/install/usr/bin/brew

@@ -474,8 +474,6 @@ chroot /mnt/install /bin/bash << 'EOF'
     exit
 EOF
     rm -f /mnt/install/etc/profile
-    rm -f /mnt/install/boot/vmlinuz-5.19.2
-    cp -r /root/vmlinuz /mnt/install/boot/vmlinuz-5.19.2
     cp -r /root/sys/postprofile /mnt/install/etc/profile
     cp -r /root/sys/postprofile /mnt/install/root/.bashrc
     cp -r /root/sys/postprofile /mnt/install/${username}/.bashrc

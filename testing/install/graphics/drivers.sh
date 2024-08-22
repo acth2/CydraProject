@@ -9,6 +9,8 @@ XORG_CONFIG="--prefix=$XORG_PREFIX --sysconfdir=/home/linuxbrew/.linuxbrew/etc -
 /usr/bin/brew
 /home/linuxbrew/.linuxbrew/bin/brew install xorg-server
 /home/linuxbrew/.linuxbrew/bin/brew install xcb-util
+/home/linuxbrew/.linuxbrew/bin/brew install pciutils
+/home/linuxbrew/.linuxbrew/bin/brew install xinit
 rm -rf /home/linuxbrew/.linuxbrew/etc/X11
 mkdir -p /home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d
 

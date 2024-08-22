@@ -3,9 +3,10 @@
 export PKG_CONFIG_PATH="/usr/lib/pkgconfig"
 export CFLAGS="-I/home/linuxbrew/.linuxbrew/include $CFLAGS"
 
-XORG_PREFIX="/usr"
-XORG_CONFIG="--prefix=$XORG_PREFIX --sysconfdir=/etc --localstatedir=/var"
+XORG_PREFIX="/home/linuxbrew/.linuxbrew"
+XORG_CONFIG="--prefix=$XORG_PREFIX --sysconfdir=/home/linuxbrew/.linuxbrew/etc --localstatedir=/home/linuxbrew/.linuxbrew/var"
 
+brew install xorg-server
 brew install xcb-util
 
 install_from_source() {

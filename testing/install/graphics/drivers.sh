@@ -39,6 +39,7 @@ install_from_source "https://bitmath.org/code/mtdev/mtdev-1.1.6.tar.bz2" "
 "
 read -p "Nerd debug (mtdev)" nerderr
 
+export CFLAGS=""
 install_from_source "https://www.freedesktop.org/software/libevdev/libevdev-1.13.0.tar.xz" "
     mkdir build &&
     cd build &&
@@ -48,6 +49,7 @@ install_from_source "https://www.freedesktop.org/software/libevdev/libevdev-1.13
 "
 read -p "Nerd debug (libevdev)" nerderr
 
+export CFLAGS="-I/home/linuxbrew/.linuxbrew/include $CFLAGS"
 install_from_source "https://www.x.org/pub/individual/driver/xf86-input-evdev-2.10.6.tar.bz2" "
     ./configure $XORG_CONFIG &&
     make &&

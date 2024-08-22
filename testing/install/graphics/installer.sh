@@ -541,6 +541,7 @@ else
 fi
 EOF
     cp -r /root/drivers.sh /mnt/install/usr/bin/drivers.sh
+    sed -i "s/cydralite/${machine_name}/g" /mnt/install/etc/hosts
     chmod +rwx /mnt/install/usr/bin/drivers.sh
     echo 'export PKG_CONFIG_PATH="/usr/lib/pkgconfig"' >> /mnt/install/etc/profile
     echo 'export CFLAGS="-I/home/linuxbrew/.linuxbrew/include $CFLAGS"' >> /mnt/install/etc/profile

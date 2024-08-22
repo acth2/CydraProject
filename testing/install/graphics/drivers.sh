@@ -8,6 +8,8 @@ XORG_CONFIG="--prefix=$XORG_PREFIX --sysconfdir=/home/linuxbrew/.linuxbrew/etc -
 
 brew install xorg-server
 brew install xcb-util
+rm -rf /home/linuxbrew/.linuxbrew/etc/X11
+mkdir -p /home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d
 
 install_from_source() {
     local url=$1

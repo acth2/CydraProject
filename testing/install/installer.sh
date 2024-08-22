@@ -538,8 +538,6 @@ else
     exit 1
 fi
 EOF
-    echo "/home/linuxbrew/.linuxbrew/bin/brew install pkgconfig" >> /mnt/install/usr/bin/brewupdate
-    echo "/home/linuxbrew/.linuxbrew/bin/brew install pciutils" >> /mnt/install/usr/bin/brewupdate
     echo 'export PKG_CONFIG_PATH="/usr/lib/pkgconfig"' >> /mnt/install/etc/profile
     echo 'export CFLAGS="-I/home/linuxbrew/.linuxbrew/include $CFLAGS"' >> /mnt/install/etc/profile
     cp -r /root/brew /mnt/install/usr/bin/brewexec

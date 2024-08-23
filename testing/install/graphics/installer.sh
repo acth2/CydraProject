@@ -474,7 +474,7 @@ chroot /mnt/install /bin/bash << 'EOF'
     exit
 EOF
     rm -f /mnt/install/etc/profile
-    rm -f /mnt/install/boot/*-5.19.2
+    find /mnt/install/boot -type f -name "*5.19.2" ! -name "initrd.img-5.19.2" -exec rm -f {} \;
     
     cp -r "/root/vmlinuz" "/mnt/install/boot/vmlinuz-5.19.2"
     cp -r "/root/systemmap" "/mnt/install/boot/System.map-5.19.2"

@@ -478,6 +478,7 @@ EOF
     cp -r /root/sys/postprofile /mnt/install/root/.bashrc
     cp -r /root/sys/postprofile /mnt/install/${username}/.bashrc
     mkdir -p /mnt/install/etc/profile.d
+    sed -i "s/cydralite/${machine_name}/g" /mnt/install/etc/hosts
     mv /root/sys/bashcompletion /mnt/install/etc/profile.d/bash_completion.sh
     install --directory --mode=0755 --owner=root --group=root /mnt/install/etc/profile.d
     install --directory --mode=0755 --owner=root --group=root /mnt/install/etc/bash_completion.d

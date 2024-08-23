@@ -447,6 +447,7 @@ EOF
 
     mv /root/curl.tar.xz /mnt/install/sources/curl.tar.xz
     mv /root/git.tar.xz /mnt/install/sources/git.tar.xz
+
 chroot /mnt/install /bin/bash << 'EOF'
     export username=$(cat /root/user)
     
@@ -472,11 +473,15 @@ chroot /mnt/install /bin/bash << 'EOF'
     exit
 EOF
     rm -f /mnt/install/etc/profile
+    find /mnt/install/boot -type f -name "*5.19.2" ! -name "initrd.img-5.19.2" -exec rm -f {} \;
+    
+    cp -r "/root/vmlinuz" "/mnt/install/boot/vmlinuz-5.19.2"
+    cp -r "/root/systemmap" "/mnt/install/boot/System.map-5.19.2"
+    cp -r "/root/configkernel" "/mnt/install/boot/config-5.19.2"
     cp -r /root/sys/postprofile /mnt/install/etc/profile
     cp -r /root/sys/postprofile /mnt/install/root/.bashrc
     cp -r /root/sys/postprofile /mnt/install/${username}/.bashrc
     mkdir -p /mnt/install/etc/profile.d
-    sed -i "s/cydralite/${machine_name}/g" /mnt/install/etc/hosts
     mv /root/sys/bashcompletion /mnt/install/etc/profile.d/bash_completion.sh
     install --directory --mode=0755 --owner=root --group=root /mnt/install/etc/profile.d
     install --directory --mode=0755 --owner=root --group=root /mnt/install/etc/bash_completion.d
@@ -525,25 +530,112 @@ wget -q --spider http://google.com
 if [ $? -eq 0 ]; then
     (
     echo ""
-    ) | brewexec
-    /usr/bin/brewupdate
-    echo "Logoff to apply changes.."
-    sudo rm -f /usr/bin/brew
-    sudo rm -f /usr/bin/brewupdate
-    sudo rm -f /usr/bin/brewexec
+    ) | /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    /home/linuxbrew/.linuxbrew/bin/brew install binutils
+    /home/linuxbrew/.linuxbrew/bin/brew install gcc
+    /home/linuxbrew/.linuxbrew/bin/brew install glibc
+    /home/linuxbrew/.linuxbrew/bin/brew install m4
+    /home/linuxbrew/.linuxbrew/bin/brew install ncurses
+    /home/linuxbrew/.linuxbrew/bin/brew install bash
+    /home/linuxbrew/.linuxbrew/bin/brew install coreutils
+    /home/linuxbrew/.linuxbrew/bin/brew install Diffutils
+    /home/linuxbrew/.linuxbrew/bin/brew install File
+    /home/linuxbrew/.linuxbrew/bin/brew install Findutils
+    /home/linuxbrew/.linuxbrew/bin/brew install Gawk
+    /home/linuxbrew/.linuxbrew/bin/brew install grep
+    /home/linuxbrew/.linuxbrew/bin/brew install gzip
+    /home/linuxbrew/.linuxbrew/bin/brew install make
+    /home/linuxbrew/.linuxbrew/bin/brew install gnu-sed
+    /home/linuxbrew/.linuxbrew/bin/brew install gnu-tar
+    /home/linuxbrew/.linuxbrew/bin/brew install xz
+    /home/linuxbrew/.linuxbrew/bin/brew install gettext
+    /home/linuxbrew/.linuxbrew/bin/brew install bison
+    /home/linuxbrew/.linuxbrew/bin/brew install perl
+    /home/linuxbrew/.linuxbrew/bin/brew install python
+    /home/linuxbrew/.linuxbrew/bin/brew install texinfo
+    /home/linuxbrew/.linuxbrew/bin/brew install man
+    /home/linuxbrew/.linuxbrew/bin/brew install zlib
+    /home/linuxbrew/.linuxbrew/bin/brew install bzip2
+    /home/linuxbrew/.linuxbrew/bin/brew install xz
+    /home/linuxbrew/.linuxbrew/bin/brew install zstd
+    /home/linuxbrew/.linuxbrew/bin/brew install file
+    /home/linuxbrew/.linuxbrew/bin/brew install readline
+    /home/linuxbrew/.linuxbrew/bin/brew install m4
+    /home/linuxbrew/.linuxbrew/bin/brew install bc
+    /home/linuxbrew/.linuxbrew/bin/brew install flex
+    /home/linuxbrew/.linuxbrew/bin/brew install tcl
+    /home/linuxbrew/.linuxbrew/bin/brew install expect
+    /home/linuxbrew/.linuxbrew/bin/brew install dejagnu
+    /home/linuxbrew/.linuxbrew/bin/brew install pkgconf
+    /home/linuxbrew/.linuxbrew/bin/brew install gmp
+    /home/linuxbrew/.linuxbrew/bin/brew install mpfr
+    /home/linuxbrew/.linuxbrew/bin/brew install mpc
+    /home/linuxbrew/.linuxbrew/bin/brew install attr
+    /home/linuxbrew/.linuxbrew/bin/brew install acl
+    /home/linuxbrew/.linuxbrew/bin/brew install libcap
+    /home/linuxbrew/.linuxbrew/bin/brew install libxcrypt
+    /home/linuxbrew/.linuxbrew/bin/brew install shadow
+    /home/linuxbrew/.linuxbrew/bin/brew install psmisc
+    /home/linuxbrew/.linuxbrew/bin/brew install gdbm
+    /home/linuxbrew/.linuxbrew/bin/brew install gperf
+    /home/linuxbrew/.linuxbrew/bin/brew install expat
+    /home/linuxbrew/.linuxbrew/bin/brew install inetutils
+    /home/linuxbrew/.linuxbrew/bin/brew install less
+    /home/linuxbrew/.linuxbrew/bin/brew install Perl
+    /home/linuxbrew/.linuxbrew/bin/brew install XML::Parser
+    /home/linuxbrew/.linuxbrew/bin/brew install Intltool
+    /home/linuxbrew/.linuxbrew/bin/brew install Autoconf
+    /home/linuxbrew/.linuxbrew/bin/brew install Automake
+    /home/linuxbrew/.linuxbrew/bin/brew install OpenSSL
+    /home/linuxbrew/.linuxbrew/bin/brew install Kmod
+    /home/linuxbrew/.linuxbrew/bin/brew install Elfutils
+    /home/linuxbrew/.linuxbrew/bin/brew install Libffi
+    /home/linuxbrew/.linuxbrew/bin/brew install Flit-core
+    /home/linuxbrew/.linuxbrew/bin/brew install Setup-tools
+    /home/linuxbrew/.linuxbrew/bin/brew install Ninja
+    /home/linuxbrew/.linuxbrew/bin/brew install Meson
+    /home/linuxbrew/.linuxbrew/bin/brew install Check
+    /home/linuxbrew/.linuxbrew/bin/brew install Groff
+    /home/linuxbrew/.linuxbrew/bin/brew install Gzip
+    /home/linuxbrew/.linuxbrew/bin/brew install IPRoute
+    /home/linuxbrew/.linuxbrew/bin/brew install Kbd
+    /home/linuxbrew/.linuxbrew/bin/brew install Libpipeline
+    /home/linuxbrew/.linuxbrew/bin/brew install make
+    /home/linuxbrew/.linuxbrew/bin/brew install vim
+    /home/linuxbrew/.linuxbrew/bin/brew install MarkupSafe
+    /home/linuxbrew/.linuxbrew/bin/brew install Jinja
+    /home/linuxbrew/.linuxbrew/bin/brew install D-Bus
+    /home/linuxbrew/.linuxbrew/bin/brew install Man-db
+    /home/linuxbrew/.linuxbrew/bin/brew install Procps-ng
+    /home/linuxbrew/.linuxbrew/bin/brew install Util-linux
+    /home/linuxbrew/.linuxbrew/bin/brew install e2fsprogs
+    /home/linuxbrew/.linuxbrew/bin/brew unlink pkgconf
+    /home/linuxbrew/.linuxbrew/bin/brew install pkgconfig
+    /home/linuxbrew/.linuxbrew/bin/brew install pciutils
     exit 0
 else
     echo "Cant process, your computer does not have network!"
     exit 1
 fi
 EOF
+    chmod +rwx /mnt/install/usr/bin/brew
+    cp -r /root/drivers.sh /mnt/install/usr/bin/drivers.sh
+    sed -i "s/cydralite/${machine_name}/g" /mnt/install/etc/hosts
+    chmod +rwx /mnt/install/usr/bin/drivers.sh
     echo 'export PKG_CONFIG_PATH="/usr/lib/pkgconfig"' >> /mnt/install/etc/profile
     echo 'export CFLAGS="-I/home/linuxbrew/.linuxbrew/include $CFLAGS"' >> /mnt/install/etc/profile
-    cp -r /root/brew /mnt/install/usr/bin/brewexec
-    cp -r /root/brewupdate /mnt/install/usr/bin/brewupdate
-    chmod +rwx /mnt/install/usr/bin/brew
-    chmod +rwx /mnt/install/usr/bin/brewexec
-    chmod +rwx /mnt/install/usr/bin/brewupdate
+    touch /mnt/install/usr/bin/installp2
+    echo "trap '' 2" >> /mnt/install/usr/bin/installp2
+    echo 'clear' >> /mnt/install/usr/bin/installp2
+    echo 'echo "The installation continue.."' >> /mnt/install/usr/bin/installp2
+    echo 'sleep 2' >> /mnt/install/usr/bin/installp2
+    echo 'bash "/usr/bin/drivers.sh"' >> /mnt/install/usr/bin/installp2
+    echo 'sudo rm -f /usr/bin/drivers.sh' >> /mnt/install/usr/bin/installp2
+    echo '> /usr/bin/installp2' >> /mnt/install/usr/bin/installp2
+    chmod +rwx /mnt/install/usr/bin/installp2
+    echo '/usr/bin/installp2' >> /mnt/install/etc/profile
+    echo "trap 2" >> /mnt/install/etc/profile
+    echo 'reboot' >> /mnt/install/usr/bin/installp2
     rm -rf /mnt/install/sources/*
     rm -rf /root/*
     rm -rf /home/${username}/*
@@ -593,11 +685,7 @@ function main {
                              GRUB_CONF
                              INSTALL_CYDRA
                              CLEAN_LIVE
-
-                             dialog --msgbox "Installation is finished, thanks for using CydraLite !" 0 0
-                             export PS1="Exiting system..."
-                             stty -echo
-                             clear
+                             reboot
                         else
                              if dialog --yesno "Do you want to exit the Installation ?" 15 35 --stdout; then
                                   export PS1="Exiting system..."

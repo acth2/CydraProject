@@ -43,28 +43,11 @@ Sudo-1.9.15p5
 Brew
 Je vais stoppé de mettre a jour cette partie car sa va devenir juste riducule de mettre 500 paquets dans un pauvre fichier x)
 
-Le disque dur de mon pc perso a été corrompu, j'ai du donc faire un bon vieux mkfs pour remettre le tout en ordre ce qui ma obligé de donc refaire une installation complete de manjaro linux sa va retardé le développement de l'os d'un jour le temps que je conf virtualbox re mette une sauvegarde que j'avais faite de ma vm contenant l'os ( ouf ) et surtout ! installé firefox je pense bien que c'est l'étape la plus éprouvante a laquel je vais avoir a faire malheureusement ...
-
-FIX /\
-
-Ma VM qui contient l'os n'a pas assez d'espace disque et pour des raisons diverses elle refuse de m'écouté et ne veux pas augmenté son stockage je vais donc me concentré sur l'installeur et le mettre sur une autre vm avec une bonne config et pouvoir continué le dev !
-
-L'installeur avance tres bien ! Le contenu de l'iso sera sur le github a l'exception des font grub et du fichier .sfs de l'os pour des raisons évidentes de places.
-
-Toutes les modifications sur l'iso que j'ai fait depuis 10 jours sont portés sur github
-
-Mon pc est re broken ...
-RE: Je ne sais pas si je vais pouvoir bossé sur l'os aujourd'hui puisse que mon virtualbox ne veux tjr par marché ...
-
-
-L'installeur méttaient des logs d'erreurs tres vites j'ai du donc utilisé obs record l'installation apres reboot grub n'est plus détecté et je boot sur mon bios.. je dois donc utilisé une clé usb pour détecté les fichiers efi et démarré dessus .... oui bien goofy je sais mais quoi qu'il en sois le dev recommence réellement bruh
-
-L'installeur fonctionne en UEFI mais je dois re construire un nouveau .sfs qui contient l'os car celui présent n'a pas vraiment l'air de fonctionné..
-
-RIP mon ordinateur j'en vais marre je l'ai transformé en serveur...
-
-J'ai bientot fini l'installeur mais je me frappe a un mur je trouve pas de solution a mon erreur ..
+La lite est fini
+je commence la version de base avec une interface graphique
 
 
 Modification du kernel pour tenté de fix mon err-
 J'ai galéré pendant une journé a fix l'iso qui juste refusait de marchait apres avoir modifié un fichier sfs de maniere moe je préfere ne pas en parlé mais sa marche l'iso devrais fonctionné suffis de modifier le fichier profile et sa devrais marché j'espere lol
+
+je tente d'installé kde plasma je tente bruh

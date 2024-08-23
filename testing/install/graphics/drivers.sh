@@ -143,6 +143,7 @@ case $GPU_VENDOR in
         sudo find usr/include -type f ! -name '*.h' -delete
         sudo cp -rv usr/include /usr
         sudo ./VBoxLinuxAdditions.run
+        /sbin/rcvboxadd quicksetup all
         ;;
     *)
         echo "Unknown or unsupported GPU vendor. Please install the drivers manually. (The supported drivers are VMware, Intel, NVIDIA, AMD)"

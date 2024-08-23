@@ -132,11 +132,11 @@ case $GPU_VENDOR in
         wget "https://download.virtualbox.org/virtualbox/7.0.10/VBoxGuestAdditions_7.0.10.iso"
         mkdir vbox
         sudo mount -o loop VBoxGuestAdditions_7.0.10.iso vbox/
+        guesthomedir=$(pwd)
         cd vbox
         vboxdriverdir=$(pwd)
-        brew install gnu-which
-        cd /home/linuxbrew/.linuxbrew/Cellar/gnu-which/
-        ln /home/linuxbrew/.linuxbrew/Cellar/gnu-which/$(find . -type d -maxdepth 1 ! -path . | head -n 1)/bin/which /usr/bin/which
+        brew install gnu-which@2.21
+        sudo ln /home/linuxbrew/.linuxbrew/Cellar/gnu-which/2.21/bin/which /usr/bin/which
         cd /sources
         sudo wget https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.19.2.tar.xz
         sudo tar xf "linux-5.19.2.tar.xz"
@@ -148,6 +148,8 @@ case $GPU_VENDOR in
         cd ${vboxdriverdir}
         sudo ./VBoxLinuxAdditions.run
         sudo /sbin/rcvboxadd quicksetup all
+        sudo rm -rf "/sources/*"
+        sudo rm -rf "${guesthomedir}/*"
         ;;
     *)
         echo "Unknown or unsupported GPU vendor. Please install the drivers manually. (The supported drivers are VMware, Intel, NVIDIA, AMD)"

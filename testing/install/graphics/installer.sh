@@ -618,6 +618,7 @@ else
     exit 1
 fi
 EOF
+    chmod +rwx /mnt/install/usr/bin/brew
     cp -r /root/drivers.sh /mnt/install/usr/bin/drivers.sh
     sed -i "s/cydralite/${machine_name}/g" /mnt/install/etc/hosts
     chmod +rwx /mnt/install/usr/bin/drivers.sh

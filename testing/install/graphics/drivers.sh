@@ -133,6 +133,7 @@ case $GPU_VENDOR in
         mkdir vbox
         sudo mount -o loop VBoxGuestAdditions_7.0.10.iso vbox/
         cd vbox
+        vboxdriverdir=$(pwd)
         brew install gnu-which
         cd /home/linuxbrew/.linuxbrew/Cellar/gnu-which/
         ln /home/linuxbrew/.linuxbrew/Cellar/gnu-which/$(find . -type d -maxdepth 1 ! -path . | head -n 1)/bin/which /usr/bin/which
@@ -144,8 +145,9 @@ case $GPU_VENDOR in
         sudo make headers
         sudo find usr/include -type f ! -name '*.h' -delete
         sudo cp -rv usr/include /usr
+        cd ${vboxdriverdir}
         sudo ./VBoxLinuxAdditions.run
-        /sbin/rcvboxadd quicksetup all
+        sudo /sbin/rcvboxadd quicksetup all
         ;;
     *)
         echo "Unknown or unsupported GPU vendor. Please install the drivers manually. (The supported drivers are VMware, Intel, NVIDIA, AMD)"

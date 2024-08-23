@@ -168,6 +168,8 @@ sudo tar xf "/sources/xorg.tar" -C "/etc/X11/xorg.conf.d"
 sudo rm -rf /home/linuxbrew/.linuxbrew/etc/X11
 sudo mkdir -p /home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d
 sudo tar xf "/sources/xorg.tar" -C "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d"*
+sudo mkdir "/var/local/log"
+sudo touch "/var/local/log/Xorg.0.log"
 
 sudo rm -f /usr/bin/brew
 read -p "Nerd debug (xorg conf)"

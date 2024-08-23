@@ -88,7 +88,7 @@ install_from_source "https://www.x.org/pub/individual/driver/xf86-video-fbdev-0.
     sudo make install
 "
 
-GPU_VENDOR=$(lspci | grep -e VGA -e 3D | grep -oP '(AMD|NVIDIA|Intel|VMware)')
+GPU_VENDOR=$(lspci | grep -e VGA -e 3D | grep -oP '(AMD|NVIDIA|Intel|VMware|VirtualBox)')
 
 echo "Detected GPU Vendor: $GPU_VENDOR"
 sleep 2
@@ -125,6 +125,16 @@ case $GPU_VENDOR in
             make &&
             sudo make install
         "
+        ;;
+    VirtualBox)
+        wget "https://download.virtualbox.org/virtualbox/7.0.10/VBoxGuestAdditions_7.0.10.iso"
+        mkdir vbox
+        sudo mount -o loop VBoxGuestAdditions_7.0.10.iso vbox/
+        cd vbox
+        brew install gnu-which
+        cd /home/linuxbrew/.linuxbrew/Cellar/gnu-which/
+        ln /home/linuxbrew/.linuxbrew/Cellar/gnu-which/$(find . -type d -maxdepth 1 ! -path . | head -n 1)/bin/which /usr/bin/which
+        sudo ./VBoxLinuxAdditions.run
         ;;
     *)
         echo "Unknown or unsupported GPU vendor. Please install the drivers manually. (The supported drivers are VMware, Intel, NVIDIA, AMD)"

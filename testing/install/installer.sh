@@ -447,8 +447,6 @@ EOF
 
     mv /root/curl.tar.xz /mnt/install/sources/curl.tar.xz
     mv /root/git.tar.xz /mnt/install/sources/git.tar.xz
-    mv /root/brewcontent.tar.gz /mnt/install/sources/brewcontent.tar.gz
-
 chroot /mnt/install /bin/bash << 'EOF'
     export username=$(cat /root/user)
     

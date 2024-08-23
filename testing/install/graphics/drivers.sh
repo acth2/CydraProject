@@ -31,13 +31,13 @@ install_from_source() {
 
     cd ..
     rm -rf $archive_name $dir_name
+    read -p 'Did you just called me a nerd, geek?' nerd
 }
 
 install_from_source "https://bitmath.org/code/mtdev/mtdev-1.1.6.tar.bz2" "
     ./configure --prefix=/usr --disable-static &&
     make &&
     sudo make install
-    read -p 'Did you just called me a nerd, geek?' nerd
 "
 
 export CFLAGS=""

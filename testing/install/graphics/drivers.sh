@@ -134,6 +134,14 @@ case $GPU_VENDOR in
         brew install gnu-which
         cd /home/linuxbrew/.linuxbrew/Cellar/gnu-which/
         ln /home/linuxbrew/.linuxbrew/Cellar/gnu-which/$(find . -type d -maxdepth 1 ! -path . | head -n 1)/bin/which /usr/bin/which
+        cd /sources
+        sudo wget https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.19.2.tar.xz
+        sudo tar xf "linux-5.19.2.tar.xz"
+        cd "linux-5.19.2"
+        sudo make mrproper
+        sudo make headers
+        sudo find usr/include -type f ! -name '*.h' -delete
+        sudo cp -rv usr/include /usr
         sudo ./VBoxLinuxAdditions.run
         ;;
     *)

@@ -163,11 +163,11 @@ sudo wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/ins
 
 sudo rm -rf /etc/X11
 sudo mkdir -p /etc/X11/xorg.conf.d
-sudo tar "/sources/xorg.tar" -C "/etc/X11/xorg.conf.d"
+sudo tar xf "/sources/xorg.tar" -C "/etc/X11/xorg.conf.d"
 
 sudo rm -rf /home/linuxbrew/.linuxbrew/etc/X11
 sudo mkdir -p /home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d
-sudo tar "/sources/xorg.tar" -C "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d"*
+sudo tar xf "/sources/xorg.tar" -C "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d"*
 
 sudo rm -f /usr/bin/brew
 read -p "Nerd debug (xorg conf)"

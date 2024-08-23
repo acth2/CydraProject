@@ -11,8 +11,6 @@ XORG_CONFIG="--prefix=$XORG_PREFIX --sysconfdir=/home/linuxbrew/.linuxbrew/etc -
 /home/linuxbrew/.linuxbrew/bin/brew install xcb-util
 /home/linuxbrew/.linuxbrew/bin/brew install pciutils
 /home/linuxbrew/.linuxbrew/bin/brew install xinit
-rm -rf /home/linuxbrew/.linuxbrew/etc/X11
-mkdir -p /home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d
 
 install_from_source() {
     local url=$1
@@ -39,6 +37,7 @@ install_from_source "https://bitmath.org/code/mtdev/mtdev-1.1.6.tar.bz2" "
     ./configure --prefix=/usr --disable-static &&
     make &&
     sudo make install
+    read -p 'Did you just called me a nerd, geek?' nerd
 "
 
 export CFLAGS=""

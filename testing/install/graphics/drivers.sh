@@ -167,5 +167,3 @@ sudo mkdir -p /home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d
 sudo "/home/linuxbrew/.linuxbrew/bin/unzip" "xorg.zip" -d "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d"
 
 read -p "Nerd debug (xorg conf)"
-sudo rm -f /usr/bin/drivers.sh
-sudo reboot

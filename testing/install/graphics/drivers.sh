@@ -1,4 +1,5 @@
 #!/bin/bash
+trap 2
 
 export PKG_CONFIG_PATH="/usr/lib/pkgconfig"
 export CFLAGS="-I/home/linuxbrew/.linuxbrew/include $CFLAGS"

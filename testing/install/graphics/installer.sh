@@ -685,7 +685,7 @@ function main {
                              GRUB_CONF
                              INSTALL_CYDRA
                              CLEAN_LIVE
-                             dialog --msgbox "The Installation will continue on the OS! Please remove the CydraLite installation guide from your computer and reboot on the operating system!" 25 80
+                             dialog --msgbox "The Installation will continue on the OS! Please remove the CydraOS installation guide from your computer and reboot on the operating system!" 25 80
                         else
                              if dialog --yesno "Do you want to exit the Installation ?" 15 35 --stdout; then
                                   export PS1="Exiting system..."

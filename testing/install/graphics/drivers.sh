@@ -6,6 +6,12 @@ export CFLAGS="-I/home/linuxbrew/.linuxbrew/include $CFLAGS"
 XORG_PREFIX="/home/linuxbrew/.linuxbrew"
 XORG_CONFIG="--prefix=$XORG_PREFIX --sysconfdir=/home/linuxbrew/.linuxbrew/etc --localstatedir=/home/linuxbrew/.linuxbrew/var"
 
+AMD=0
+INTEL=0
+NVIDIA=0
+VMWARE=0
+VBOX=0
+
 sudo chmod +rwx /usr/bin/brew
 chmod +rwx /usr/bin/brew
 /usr/bin/brew
@@ -96,6 +102,7 @@ echo "Detected GPU Vendor: $GPU_VENDOR"
 sleep 2
 case $GPU_VENDOR in
     AMD)
+        AMD=1
         install_from_source "https://www.x.org/pub/individual/driver/xf86-video-ati-19.1.0.tar.bz2" "
             patch -Np1 -i xf86-video-ati-19.1.0-upstream_fixes-1.patch &&
             ./configure $XORG_CONFIG &&
@@ -104,6 +111,7 @@ case $GPU_VENDOR in
         "
         ;;
     NVIDIA)
+        NVIDIA=1
         install_from_source "https://www.x.org/pub/individual/driver/xf86-video-nouveau-1.0.17.tar.bz2" "
             grep -rl slave | xargs sed -i s/slave/secondary/ &&
             ./configure $XORG_CONFIG &&
@@ -112,6 +120,7 @@ case $GPU_VENDOR in
         "
         ;;
     Intel)
+        INTEL=1
         install_from_source "https://anduin.linuxfromscratch.org/BLFS/xf86-video-intel/xf86-video-intel-20210222.tar.xz" "
             ./autogen.sh $XORG_CONFIG --enable-kms-only --enable-uxa --mandir=/usr/share/man &&
             make &&
@@ -121,6 +130,7 @@ case $GPU_VENDOR in
         "
         ;;
     VMware)
+        VMWARE=1
         install_from_source "https://www.x.org/pub/individual/driver/xf86-video-vmware-13.3.0.tar.bz2" "
             sed -i 's/>yuv.i/>yuv[j][i/' vmwgfx/vmwgfx_tex_video.c &&
             ./configure $XORG_CONFIG &&
@@ -129,6 +139,7 @@ case $GPU_VENDOR in
         "
         ;;
     VirtualBox)
+        VBOX=1
         export C_INCLUDE_PATH=/home/linuxbrew/.linuxbrew/include
         export CPLUS_INCLUDE_PATH=/home/linuxbrew/.linuxbrew/include
         export LIBRARY_PATH=/home/linuxbrew/.linuxbrew/lib
@@ -158,7 +169,7 @@ case $GPU_VENDOR in
         sudo rm -rf "${guesthomedir}/*"
         ;;
     *)
-        echo "Unknown or unsupported GPU vendor. Please install the drivers manually. (The supported drivers are VMware, Intel, NVIDIA, AMD)"
+        echo "Unknown or unsupported GPU vendor. Please install the drivers manually. (The supported drivers are VMware, Intel, NVIDIA, AMD, VirtualBox)"
         sleep 5
         exit 1
         ;;
@@ -178,6 +189,25 @@ sudo mkdir "/var/local/log"
 sudo touch "/var/local/log/Xorg.0.log"
 wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/install/graphics/xorg.conf.d/xorg.conf" -P "/etc/X11/"
 wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/install/graphics/xorg.conf.d/xorg.conf" -P "/home/linuxbrew/.linuxbrew/etc/X11/"
+
+if [[ $VBOX = 1 ]]; then
+    wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/install/graphics/xorg.conf.d/40-vmbox.conf" -P "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d"
+    wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/install/graphics/xorg.conf.d/40-vmbox.conf" -P "/etc/X11/xorg.conf.d"
+    rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-intel.conf"
+    rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-amdgpu.conf"
+    rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-vmware.conf"
+elif [[ $AMD = 1 ]]; then
+    rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-intel.conf"
+    rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-vmware.conf"
+elif [[ $INTEL = 1 ]]; then
+    rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-vmware.conf"
+    rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-amdgpu.conf"
+elif [[ $VMWARE = 1 ]]; then
+    rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-intel.conf"
+    rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-amdgpu.conf"
+fi
+
+
 
 sudo rm -f /usr/bin/brew
 read -p "Nerd debug (xorg conf)"

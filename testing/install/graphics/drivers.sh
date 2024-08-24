@@ -129,6 +129,11 @@ case $GPU_VENDOR in
         "
         ;;
     VirtualBox)
+        export C_INCLUDE_PATH=/home/linuxbrew/.linuxbrew/include
+        export CPLUS_INCLUDE_PATH=/home/linuxbrew/.linuxbrew/include
+        export LIBRARY_PATH=/home/linuxbrew/.linuxbrew/lib
+        export CFLAGS="-I/home/linuxbrew/.linuxbrew/include $CFLAGS"
+        export KERN_DIR=/home/linuxbrew/.linuxbrew/include
         wget "https://download.virtualbox.org/virtualbox/7.0.10/VBoxGuestAdditions_7.0.10.iso"
         mkdir vbox
         sudo mount -o loop VBoxGuestAdditions_7.0.10.iso vbox/
@@ -148,6 +153,7 @@ case $GPU_VENDOR in
         cd ${vboxdriverdir}
         sudo ./VBoxLinuxAdditions.run
         sudo /sbin/rcvboxadd quicksetup all
+        read nerd
         sudo rm -rf "/sources/*"
         sudo rm -rf "${guesthomedir}/*"
         ;;

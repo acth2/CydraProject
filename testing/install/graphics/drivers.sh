@@ -156,7 +156,7 @@ case $GPU_VENDOR in
         cd "/home/linuxbrew/.linuxbrew/Cellar/gnu-which/"
         whichdir=$(pwd)
         cd $guesthomedir
-        sudo ln /home/linuxbrew/.linuxbrew/Cellar/gnu-which/${which_dir}/bin/which /usr/bin/which
+        sudo ln /home/linuxbrew/.linuxbrew/Cellar/gnu-which/${whichdir}/bin/which /usr/bin/which
         cd /sources
         sudo wget https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.19.2.tar.xz
         sudo tar xf "linux-5.19.2.tar.xz"

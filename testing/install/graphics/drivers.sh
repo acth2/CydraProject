@@ -152,8 +152,11 @@ case $GPU_VENDOR in
         guesthomedir=$(pwd)
         cd vbox
         vboxdriverdir=$(pwd)
-        brew install gnu-which@2.21
-        sudo ln /home/linuxbrew/.linuxbrew/Cellar/gnu-which/2.21/bin/which /usr/bin/which
+        brew install gnu-which
+        cd "/home/linuxbrew/.linuxbrew/Cellar/gnu-which/"
+        whichdir=$(pwd)
+        cd $guesthomedir
+        sudo ln /home/linuxbrew/.linuxbrew/Cellar/gnu-which/${which_dir}/bin/which /usr/bin/which
         cd /sources
         sudo wget https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.19.2.tar.xz
         sudo tar xf "linux-5.19.2.tar.xz"

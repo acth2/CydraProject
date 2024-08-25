@@ -141,36 +141,12 @@ case $GPU_VENDOR in
         ;;
     VirtualBox)
         VBOX=1
-        export C_INCLUDE_PATH=/home/linuxbrew/.linuxbrew/include
-        export CPLUS_INCLUDE_PATH=/home/linuxbrew/.linuxbrew/include
-        export LIBRARY_PATH=/home/linuxbrew/.linuxbrew/lib
-        export CFLAGS="-I/home/linuxbrew/.linuxbrew/include $CFLAGS"
-        export KERN_DIR=/home/linuxbrew/.linuxbrew/include
-        wget "https://download.virtualbox.org/virtualbox/7.0.10/VBoxGuestAdditions_7.0.10.iso"
-        mkdir vbox
-        sudo mount -o loop VBoxGuestAdditions_7.0.10.iso vbox/
-        guesthomedir=$(pwd)
-        cd vbox
-        vboxdriverdir=$(pwd)
-        brew install gnu-which
-        cd "/home/linuxbrew/.linuxbrew/Cellar/gnu-which/"
-        whichdir=$(pwd)
-        cd $guesthomedir
-        sudo ln /home/linuxbrew/.linuxbrew/Cellar/gnu-which/${whichdir}/bin/which /usr/bin/which
-        cd /sources
-        sudo wget https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.19.2.tar.xz
-        sudo tar xf "linux-5.19.2.tar.xz"
-        cd "linux-5.19.2"
-        sudo make mrproper
-        sudo make headers
-        sudo find usr/include -type f ! -name '*.h' -delete
-        sudo cp -rv usr/include /usr
-        cd ${vboxdriverdir}
-        sudo ./VBoxLinuxAdditions.run
-        sudo /sbin/rcvboxadd quicksetup all
-        read nerd
-        sudo rm -rf "/sources/*"
-        sudo rm -rf "${guesthomedir}/*"
+        install_from_source "http://xorg.freedesktop.org/archive/individual/driver/xf86-video-vesa-2.3.3.tar.bz2" "
+            sed -i 's/>yuv.i/>yuv[j][i/' vmwgfx/vmwgfx_tex_video.c &&
+            ./configure $XORG_CONFIG &&
+            make &&
+            sudo make install
+        "
         ;;
     *)
         echo "Unknown or unsupported GPU vendor. Please install the drivers manually. (The supported drivers are VMware, Intel, NVIDIA, AMD, VirtualBox)"
@@ -193,13 +169,13 @@ sudo mkdir "/var/local/log"
 sudo touch "/var/local/log/Xorg.0.log"
 wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/install/graphics/xorg.conf.d/xorg.conf" -P "/etc/X11/"
 wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/install/graphics/xorg.conf.d/xorg.conf" -P "/home/linuxbrew/.linuxbrew/etc/X11/"
+wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/install/graphics/xorg.conf.d/40-vesa.conf" -P "/etc/X11/"
+wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/install/graphics/xorg.conf.d/40-vesa.conf" -P "/home/linuxbrew/.linuxbrew/etc/X11/"
 
 if [[ $VBOX = 1 ]]; then
-    wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/install/graphics/xorg.conf.d/40-vmbox.conf" -P "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d"
-    wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/install/graphics/xorg.conf.d/40-vmbox.conf" -P "/etc/X11/xorg.conf.d"
     rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-intel.conf"
-    rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-amdgpu.conf"
     rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-vmware.conf"
+    rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-amdgpu.conf"
 elif [[ $AMD = 1 ]]; then
     rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-intel.conf"
     rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-vmware.conf"

@@ -594,7 +594,7 @@ function main {
                              INSTALL_CYDRA
                              CLEAN_LIVE
 
-                             dialog --msgbox "Installation is finished, thanks for using CydraLite !" 0 0
+                             dialog --msgbox "The Installation is finished, thanks for using CydraLite !" 0 0
                              export PS1="Exiting system..."
                              stty -echo
                              clear

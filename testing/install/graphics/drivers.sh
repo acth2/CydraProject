@@ -148,11 +148,6 @@ case $GPU_VENDOR in
         ;;
     VirtualBox)
         VBOX=1
-        install_from_source "http://xorg.freedesktop.org/archive/individual/driver/xf86-video-vesa-2.3.3.tar.bz2" "
-            ./configure $XORG_CONFIG &&
-            make &&
-            sudo make install
-        "
         ;;
     *)
         echo "Unknown or unsupported GPU vendor. Please install the drivers manually. (The supported drivers are VMware, Intel, NVIDIA, AMD, VirtualBox)"
@@ -160,6 +155,12 @@ case $GPU_VENDOR in
         exit 1
         ;;
 esac
+
+install_from_source "http://xorg.freedesktop.org/archive/individual/driver/xf86-video-vesa-2.3.3.tar.bz2" "
+        ./configure $XORG_CONFIG &&
+        make &&
+        sudo make install
+    "
 
 cd /sources
 sudo wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/install/graphics/xorg.conf.d/xorg.tar"

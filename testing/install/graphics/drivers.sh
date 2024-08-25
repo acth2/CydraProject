@@ -138,11 +138,17 @@ case $GPU_VENDOR in
             make &&
             sudo make install
         "
+        
+        install_from_source "http://xorg.freedesktop.org/archive/individual/driver/xf86-video-vmware-13.0.2.tar.bz2" "
+            sed -i "/xf86xv.h/i #include <xorg-server.h>" vmwgfx/vmwgfx_overlay.c
+            ./configure $XORG_CONFIG &&
+            make &&
+            sudo make install
+        "
         ;;
     VirtualBox)
         VBOX=1
         install_from_source "http://xorg.freedesktop.org/archive/individual/driver/xf86-video-vesa-2.3.3.tar.bz2" "
-            sed -i 's/>yuv.i/>yuv[j][i/' vmwgfx/vmwgfx_tex_video.c &&
             ./configure $XORG_CONFIG &&
             make &&
             sudo make install

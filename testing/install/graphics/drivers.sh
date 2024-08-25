@@ -181,17 +181,23 @@ if [[ $VBOX = 1 ]]; then
     sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-intel.conf"
     sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-vmware.conf"
     sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-amdgpu.conf"
+    sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-nouveau.conf"
 elif [[ $AMD = 1 ]]; then
     sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-intel.conf"
     sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-vmware.conf"
+    sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-nouveau.conf"
 elif [[ $INTEL = 1 ]]; then
     sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-vmware.conf"
     sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-amdgpu.conf"
+    sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-nouveau.conf"
 elif [[ $VMWARE = 1 ]]; then
     sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-intel.conf"
     sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-amdgpu.conf"
+    sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-nouveau.conf"
+elif [[ $NVIDIA = 1 ]]; then
+    sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-intel.conf"
+    sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-amdgpu.conf"
 fi
-
 
 
 sudo rm -f /usr/bin/brew

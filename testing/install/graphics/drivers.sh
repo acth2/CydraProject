@@ -173,24 +173,24 @@ sudo mkdir -p /home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d
 sudo tar xf "/sources/xorg.tar" -C "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d"*
 sudo mkdir "/var/local/log"
 sudo touch "/var/local/log/Xorg.0.log"
-wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/install/graphics/xorg.conf.d/xorg.conf" -P "/etc/X11/"
-wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/install/graphics/xorg.conf.d/xorg.conf" -P "/home/linuxbrew/.linuxbrew/etc/X11/"
-wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/install/graphics/xorg.conf.d/40-vesa.conf" -P "/etc/X11/"
-wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/install/graphics/xorg.conf.d/40-vesa.conf" -P "/home/linuxbrew/.linuxbrew/etc/X11/"
+sudo wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/install/graphics/xorg.conf.d/xorg.conf" -P "/etc/X11/"
+sudo wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/install/graphics/xorg.conf.d/xorg.conf" -P "/home/linuxbrew/.linuxbrew/etc/X11/"
+sudo wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/install/graphics/xorg.conf.d/40-vesa.conf" -P "/etc/X11/"
+sudo wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/install/graphics/xorg.conf.d/40-vesa.conf" -P "/home/linuxbrew/.linuxbrew/etc/X11/"
 
 if [[ $VBOX = 1 ]]; then
-    rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-intel.conf"
-    rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-vmware.conf"
-    rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-amdgpu.conf"
+    sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-intel.conf"
+    sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-vmware.conf"
+    sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-amdgpu.conf"
 elif [[ $AMD = 1 ]]; then
-    rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-intel.conf"
-    rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-vmware.conf"
+    sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-intel.conf"
+    sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-vmware.conf"
 elif [[ $INTEL = 1 ]]; then
-    rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-vmware.conf"
-    rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-amdgpu.conf"
+    sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-vmware.conf"
+    sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-amdgpu.conf"
 elif [[ $VMWARE = 1 ]]; then
-    rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-intel.conf"
-    rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-amdgpu.conf"
+    sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-intel.conf"
+    sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-amdgpu.conf"
 fi
 
 

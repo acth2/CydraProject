@@ -166,7 +166,6 @@ sudo wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/ins
 
 sudo rm -rf /etc/X11
 sudo mkdir -p /etc/X11/xorg.conf.d
-sudo tar xf "/sources/xorg.tar" -C "/etc/X11/xorg.conf.d"
 
 sudo rm -rf /home/linuxbrew/.linuxbrew/etc/X11
 sudo mkdir -p /home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d
@@ -176,7 +175,6 @@ sudo touch "/var/local/log/Xorg.0.log"
 sudo wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/install/graphics/xorg.conf.d/xorg.conf" -P "/etc/X11/"
 sudo wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/install/graphics/xorg.conf.d/xorg.conf" -P "/home/linuxbrew/.linuxbrew/etc/X11/"
 
-sudo wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/install/graphics/xorg.conf.d/40-vesa.conf" -P "/etc/X11/xorg.conf.d"
 sudo wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/install/graphics/xorg.conf.d/40-vesa.conf" -P "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d"
 
 if [[ $VBOX = 1 ]]; then

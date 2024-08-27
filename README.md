@@ -27,8 +27,6 @@
 
 <p>3. Installez l'ISO et démarrez dessus.</p>
 
-<p>4. Prenez en compte que l'OS est en mode live uniquement et que la version normale arrive !</p>
-
 <h2>🍰 Contributions:</h2>
 
 <p>AinTea - L'installeur de la version lite : https://github.com/AinTEAsports</p>

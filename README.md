@@ -15,7 +15,6 @@
 <h2>🧐 Pourquoi nous?</h2>
 
 
-*   Cydramanager
 *   Freelance
 *   Indépendant
 *   Bon délire

@@ -1,4 +1,5 @@
 #!/bin/bash
+trap 2
 
 export PKG_CONFIG_PATH="/usr/lib/pkgconfig"
 export CFLAGS="-I/home/linuxbrew/.linuxbrew/include $CFLAGS"
@@ -6,6 +7,14 @@ export CFLAGS="-I/home/linuxbrew/.linuxbrew/include $CFLAGS"
 XORG_PREFIX="/home/linuxbrew/.linuxbrew"
 XORG_CONFIG="--prefix=$XORG_PREFIX --sysconfdir=/home/linuxbrew/.linuxbrew/etc --localstatedir=/home/linuxbrew/.linuxbrew/var"
 
+AMD=0
+INTEL=0
+NVIDIA=0
+VMWARE=0
+VBOX=0
+
+sudo chmod +rwx /usr/bin/brew
+chmod +rwx /usr/bin/brew
 /usr/bin/brew
 /home/linuxbrew/.linuxbrew/bin/brew install xorg-server
 /home/linuxbrew/.linuxbrew/bin/brew install xcb-util
@@ -31,13 +40,13 @@ install_from_source() {
 
     cd ..
     rm -rf $archive_name $dir_name
+    read -p 'Did you just called me a nerd, geek?' nerd
 }
 
 install_from_source "https://bitmath.org/code/mtdev/mtdev-1.1.6.tar.bz2" "
     ./configure --prefix=/usr --disable-static &&
     make &&
     sudo make install
-    read -p 'Did you just called me a nerd, geek?' nerd
 "
 
 export CFLAGS=""
@@ -94,6 +103,7 @@ echo "Detected GPU Vendor: $GPU_VENDOR"
 sleep 2
 case $GPU_VENDOR in
     AMD)
+        AMD=1
         install_from_source "https://www.x.org/pub/individual/driver/xf86-video-ati-19.1.0.tar.bz2" "
             patch -Np1 -i xf86-video-ati-19.1.0-upstream_fixes-1.patch &&
             ./configure $XORG_CONFIG &&
@@ -102,6 +112,7 @@ case $GPU_VENDOR in
         "
         ;;
     NVIDIA)
+        NVIDIA=1
         install_from_source "https://www.x.org/pub/individual/driver/xf86-video-nouveau-1.0.17.tar.bz2" "
             grep -rl slave | xargs sed -i s/slave/secondary/ &&
             ./configure $XORG_CONFIG &&
@@ -110,6 +121,7 @@ case $GPU_VENDOR in
         "
         ;;
     Intel)
+        INTEL=1
         install_from_source "https://anduin.linuxfromscratch.org/BLFS/xf86-video-intel/xf86-video-intel-20210222.tar.xz" "
             ./autogen.sh $XORG_CONFIG --enable-kms-only --enable-uxa --mandir=/usr/share/man &&
             make &&
@@ -119,39 +131,74 @@ case $GPU_VENDOR in
         "
         ;;
     VMware)
+        VMWARE=1
         install_from_source "https://www.x.org/pub/individual/driver/xf86-video-vmware-13.3.0.tar.bz2" "
             sed -i 's/>yuv.i/>yuv[j][i/' vmwgfx/vmwgfx_tex_video.c &&
             ./configure $XORG_CONFIG &&
             make &&
             sudo make install
         "
+        
+        install_from_source "http://xorg.freedesktop.org/archive/individual/driver/xf86-video-vmware-13.0.2.tar.bz2" "
+            ./configure $XORG_CONFIG &&
+            make &&
+            sudo make install
+        "
         ;;
     VirtualBox)
-        wget "https://download.virtualbox.org/virtualbox/7.0.10/VBoxGuestAdditions_7.0.10.iso"
-        mkdir vbox
-        sudo mount -o loop VBoxGuestAdditions_7.0.10.iso vbox/
-        cd vbox
-        brew install gnu-which
-        cd /home/linuxbrew/.linuxbrew/Cellar/gnu-which/
-        ln /home/linuxbrew/.linuxbrew/Cellar/gnu-which/$(find . -type d -maxdepth 1 ! -path . | head -n 1)/bin/which /usr/bin/which
-        sudo ./VBoxLinuxAdditions.run
+        VBOX=1
         ;;
     *)
-        echo "Unknown or unsupported GPU vendor. Please install the drivers manually. (The supported drivers are VMware, Intel, NVIDIA, AMD)"
+        echo "Unknown or unsupported GPU vendor. Please install the drivers manually. (The supported drivers are VMware, Intel, NVIDIA, AMD, VirtualBox)"
         sleep 5
         exit 1
         ;;
 esac
 
-wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/install/graphics/xorg.conf.d/xorg.zip"
+install_from_source "http://xorg.freedesktop.org/archive/individual/driver/xf86-video-vesa-2.3.3.tar.bz2" "
+        ./configure $XORG_CONFIG &&
+        make &&
+        sudo make install
+    "
+
+cd /sources
+sudo wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/install/graphics/xorg.conf.d/xorg.tar"
 
 sudo rm -rf /etc/X11
 sudo mkdir -p /etc/X11/xorg.conf.d
-sudo "/home/linuxbrew/.linuxbrew/bin/unzip" "xorg.zip" -d "/etc/X11/xorg.conf.d"
 
 sudo rm -rf /home/linuxbrew/.linuxbrew/etc/X11
 sudo mkdir -p /home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d
-sudo "/home/linuxbrew/.linuxbrew/bin/unzip" "xorg.zip" -d "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d"
+sudo tar xf "/sources/xorg.tar" -C "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d"*
+sudo mkdir "/var/local/log"
+sudo touch "/var/local/log/Xorg.0.log"
+sudo wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/install/graphics/xorg.conf.d/xorg.conf" -P "/etc/X11/"
+sudo wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/install/graphics/xorg.conf.d/xorg.conf" -P "/home/linuxbrew/.linuxbrew/etc/X11/"
 
+sudo wget "https://raw.githubusercontent.com/acth2/CydraProject/main/testing/install/graphics/xorg.conf.d/40-vesa.conf" -P "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d"
+
+if [[ $VBOX = 1 ]]; then
+    sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-intel.conf"
+    sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-vmware.conf"
+    sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-amdgpu.conf"
+    sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-nouveau.conf"
+elif [[ $AMD = 1 ]]; then
+    sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-intel.conf"
+    sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-vmware.conf"
+    sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-nouveau.conf"
+elif [[ $INTEL = 1 ]]; then
+    sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-vmware.conf"
+    sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-amdgpu.conf"
+    sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-nouveau.conf"
+elif [[ $VMWARE = 1 ]]; then
+    sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-intel.conf"
+    sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-amdgpu.conf"
+    sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-nouveau.conf"
+elif [[ $NVIDIA = 1 ]]; then
+    sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-intel.conf"
+    sudo rm -f "/home/linuxbrew/.linuxbrew/etc/X11/xorg.conf.d/20-amdgpu.conf"
+fi
+
+
+sudo rm -f /usr/bin/brew
 read -p "Nerd debug (xorg conf)"
-sudo reboot

@@ -15,7 +15,6 @@
 <h2>🧐 Pourquoi nous?</h2>
 
 
-*   Cydramanager
 *   Freelance
 *   Indépendant
 *   Bon délire
@@ -27,8 +26,6 @@
 <p>2. Installez VirtualBox/VMware. Créez une machine virtuelle (2Go RAM - 20Go Stockage)</p>
 
 <p>3. Installez l'ISO et démarrez dessus.</p>
-
-<p>4. Prenez en compte que l'OS est en mode live uniquement et que la version normale arrive !</p>
 
 <h2>🍰 Contributions:</h2>
 

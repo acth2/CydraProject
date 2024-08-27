@@ -1,11 +1,9 @@
 <p>Main cydraproject mirror: http://acth2mainserver.ddns.net:8008/files/cydra/</p>
-Outils:
+<p>Outils:</p>
 
-CydraProject
-
-Installer : Installation de cydralite
-Merci a AinTEA pour sa contribution [https://github.com/AinTEAsports]
-CydraLite est achevée.
+<p>CydraLite installer</p>
+<p>Merci a AinTEA pour sa contribution [https://github.com/AinTEAsports]</p>
+<p>CydraLite est achevée.</p>
 
 paquets en compilations:
 

@@ -569,7 +569,6 @@ if [ $? -eq 0 ]; then
     /home/linuxbrew/.linuxbrew/bin/brew install acl
     /home/linuxbrew/.linuxbrew/bin/brew install libcap
     /home/linuxbrew/.linuxbrew/bin/brew install libxcrypt
-    /home/linuxbrew/.linuxbrew/bin/brew install shadow
     /home/linuxbrew/.linuxbrew/bin/brew install psmisc
     /home/linuxbrew/.linuxbrew/bin/brew install gdbm
     /home/linuxbrew/.linuxbrew/bin/brew install gperf

@@ -12,7 +12,8 @@
 
 <img src="https://raw.githubusercontent.com/acth2/acth2.github.io/main/UEFIvsBIOS.PNG" alt="project-screenshot" width="1920" height="550/">
 <img src="https://raw.githubusercontent.com/acth2/CydraProject/refs/heads/main/imgs/AcTh2Windowmanager_demonstration.png" alt="project-screenshot" width="462" height="300/">
-  
+<img src="https://raw.githubusercontent.com/acth2/CydraProject/refs/heads/main/imgs/A2WMCS.png.png" alt="project-screenshot" width="325" height="269/">
+
 <h2>🧐 Pourquoi nous?</h2>
 
 

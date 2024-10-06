@@ -17,6 +17,7 @@ make
 sudo make install
 cd ../../
 rm -rf *
+sleep 5
 
 wget https://github.com/lxqt/qtermwidget/releases/download/1.3.0/qtermwidget-1.3.0.tar.xz
 tar xf qtermwidget-1.3.0.tar.xz
@@ -32,6 +33,7 @@ make
 sudo make install
 cd ../../
 rm -rf *
+sleep 5
 
 wget https://github.com/lxqt/qterminal/releases/download/1.3.0/qterminal-1.3.0.tar.xz
 tar xf qterminal-1.3.0.tar.xz

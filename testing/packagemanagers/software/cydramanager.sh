@@ -153,7 +153,6 @@ case "$1" in
         cydraos_help
         ;;
     *)
-        echo -e "${RED}Error: Unknown command '$1'${NC}"
-        cydraos_help
+        echo -e "${RED}Error: Unknown command '$1'\nhelp: cydramanager help${NC}"
         ;;
 esac

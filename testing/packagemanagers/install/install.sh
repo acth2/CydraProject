@@ -7,6 +7,7 @@ NC='\033[0m'
 
 function start_operation {
     cp -r pm/cydramanager /usr/bin/cydramanager
+    chmod +x /usr/bin/cydramanager
     echo -e "${GREEN}done.${NC}"
 }
 

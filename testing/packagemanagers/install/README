@@ -1,22 +1,2 @@
-Gestionnaire de packet cydramanager V1.952 BETA (Shellcheck best friend forever :D)
-
-lancez le gestionnaire de packet avec la commande 
-
-sudo ./install.sh --install
-pour lancé la commande sans shc utilisez l'argument --without-encrypt-pm
-
-pour supprimé le gestionnaire de packet de votre systeme (ainsi que les fichiers de configurations) éxécutés
-
-sudo ./remove.sh
-
-COMPATIBILITÉ:
-
-Ubuntu:         [NO]
-Manjaro:        [--WITHOUT-ENCRYPT-PM ONLY]
-ArchLinux       [NT]
-Debian          [NT]
-CydraOS:        [OK]
-
-Installez le gestionnaire de paquets en une seul ligne! :
-
-wget https://raw.githubusercontent.com/acth2/CydraProject/main/testing/packagemanagers/install/cydramanager.tar && tar xf cydramanager.tar && cd cydramanager && ./install.sh --install --without-encrypt-pm
+sudo ./install.sh to install
+to remove you can just do  'cydramanager uninstall cydramanager'...

@@ -86,7 +86,7 @@ function uninstall_package() {
 }
 
 function cydraos_help() {
-    echo "CydraOS Package Manager Manager"
+    echo "CydraOS Package Manager"
     echo "Usage: $0 [command] <options>"
     echo ""
     echo "Commands:"
@@ -100,6 +100,11 @@ function cydraos_help() {
     echo "  $0 install curl               # Installs 'curl' preferring Homebrew, then Nix if not found"
     echo "  $0 install wget nix           # Installs 'wget' using Nix only"
     echo "  $0 uninstall curl             # Uninstalls 'curl' from the installed manager"
+    echo ""
+    echo "More:"
+    echo "  # Cydramanager will always try to install with Homebrew first"
+    echo "  # Cydramanager needs to be used with both Homebrew AND Nix"
+    echo "  # Cydramanager code is completly open you can modify it!"
 }
 
 case "$1" in

@@ -61,6 +61,16 @@ function uninstall_package() {
     manager=${2:-"auto"}
     error_occurred=false
 
+    if [[ "$package" == "cydramanager" ]]; then
+        echo -e "${CYAN}Removing CydraManager script...${NC}"
+        if rm -f /usr/bin/cydramanager; then
+            echo -e "${GREEN}Operation completed.${NC}"
+        else
+            echo -e "${RED}Failed to remove Cydramanager. Check permissions.${NC}"
+        fi
+        return
+    fi
+
     if [[ "$manager" == "brew" ]]; then
         echo -e "${CYAN}Attempting to uninstall $package with Homebrew...${NC}"
         if ! brew uninstall "$package" >/dev/null 2>&1; then

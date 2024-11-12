@@ -54,7 +54,7 @@ function install_package() {
             nix-env -iA nixpkgs."$package" || echo -e "${RED}cydramanager error log: FROM Nix${NC}"
         fi
     fi
-    nix-collect-garbage -d
+    nix-collect-garbage -d 2> /dev/null
 }
 
 function uninstall_package() {
@@ -101,7 +101,7 @@ function uninstall_package() {
             echo -e "${RED}Error: $package is not installed with either manager.${NC}"
         fi
     fi
-    nix-collect-garbage -d
+    nix-collect-garbage -d 2> /dev/null
 }
 
 function cydraos_help() {

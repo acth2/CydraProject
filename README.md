@@ -12,7 +12,6 @@
 
 
 <p align="center"><img src="https://raw.githubusercontent.com/acth2/A2WM/main/.demonstration/demonstration1.png" alt="project-image"></p>
-<img src="https://raw.githubusercontent.com/acth2/CydraProject/refs/heads/main/imgs/comboiguess.png" alt="project-screenshot" width="1000" height="400/">
 
 <h2>🧐 Pourquoi nous?</h2>
 

@@ -1,4 +1,10 @@
+#!/bin/bash
 #Execute in the linux folder.
+
+# Preface
+rm -f .config
+make defconfig
+
 # General setup
 ./scripts/config --disable WERROR
 ./scripts/config --enable PSI
